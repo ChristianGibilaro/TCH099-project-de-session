@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="Styles\normalize.css">
+    <link rel="stylesheet" href="Styles\style.css">
+    <script type="module" src="Scripts\animationScript.js"></script>
+    <title>Demonstrateur</title>
+</head>
+
+<body>
+    <div id="menu">
+        <span id="menuToggle" onclick="toggleMenu()"> <div id="menuArrow">》</div></span>
+    </div>
+    <main>
+        <header>
+
+        </header>
+        <div class="scrollable">
+           
+        </div>
+
+    </main>
+    <footer>
+        
+    </footer>
+</body>
+
+</html>
+<script>
+    let isMenuOpen = false;
+
+    function toggleMenu() {
+        if(!isMenuOpen)
+    {
+        isMenuOpen = true;
+        menu = document.getElementById("menu");
+        menu.style.width = "15%";
+        document.getElementById("menuArrow").textContent ="《";
+    }else{
+        isMenuOpen = false;
+        menu = document.getElementById("menu");
+        menu.style.width = "5%";
+        document.getElementById("menuArrow").textContent = "》";
+    }
+    
+  }
+</script>
