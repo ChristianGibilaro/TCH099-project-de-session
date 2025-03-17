@@ -1,0 +1,96 @@
+/*______________________________ style de header et footer ______________________________ */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: Arial, sans-serif;
+    font-size: 90%;
+  }
+  body {
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+}
+main{
+    flex: 1;
+    overflow-y: scroll;
+    
+}
+header,footer{
+    flex-shrink: 0;
+    z-index: 999;
+    padding: 1rem;
+}
+#page_logo {
+    position: fixed;
+    height: 15%;
+    top: 0;
+    left: 0;
+}
+#return_home {
+    position: fixed;
+    top: 3%;
+    right: 3%;
+    height: 8%;
+    background-color:transparent;
+}
+
+.small_btn {
+    width: 20px;
+    height: 20px;
+    background-color:transparent;
+}
+.ref {
+    font-size: 11px;
+}
+
+.acceuil table,
+.acceuil th,
+.acceuil td {
+    font-size: 1em;
+}
+
+header h1 {
+    position: absolute;
+    font-size: 4vw;
+    left: 50%;
+    right: 50%;
+    margin-left: -30%;
+    margin-right: -30%;
+    top: 400px;
+    margin-top: 1vw;
+    top: 0;
+    text-align: center;
+    font: bold;
+    color: white;
+    text-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;
+}
+header{
+    background: rgb(9,21,63,255);
+    height: 12vh;
+    box-shadow: black -5px 5px 15px;
+}
+
+a {
+    text-decoration: none;
+}
+/*______________________________ Footer Adjustements ______________________________ */
+footer{
+    background-color: rgb(189,25,25,255);
+    height: 7vh;
+    padding:  20px;
+    font-size: 1vw;
+}
+footer table{
+   width: 100%;
+   border-collapse:  collapse;
+   margin: 0;
+   padding:  2%;
+}
+footer td{
+    text-align: center;
+    vertical-align: middle;
+    width: calc(100% /3);
+    padding: 4px;
+}

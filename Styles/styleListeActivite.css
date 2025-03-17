@@ -1,0 +1,228 @@
+/*______________________________ style global ______________________________ */
+
+button{
+    color: #333;
+    font-weight: bold;
+    border: 2px solid #333;
+    border-radius: 8px;
+    box-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;
+}
+
+ul{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+/*______________________________ barre de filtrage ______________________________ */
+
+.filtre{
+    background-image: linear-gradient(to top, rgba(255,0,0,0), rgb(9,21,63,255),rgb(9,21,63,255));
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    top: 14%;
+    padding-bottom: 30px;
+    padding-top: 20px;
+}
+
+#critere{
+    color: white;
+    text-shadow: 2px 2px 4px red, 0 0 1em black, 0 0 0.2em blue;
+    font-size: 18px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+
+#critere select {
+    width: 5vw;
+    z-index: 40;
+    box-sizing: border-box;
+    margin-left: 5px;
+    margin-right: 10px;
+}
+
+/* filtre duree de l'activite */
+#length{
+    width:70px
+}
+
+#critere button{
+    font-size: 14px;
+    width: 7vw;
+    margin-left: 5px;
+    margin-right: 10px;
+}
+
+#critere select, #critere time,#critere number{
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    border: 2px solid #333;
+    border-radius: 8px;
+    width: 80px;
+    margin-left: 5px;
+    margin-right: 10px;
+    box-shadow: 1px 1px 2px red, 0 0 1em black, 0 0 0.2em black;
+}
+
+/*______________________________ liste des activites ______________________________ */
+.contenu {
+    top: 20%;
+    width: 100%;
+}
+
+.liste{
+    padding: 0;
+    top:20%;
+    width: 100%;
+}
+
+.list-activite{
+    width: 100%;
+}
+
+.list-activite td{
+    position:relative;
+    width: 100%;
+    height: 500px;
+    background-color: #000000;
+    display: grid;
+    align-items:start;
+}
+
+.list-activite td:hover{
+    animation: shadow-pulse 1s infinite;
+    z-index: 2;
+}
+
+/*______________________________ activite ______________________________ */
+.activite{
+    color: black;
+    font-size: 15px;
+    text-align: left;
+    width: 100%;
+    height: 450px;
+    vertical-align: top
+}
+
+.activite .image, .activite .desc{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    color: white;
+    text-shadow: 2px 2px 4px red, 0 0 1em #000000, 0 0 0.2em blue;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+.activite .desc{
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0),rgba(0, 0, 0, 0.7),rgba(1, 1, 1, 1),rgba(0, 0, 0, 0.7),rgba(0, 0, 0, 0));
+    z-index: 5;
+}
+
+.activite .desc h1{
+    font-size: 70px;
+    top:10%;
+}
+
+.activite .desc ul{
+    font-size: 30px;
+    top:10%;
+}
+
+.activite button{
+    font-size: 16px;
+    width: 300px;
+    
+}
+
+.activite .image{
+    display: inline-block;
+    overflow: hidden;
+}
+
+.activite img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover; object-position: 0 30%;
+    z-index: 4;
+    animation-name: dezoom-img;
+    animation-duration:0.5s;
+}
+
+.activite:hover img{
+    animation-name: zoom-img;
+    animation-duration:0.5s;
+    animation-fill-mode: forwards;
+}
+
+/*______________________________ Bouton ajouter activite ______________________________ */
+#ajoutActivite{
+    display:inline-block;
+    text-align: center;
+    width : 100%;
+    background-image: linear-gradient(to bottom, rgba(255,0,0,0), rgb(9,21,63,255),rgb(9,21,63,255));
+    box-shadow: black -5px 5px 15px;
+    padding : 10px 0 10px 0;
+}
+
+#ajoutActivite button{
+    font-size: 16px;
+    width: 400px;
+    height: 40px;
+    }
+
+/*______________________________ footer______________________________ */
+#filtrer {
+    height: 25px;
+}
+button{
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    z-index: 50;
+}
+button:hover {
+    color: #000;
+    /* Darker text for emphasis */
+    box-shadow: 1px 1px 2px blue, 0 0 1em red, 0 0 0.2em blue;
+    /* Enhanced shadow on hover */
+}
+
+/*______________________________ ANIMATIONS ____________________________________*/
+@keyframes shadow-pulse{
+    0%{
+        box-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;
+    }
+    50%{
+        box-shadow: 1px 1px 2px blue, 0 0 1em red, 0 0 0.2em blue;
+    }
+    100%{
+        box-shadow: 1px 1px 2px red, 0 0 1em blue, 0 0 0.2em blue;
+    }
+}
+
+
+@keyframes zoom-img{
+    0%{
+        transform: scale(1)
+    }
+    100%{
+        transform: scale(1.1)
+    }
+}
+
+@keyframes dezoom-img{
+    0%{
+        transform: scale(1.1)
+    }
+    100%{
+        transform: scale(1)
+    }
+}
