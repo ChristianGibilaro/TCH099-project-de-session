@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Lab1</string>
+    <string name="play_button_desc" />
+    <string name="football_desc_3">\n</string>
+    <string name="football_desc_2">\n</string>
+    <string name="football_desc_1" />
+    <string name="terrain_desc" />
+    <string name="profile_picture_desc" />
+    <string name="logout_icon_desc" />
+    <string name="messages_icon_desc" />
 </resources>

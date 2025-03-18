@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:ignore="ExtraText">
+
+    <!-- Header and Profile Info -->
+    <LinearLayout
+        android:id="@+id/AllExceptScore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <!-- Left Column: Username & Profile Image -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvUsernameValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="User123"
+                android:textSize="16sp" />
+
+            <ImageView
+                android:id="@+id/imgProfile"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="@drawable/circle_image_bg"
+                android:clipToOutline="true"
+                android:contentDescription="@string/profile_picture_desc"
+                android:scaleType="centerCrop"
+                android:src="@drawable/profile_placeholder" />
+        </LinearLayout>
+
+        <!-- Right Column: Statistics and Description -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <!-- Row for Friends and Participation -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Friends Block -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvFriendsLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Friends"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvFriendsValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="120"
+                        android:textSize="16sp" />
+                </LinearLayout>
+
+                <!-- Participation Block -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvParticipationLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Participation"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvParticipationValue"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="439"
+                        android:textSize="16sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Description Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvDescriptionValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="76dp"
+                    android:layout_marginTop="4dp"
+                    android:text="This is a sample description for the user profile."
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Score Area (RatingBar) -->
+    <LinearLayout
+        android:id="@+id/Score"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <RatingBar
+            android:id="@+id/ratingBar"
+            android:layout_width="wrap_content"
+            android:layout_height="46dp"
+            android:isIndicator="true"
+            android:minWidth="150dp"
+            android:numStars="5"
+            android:rating="4"
+            android:scaleX="0.35"
+            android:scaleY="0.35"
+            android:stepSize="1"
+            android:translationX="-70dp" />
+    </LinearLayout>
+
+    <!-- Photo Grid Section (RecyclerView) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/photoGrid"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical" />
+
+    <!-- Fixed Bottom Bar -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#80808080"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <!-- Logout Icon -->
+        <ImageButton
+            android:id="@+id/btnLogout"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginEnd="32dp"
+            android:background="#80808080"
+            android:contentDescription="@string/logout_icon_desc"
+            android:src="@drawable/logout" />
+
+        <!-- Messages Icon -->
+        <ImageButton
+            android:id="@+id/btnMessages"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="#80808080"
+            android:contentDescription="@string/messages_icon_desc"
+            android:src="@drawable/message" />
+    </LinearLayout>
+
+    </LinearLayout>
