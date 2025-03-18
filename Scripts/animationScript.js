@@ -1,7 +1,1 @@
-function openMenu() {
-    document.getElementById("menu").style.width = "15%";
-  }
-  
-  function closeMenu() {
-    document.getElementById("menu").style.width = "5%";
-  }
+//Faudra mettre le script d'animation ici apres, pour l'instant il sont dans le hmtl

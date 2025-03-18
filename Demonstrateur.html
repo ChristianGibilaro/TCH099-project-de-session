@@ -11,6 +11,37 @@
 
 <body>
     <div id="menu">
+        <table id="options">
+            <thead>
+              <tr>
+                <th><img src="ressources/site_logo_example.webp" height="150px" width="150px"></th>
+                <th id="siteName"></th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr>
+                <td><img src="ressources/team_level_example.webp" height="100px" width="100px"></td>
+                <td id="option1" class="link"></td>
+              </tr>
+
+              <tr>
+                <td><img src="ressources/Teamate_example.webp" height="100px" width="100px"></td>
+                <td id="option2" class="link"></td>
+              </tr>
+
+              <tr>
+                <td><img src="ressources/friends_example.png" height="100px" width="100px"></td>
+                <td id="option3" class="link"></td>
+              </tr>
+
+            </tbody>
+            <tfoot>
+              <tr>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
         <span id="menuToggle" onclick="toggleMenu()"> <div id="menuArrow">》</div></span>
     </div>
     <main>
@@ -30,6 +61,8 @@
 </html>
 <script>
     let isMenuOpen = false;
+    let siteName = "Find A Team"
+    let options = ["Activities", "Classified Teams","Miscellaneous Teams"];
 
     function toggleMenu() {
         if(!isMenuOpen)
@@ -37,12 +70,20 @@
         isMenuOpen = true;
         menu = document.getElementById("menu");
         menu.style.width = "15%";
-        document.getElementById("menuArrow").textContent ="《";
+        document.getElementById("menuArrow").textContent ="《 ";
+        document.getElementById("siteName").textContent = siteName;
+        document.getElementById("option1").textContent = options[0];
+        document.getElementById("option2").textContent = options[1];
+        document.getElementById("option3").textContent = options[2];
     }else{
         isMenuOpen = false;
         menu = document.getElementById("menu");
         menu.style.width = "5%";
-        document.getElementById("menuArrow").textContent = "》";
+        document.getElementById("menuArrow").textContent = " 》";
+        document.getElementById("siteName").textContent = "";
+        document.getElementById("option1").textContent = "";
+        document.getElementById("option2").textContent = "";
+        document.getElementById("option3").textContent = "";
     }
     
   }
