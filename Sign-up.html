@@ -1,0 +1,48 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script> <!----Recaptcha version 2-->
+    <title>Document</title>
+</head>
+<body>
+    <form method="POST" enctype="multipart/form-data">
+        <fieldset>
+            <legend>Enregistrement nouveau compte</legend>
+            <label for="pseudonym">Pseudonym:*</label>
+            <input type="text" id="pseudonym" name="pseudonym" placeholder="Choisissez un pseudonym" required><br><br>
+
+            <label for="nom">Nom:*</label>
+            <input type="text" id="nom" name="nom" placeholder="Entrez votre nom" required><br><br>
+
+            <label for="prenom">Prenom:*</label>
+            <input type="text" id="prenom" name="prenom" placeholder="Entrez votre prenom" required><br><br>
+
+            <label for="email">Email:*</label>
+            <input type="email" id="email" name="email" placeholder="Entrez votre email" required><br><br>
+
+            <label for="passord">Mot de passe:*</label>
+            <input type="password" id="password" name="password" placeholder="Choisissez un mot de passe" required><br><br>
+
+            <label for="passord2">Resaisissez mdp:*</label>
+            <input type="password" id="password2" name="password2" placeholder="resaisissez le mot de passe" required><br><br>
+
+            <label for="image">Mot de passe:*</label>
+            <input type="file" id="image" name="image" placeholder="Choisissez une image" required><br><br>
+
+            <label for="description">Description:*</label><br>
+            <textarea id="description" name="description" placeholder="Decrivez-vous en moins de 100 mots..." required></textarea><br><br>
+
+            <label for="age">Age(date de naissance):</label>
+            <input type="date" id="age" name="age" placeholder="Entrez date de naissance"><br><br>
+
+            <input type="checkbox" id="agreement" name="agreement" placeholder="resaisissez le mot de passe"  required> J"ai lu les reglements du site et j'accepte de m'y adherer</input><br><br>
+
+            <div class="g-recaptcha" data-sitekey="6LdlOu4qAAAAAIoOaJZ0PVGWh4id0BKAhV26JvFy"></div><br><!--Recaptcha version 2-->
+
+            <input type="submit" value="M'inscrire">
+        </fieldset>
+    </form>
+    
+</body>
+</html>
