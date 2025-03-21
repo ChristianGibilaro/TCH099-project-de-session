@@ -3,73 +3,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/x-icon" href="./ressources/favicon.ico">
-        <link rel="stylesheet" type="text/css" href="Styles/Activity.css">
-        <link rel="stylesheet" type="text/css" href="Styles/Sign-up.css">
-        <link rel="stylesheet" type="text/css" href="normalize.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Vast+Shadow&display=swap" rel="stylesheet">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Rubik+Doodle+Shadow&family=Vast+Shadow&display=swap" rel="stylesheet">
-        <script src="data.js" defer></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="Styles/Activity.css">
+    <link rel="stylesheet" type="text/css" href="Styles/Sign-up.css">
+    <link rel="stylesheet" type="text/css" href="normalize.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vast+Shadow&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik+Doodle+Shadow&family=Vast+Shadow&display=swap" rel="stylesheet">
+    <script src="data.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://www.google.com/recaptcha/api.js" async defer></script> <!----Recaptcha version 2-->
     <title>Nouveau compte</title>
 </head>
 <body>
+    <!--Bare de navigation vertical positionnee a gauche de l'ecran-->
     <nav class="side_bar_nav_gauche">
         <h1><img src="ressources/home.png" alt="img_profile"> hello</h1>
         <img src="ressources/home2.png" alt="img_profile">
         <ul>
-            <li><img src="ressources/Teamate_example.webp" alt="img_profile"></li>
-            <li><img src="ressources/Teamate_example.webp" alt="img_profile"></li>
-            <li><img src="ressources/friends_example.png" alt="img_profile"></li>
-            <li><img class="teams_dispo_img"src="ressources/user_profile_image_example.png" alt="img_profile"></li>
+            <li><a href=""><img src="ressources/Teamate_example.webp" alt="img_profile"></a></li>
+            <li><a href=""><img src="ressources/Teamate_example.webp" alt="img_profile"></a></li>
+            <li><a href=""><img src="ressources/friends_example.png" alt="img_profile"></a></li>
+            <li><a href=""><img class="teams_dispo_img"src="ressources/user_profile_image_example.png" alt="img_profile"></a></li>
         </ul>
     </nav>
 
+    <!--Le corps du site incluant la banniere et le footer-->
     <div id="corps">
+
+        <!--Section pour la banniere-->
         <header class="header">
             <img src="ressources/activity_logo_example.png" alt="logo"  id="logo">
         </header>
-        <!--Section pour msg generaux et statistiques-->
+
+        <!--Section contenant le formulaire d'inscription d'un nouveau utilisateur/compte-->
         <section id="signup">
-            <form method="POST" enctype="multipart/form-data">
+            <form id="formulaire_nouveau_compte" method="POST" enctype="multipart/form-data">
                 <fieldset>
                     <legend>Enregistrement nouveau compte</legend>
-                    <label for="pseudonym">Pseudonym:*</label>
-                    <input type="text" id="pseudonym" name="pseudonym" placeholder="Choisissez un pseudonym" required><br><br>
-        
-                    <label for="nom">Nom:*</label>
-                    <input type="text" id="nom" name="nom" placeholder="Entrez votre nom" required><br><br>
-        
-                    <label for="prenom">Prenom:*</label>
-                    <input type="text" id="prenom" name="prenom" placeholder="Entrez votre prenom" required><br><br>
-        
-                    <label for="email">Email:*</label>
-                    <input type="email" id="email" name="email" placeholder="Entrez votre email" required><br><br>
-        
-                    <label for="passord">Mot de passe:*</label>
-                    <input type="password" id="password" name="password" placeholder="Choisissez un mot de passe" required><br><br>
-        
-                    <label for="passord2">Resaisissez mdp:*</label>
-                    <input type="password" id="password2" name="password2" placeholder="resaisissez le mot de passe" required><br><br>
-        
-                    <label for="image">Image de profile:*</label>
-                    <input type="file" id="image" name="image" placeholder="Choisissez une image" required><br><br>
-        
-                    <label for="description">Description:*</label><br>
-                    <textarea id="description" name="description" placeholder="Decrivez-vous en moins de 100 mots..." required></textarea><br><br>
-        
-                    <label for="age">Age(date de naissance):</label>
-                    <input type="date" id="age" name="age" placeholder="Entrez date de naissance"><br><br>
-        
-                    <input type="checkbox" id="agreement" name="agreement" placeholder="resaisissez le mot de passe"  required> J"ai lu les reglements du site et j'accepte de m'y adherer</input><br><br>
-        
-                    <div class="g-recaptcha" data-sitekey="6LdlOu4qAAAAAIoOaJZ0PVGWh4id0BKAhV26JvFy"></div><br><!--Recaptcha version 2-->
-        
-                    <input type="submit" value="M'inscrire">
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="pseudonym">Pseudonym:*</label>
+                        <input type="text" id="pseudonym" name="pseudonym" placeholder="Choisissez un pseudonym" required>
+                    </section>
+    
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="nom">Nom:*</label>
+                        <input type="text" id="nom" name="nom" placeholder="Entrez votre nom" required>
+                    </section>
+
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="prenom">Prenom:*</label>
+                    <input type="text" id="prenom" name="prenom" placeholder="Entrez votre prenom" required>
+                    </section>
+
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="email">Email:*</label>
+                        <input type="email" id="email" name="email" placeholder="Entrez votre email" required>
+                    </section>
+
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="passord">Mot de passe:*</label>
+                        <input type="password" id="password" name="password" placeholder="Choisissez un mot de passe" required>
+                    </section>
+
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="passord2">Resaisissez mdp:*</label>
+                        <input type="password" id="password2" name="password2" placeholder="resaisissez le mot de passe" required>
+                    </section>
+
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="image">Image de profile:</label>
+                        <input type="file" id="image" name="image" placeholder="Choisissez une image">
+                    </section>
+
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="description">Description:*</label><br>
+                        <textarea id="description" name="description" placeholder="Decrivez-vous en moins de 100 mots..." required></textarea>
+                    </section>
+
+                    <section class="champs_formulaire_nouveau_compte">
+                        <label for="age">date de naissance:*</label>
+                        <input type="date" id="age" name="age" placeholder="Entrez date de naissance">
+                    </section>
+
+                    <section class="champs_formulaire_captcha_agreement_submit">
+                        <article>
+                            <div>
+                                <input type="checkbox" id="agreement" name="agreement" required>
+                                <label id="agree_label"for="agreement">J'ai lu les <a href="">reglements</a> du site et j'accepte de m'y adherer</label>
+                            </div>
+                            <input type="submit" value="M'inscrire">
+                        </article>
+
+                        <article>
+                            <div class="g-recaptcha" data-sitekey="6LdlOu4qAAAAAIoOaJZ0PVGWh4id0BKAhV26JvFy"></div><!--Recaptcha version 2-->
+                        </article>
+                    </section>
                     <h5>Vous avez deja un compte? <a href="Sign-in.html">Connectez-vous!</a></h5>
                 </fieldset>
             </form>
