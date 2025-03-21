@@ -19,6 +19,7 @@ form fieldset{
     border-radius: 20%;
     background: #070808;
 }
+
 #formulaire_nouveau_compte input[type="text"], #formulaire_nouveau_compte input[type="password"],
 #formulaire_nouveau_compte input[type="email"], #formulaire_nouveau_compte input[type="file"], 
 #formulaire_nouveau_compte input[type="date"], textarea{

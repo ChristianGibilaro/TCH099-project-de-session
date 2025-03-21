@@ -1,0 +1,76 @@
+*{
+    /*margin: 0;
+    padding: 0;*/
+    box-sizing: border-box;
+}
+.header{
+    display: flex;
+    align-items: end;
+    background-image: url("../ressources/activity_image_example.jpg");
+    height: 30vh;
+    width: 100%;
+    background-size:cover, contain;
+    background-repeat: no-repeat;
+    
+}
+
+/* CSS pour la bare de navigation globale verticale*/
+.side_bar_nav_gauche{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 10vw;
+    background-color: #333;
+    border-right: 4px solid orangered;
+    border-radius: 0 15px 15px 0;
+    color: #fff;
+    padding: 5px;
+    height: 100vh;
+    width: auto;
+}
+
+/*Style des listes non ordonnees de la bare de navigation*/
+.side_bar_nav_gauche ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+.side_bar_nav_gauche ul li{
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+/*Taille des image de la bar de navigation*/
+.side_bar_nav_gauche img{
+    height: 50px;
+    width: 50px;
+    margin: 2px;
+}
+
+#logo{
+    cursor: pointer;
+    height: 30%;
+    align-self: right;
+}
+
+/*Specifications globales pour le corps des page html*/
+body{
+    background-color: rgba(17, 12, 12, 0.918);
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+}
+
+/* CSS pour le footer global*/
+footer{
+    color: orangered;
+    background-color: dimgray;
+    width: 30vw;
+    border-top: 3px solid orangered;
+    border-left: 3px solid orangered;
+    border-right: 3px solid orangered;
+    border-radius: 8px 8px 0 0;
+    align-self: center;
+    text-align: center;
+}
