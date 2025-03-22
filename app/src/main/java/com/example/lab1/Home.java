@@ -30,7 +30,7 @@ public class Home extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 // Do any logout logic (clear session, etc.)
-                Intent intent = new Intent(Home.this, LoginActivity.class);
+                Intent intent = new Intent(Home.this, Login.class);
                 startActivity(intent);
                 finish();
             }

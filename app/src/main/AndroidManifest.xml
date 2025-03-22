@@ -21,7 +21,7 @@
 
         <!-- Activité de connexion lancée en premier -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".Login"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,10 +29,20 @@
             </intent-filter>
         </activity>
 
+        <!-- Activité Forgot -->
+        <activity
+            android:name=".Forgot"
+            android:exported="false" />
+
+        <!-- Activité Register -->
+        <activity
+            android:name=".Register"
+            android:exported="false" />
+
         <!-- Activité Home -->
         <activity
             android:name=".Home"
-            android:exported="true" />
+            android:exported="false" />
 
     </application>
 </manifest>

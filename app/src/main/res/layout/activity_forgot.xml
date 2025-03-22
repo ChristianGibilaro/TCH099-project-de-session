@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayoutForgot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#272226"
+    tools:context="com.example.lab1.Forgot">
+
+    <!-- Titre : Mot de passe oublié -->
+
+    <!-- Champ Email -->
+
+    <!-- Icône d’envoi -->
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="92dp"
+        android:layout_height="86dp"
+        app:srcCompat="@drawable/logo"
+        tools:layout_editor_absoluteX="-2dp"
+        tools:layout_editor_absoluteY="2dp" />
+
+    <TextView
+        android:id="@+id/tvForgotTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="224dp"
+        android:text="Mot de passe oublié"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/ivSendIcon"
+        android:layout_width="40dp"
+        android:layout_height="34dp"
+        android:layout_marginEnd="50dp"
+        android:clickable="true"
+        android:contentDescription="Envoyer la demande de réinitialisation"
+        android:focusable="true"
+        android:src="@drawable/send"
+        app:layout_constraintBottom_toBottomOf="@+id/etForgotEmail"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/etForgotEmail"
+        app:layout_constraintTop_toTopOf="@+id/etForgotEmail" />
+
+    <EditText
+        android:id="@+id/etForgotEmail"
+        android:layout_width="254dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="32dp"
+        android:layout_marginTop="28dp"
+        android:layout_marginRight="32dp"
+        android:hint="Votre adresse email"
+        android:inputType="textEmailAddress"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#AAAAAA"
+        app:layout_constraintHorizontal_bias="0.172"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvForgotTitle" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
