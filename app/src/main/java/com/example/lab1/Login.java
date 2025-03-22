@@ -25,8 +25,8 @@ public class Login extends AppCompatActivity {
             "          \"id\": 1,\n" +
             "          \"nom\": \"Admin\",\n" +
             "          \"prenom\": \"Admin\",\n" +
-            "          \"email\": \"admin@example.com\",\n" +
-            "          \"mdp\": \"admin\",\n" +
+            "          \"email\": \"1\",\n" +
+            "          \"mdp\": \"1\",\n" +
             "          \"age\": 30,\n" +
             "          \"telephone\": \"0000000000\",\n" +
             "          \"adresse\": \"Admin Address\"\n" +
