@@ -21,7 +21,7 @@ public class Home extends AppCompatActivity {
     private RecyclerView photoGrid;
     private PhotoAdapter adapter;
 
-    // Array of random image resource IDs in res/drawable
+    // Array of random image resource IDs in res/drawable temporaire pis pour tester les features
     private int[] randomImages = {R.drawable.image, R.drawable.logo};
 
     @Override
@@ -83,7 +83,7 @@ public class Home extends AppCompatActivity {
         btnMessages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(Home.this, Messagerie.class);
+                Intent intent = new Intent(Home.this, MessagerieHome.class);
                 startActivity(intent);
             }
         });

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Header Section -->
+    <LinearLayout
+        android:id="@+id/headerSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvConvoTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Messagerie"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Message when no conversation exists -->
+        <TextView
+            android:id="@+id/tvNoConvo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No conversation yet. Create a new conversation."
+            android:textSize="16sp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Create Conversation Section -->
+        <LinearLayout
+            android:id="@+id/addConvoContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/tvCreateConvo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create a conversation:"
+                android:textSize="16sp"
+                android:layout_marginEnd="8dp" />
+            <ImageButton
+                android:id="@+id/btnCreateConvo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="?android:selectableItemBackgroundBorderless"
+                android:contentDescription="Create Conversation"
+                android:src="@drawable/add" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Conversation Grid Section (Fixed height: 8 cells × 60dp = 480dp) -->
+    <FrameLayout
+        android:id="@+id/convoContainer"
+        android:layout_width="match_parent"
+        android:layout_height="480dp"
+        android:layout_below="@id/headerSection"
+        android:layout_marginTop="16dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/convoList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:padding="4dp"
+            android:scrollbars="vertical" />
+    </FrameLayout>
+
+</RelativeLayout>

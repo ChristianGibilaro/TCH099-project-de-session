@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Sender's profile image -->
+    <ImageView
+        android:id="@+id/imgSender"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:background="@drawable/circle_image_bg"
+        android:clipToOutline="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/defaultaccount" />
+
+    <!-- Message text -->
+    <TextView
+        android:id="@+id/tvMessageContent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_weight="1"
+        android:text="Message goes here"
+        android:textSize="16sp" />
+</LinearLayout>

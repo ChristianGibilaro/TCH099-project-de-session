@@ -33,6 +33,18 @@
         <activity
             android:name=".Forgot"
             android:exported="false" />
+        <activity
+            android:name=".MessagerieHome"
+            android:exported="true" />
+        <activity
+            android:name=".MessagerieChat"
+            android:exported="true" />
+
+
+        <activity
+            android:name=".MessagerieCreate"
+            android:exported="true" />
+
 
         <!-- Activité Register -->
         <activity
