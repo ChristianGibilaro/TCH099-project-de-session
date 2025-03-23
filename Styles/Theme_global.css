@@ -63,7 +63,7 @@
 }
 /*regler le temps ou la durer de l'animation de rotation pour le bouton expand*/
 #expand_icon{
-    transition: transform 0.4s;
+    transition: transform 0.2s;
 }
 #expand_icon:hover{
     border: 5px solid lime;
