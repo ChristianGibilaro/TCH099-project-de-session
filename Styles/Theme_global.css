@@ -1,3 +1,13 @@
+:root {
+    --dark-blue: #0C1C3D;
+    --medium-blue: #5C6A99;
+    --deep-blue: #4D587F;
+    --light-teal: #6FC4B3;
+    --bright-teal: #5CE1E6;
+    --pale-green: #6FC4B3;
+    --dark-green: #2F4F4F;
+}
+
 *{
     /*margin: 0;
     padding: 0;*/
@@ -9,21 +19,20 @@
     background-image: url("../ressources/activity_image_example.jpg");
     height: 30vh;
     width: 100%;
-    background-size:cover, contain;
+    background-size: cover, contain;
     background-repeat: no-repeat;
-    
 }
 
-/* CSS pour la bare de navigation globale verticale*/
+/* CSS pour la barre de navigation globale verticale */
 .side_bar_nav_gauche{
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     width: 10vw;
-    background-color: #333;
-    border-right: 4px solid orangered;
+    background-color: var(--deep-blue);
+    border-right: 4px solid var(--bright-teal);
     border-radius: 0 15px 15px 0;
-    color: #fff;
+    color: white;
     padding: 5px;
     height: 100vh;
     width: 70px;
@@ -34,26 +43,26 @@
     width: 155px;
 }
 
-/*Style des listes non ordonnees de la bare de navigation*/
+/* Style des listes non ordonnées de la barre de navigation */
 .side_bar_nav_gauche ul {
     list-style-type: none;
     padding: 0px;
     margin: 0px;
-  }
+}
 .side_bar_nav_gauche ul li{
     display: flex;
     align-items: center;
     width: 100%;
 }
 
-/*Taille des image de la bar de navigation*/
+/* Taille des images de la barre de navigation */
 .side_bar_nav_gauche img{
     height: 50px;
     width: 50px;
     margin: 2px;
 }
 .side_bar_nav_gauche button{
-    cursor:pointer;
+    cursor: pointer;
     padding: 0;
     align-self: flex-end;
     border-radius: 50%;
@@ -61,24 +70,24 @@
     height: 54px;
     background-color: transparent;
 }
-/*regler le temps ou la durer de l'animation de rotation pour le bouton expand*/
+/* Régler le temps ou la durée de l'animation de rotation pour le bouton expand */
 #expand_icon{
     transition: transform 0.2s;
 }
 #expand_icon:hover{
-    border: 5px solid lime;
+    border: 5px solid var(--light-teal);
     border-radius: 50%;
 }
-/*Permer de pivoter(180 deg) l'image du bouton expand de la bare navigation quand il est clique*/
+/* Permet de pivoter (180 deg) l'image du bouton expand de la barre de navigation quand il est cliqué */
 .pivoter_img{
     transform: rotate(180deg);
 }
-/*Cacher le text de la bare navigation par defaut*/
+/* Cacher le texte de la barre de navigation par défaut */
 .show_texte_navi_on_extend {
     display: none;
 }
 
-/*On rend les element textuels visible avec la proprite (classlist)'toggle'*/
+/* On rend les éléments textuels visibles avec la propriété (classlist) 'toggle' */
 .show_texte_navi_on_extend.visible {
     display: block; 
 }
@@ -89,23 +98,23 @@
     align-self: right;
 }
 
-/*Specifications globales pour le corps des page html*/
+/* Spécifications globales pour le corps des pages HTML */
 body{
-    background-color: rgba(17, 12, 12, 0.918);
+    background-color: var(--dark-blue);
     display: flex;
     flex-direction: row;
     height: 100vh;
     width: 99%;
 }
 
-/* CSS pour le footer global*/
+/* CSS pour le footer global */
 footer{
-    color: orangered;
-    background-color: dimgray;
+    color: var(--bright-teal);
+    background-color: var(--deep-blue);
     width: 30vw;
-    border-top: 3px solid orangered;
-    border-left: 3px solid orangered;
-    border-right: 3px solid orangered;
+    border-top: 3px solid var(--bright-teal);
+    border-left: 3px solid var(--bright-teal);
+    border-right: 3px solid var(--bright-teal);
     border-radius: 8px 8px 0 0;
     align-self: center;
     text-align: center;
