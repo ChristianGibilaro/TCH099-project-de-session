@@ -1,134 +1,132 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="./ressources/favicon.ico">
-    <link rel="stylesheet" type="text/css" href="Styles/Activity.css">
-    <link rel="stylesheet" type="text/css" href="Styles/Sign-up.css">
-    <link rel="stylesheet" type="text/css" href="Styles/Theme_global.css">
-    <link rel="stylesheet" type="text/css" href="normalize.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vast+Shadow&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Rubik+Doodle+Shadow&family=Vast+Shadow&display=swap" rel="stylesheet">
+    <title>Inscription</title>
+    <link rel="stylesheet" href="/Styles/Sign-in.css"> <!-- ✅ Utilisation du CSS déjà corrigé -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script> <!----Recaptcha version 2-->
     <script src="./Scripts/expand_navi_bar.js" defer></script>
-    <title>Nouveau compte</title>
 </head>
 <body>
-    <!--Bare de navigation vertical positionnee a gauche de l'ecran-->
+
+    <!-- ✅ Barre de navigation latérale avec liens corrigés -->
     <nav class="side_bar_nav_gauche">
         <ul>
             <li>
-                <a href=""><img src="ressources/home.png" alt="img_profile"></a>
-                <h5 class="show_texte_navi_on_extend">Find My Game</h5>
+                <a href="index.html"><img src="ressources/home.png" alt="Accueil"></a>
+                <h5 class="show_texte_navi_on_extend">Accueil</h5>
             </li>
         </ul>
-        
-        <button id="expand_navi_btn"><img id="expand_icon" src="ressources/expand.png" alt="img_profile"></button>
+
+        <button id="expand_navi_btn"><img id="expand_icon" src="ressources/expand.png" alt="Expander"></button>
+
         <ul>
             <li>
-                <a href=""><img src="ressources/Teamate_example.webp" alt="img_profile"></a>
-                <h5 class="show_texte_navi_on_extend" >My activities</h5>
+                <a href="Activity.html"><img src="ressources/Teamate_example.webp" alt="Activités"></a>
+                <h5 class="show_texte_navi_on_extend">Activités</h5>
             </li>
             <li>
-                <a href=""><img src="ressources/Teamate_example.webp" alt="img_profile"></a>
-                <h5 class="show_texte_navi_on_extend" >My teams</h5>
+                <a href="Teams.html"><img src="ressources/Teamate_example.webp" alt="Équipes"></a>
+                <h5 class="show_texte_navi_on_extend">Équipes</h5>
             </li>
             <li>
-                <a href=""><img src="ressources/friends_example.png" alt="img_profile"></a>
-                <h5 class="show_texte_navi_on_extend">My friends</h5>
+                <a href="Friends.html"><img src="ressources/friends_example.png" alt="Amis"></a>
+                <h5 class="show_texte_navi_on_extend">Amis</h5>
             </li>
             <li>
-                <a href=""><img class="teams_dispo_img"src="ressources/user_profile_image_example.png" alt="img_profile"></a>
-                <h5 class="show_texte_navi_on_extend" >MyUsername</h5>
+                <a href="Profile.html"><img class="teams_dispo_img" src="ressources/user_profile_image_example.png" alt="Profil"></a>
+                <h5 class="show_texte_navi_on_extend">Mon Profil</h5>
             </li>
         </ul>
     </nav>
 
-    <!--Le corps du site incluant la banniere et le footer-->
     <div id="corps">
+        <!-- ✅ Section de bienvenue -->
+        <div class="welcome-section">
+            <h2 class="welcome-title">Rejoignez la communauté des passionnés !</h2>
+            <p class="welcome-text">
+                Trouvez votre sport ou jeu préféré, créez ou rejoignez une équipe, 
+                et connectez-vous avec des joueurs partageant les mêmes intérêts. 
+                Ensemble, bâtissons la meilleure expérience d’équipe !
+            </p>
+        </div>
 
-        <!--Section pour la banniere-->
-        <header class="header">
-            <img src="ressources/activity_logo_example.png" alt="logo"  id="logo">
-        </header>
-
-        <!--Section contenant le formulaire d'inscription d'un nouveau utilisateur/compte-->
-        <section id="signup">
-            <form id="formulaire_nouveau_compte" method="POST" enctype="multipart/form-data">
-                <fieldset>
-                    <legend>Enregistrement nouveau compte</legend>
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="pseudonym">Pseudonym:*</label>
-                        <input type="text" id="pseudonym" name="pseudonym" placeholder="Choisissez un pseudonym" required>
-                    </section>
-    
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="nom">Nom:*</label>
-                        <input type="text" id="nom" name="nom" placeholder="Entrez votre nom" required>
-                    </section>
-
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="prenom">Prenom:*</label>
-                    <input type="text" id="prenom" name="prenom" placeholder="Entrez votre prenom" required>
-                    </section>
-
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="email">Email:*</label>
-                        <input type="email" id="email" name="email" placeholder="Entrez votre email" required>
-                    </section>
-
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="passord">Mot de passe:*</label>
-                        <input type="password" id="password" name="password" placeholder="Choisissez un mot de passe" required>
-                    </section>
-
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="passord2">Resaisissez mdp:*</label>
-                        <input type="password" id="password2" name="password2" placeholder="resaisissez le mot de passe" required>
-                    </section>
-
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="image">Image de profile:</label>
-                        <input type="file" id="image" name="image" placeholder="Choisissez une image">
-                    </section>
-
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="description">Description:*</label><br>
-                        <textarea id="description" name="description" placeholder="Decrivez-vous en moins de 100 mots..." required></textarea>
-                    </section>
-
-                    <section class="champs_formulaire_nouveau_compte">
-                        <label for="age">date de naissance:*</label>
-                        <input type="date" id="age" name="age" placeholder="Entrez date de naissance">
-                    </section>
-
-                    <section class="champs_formulaire_captcha_agreement_submit">
-                        <article>
-                            <div>
-                                <input type="checkbox" id="agreement" name="agreement" required>
-                                <label id="agree_label"for="agreement">J'ai lu les <a href="">reglements</a> du site et j'accepte de m'y adherer</label>
+        <!-- ✅ Formulaire d'inscription -->
+        <div class="container">
+            <main>
+                <div class="outer-box">
+                    <div class="login-box">
+                        <h3 class="form-title">Créer un compte</h3>
+                        <form action="#" method="POST">
+                            <div class="input-group">
+                                <label for="pseudonym">Pseudonyme *</label>
+                                <input type="text" id="pseudonym" name="pseudonym" required>
                             </div>
-                            <input type="submit" value="M'inscrire">
-                        </article>
 
-                        <article>
-                            <div class="g-recaptcha" data-sitekey="6LdlOu4qAAAAAIoOaJZ0PVGWh4id0BKAhV26JvFy"></div><!--Recaptcha version 2-->
-                        </article>
-                    </section>
-                    <h5>Vous avez deja un compte? <a href="Sign-in.html">Connectez-vous!</a></h5>
-                </fieldset>
-            </form>
-        </section>
-        <footer >
-            <div id="copyright">
-                <p>&copy;2025 Find Your Game, tous droits réservés.</p>
-            </div>
-        </footer>
+                            <div class="input-group">
+                                <label for="nom">Nom *</label>
+                                <input type="text" id="nom" name="nom" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="prenom">Prénom *</label>
+                                <input type="text" id="prenom" name="prenom" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="password">Mot de passe *</label>
+                                <input type="password" id="password" name="password" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="password2">Confirmez le mot de passe *</label>
+                                <input type="password" id="password2" name="password2" required>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="image">Image de profil</label>
+                                <input type="file" id="image" name="image">
+                            </div>
+
+                            <div class="input-group">
+                                <label for="description">Description *</label>
+                                <textarea id="description" name="description" required></textarea>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="age">Date de naissance *</label>
+                                <input type="date" id="age" name="age" required>
+                            </div>
+
+                            <!-- ✅ Case à cocher pour accepter les conditions -->
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="agreement" name="agreement" required>
+                                <label for="agreement">J'accepte les <a href="#">conditions générales</a>.</label>
+                            </div>
+
+                            <!-- ✅ Bouton d'inscription -->
+                            <button type="submit" class="btn-connexion">Créer un compte</button>
+
+                            <!-- ✅ Lien vers la connexion -->
+                            <p class="signup-link">Déjà un compte ? <a href="Sign-in.html">Se connecter</a>.</p>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
     </div>
+
+    <footer>
+        <p class="footer-text">© 2025 Find Your Game, tous droits réservés.</p>
+    </footer>
+    
+    
+
 </body>
 </html>

@@ -22,67 +22,169 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 100vh; /* Assurer que le fond prend toute la hauteur */
+    min-height: 100vh;
+    width: 100%;
+    margin-left: 70px; /* Décale le contenu pour ne pas être caché par la barre */
 }
 
-/* Header */
+/* ------------------- */
+/* HEADER + NAVIGATION */
+/* ------------------- */
 header {
     width: 100%;
-    padding: 20px;
     display: flex;
-    justify-content: flex-start; /* Aligner à gauche */
     align-items: center;
+    justify-content: flex-start;
+    padding-left: 70px; /* Décale pour prendre en compte la barre de navigation */
     background-color: var(--deep-blue);
 }
 
-.header-left {
+/* Barre de navigation latérale */
+.side_bar_nav_gauche {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 70px;
+    background-color: var(--deep-blue);
+    border-right: 4px solid var(--bright-teal);
+    border-radius: 0 15px 15px 0;
+    color: #fff;
+    padding: 5px;
+    height: 100vh;
+    overflow: hidden;
+    transition: width 0.2s ease;
+    position: fixed; /* Fixer la barre de navigation */
+    left: 0;
+    top: 0;
+}
+
+/* Expansion de la barre lorsqu'on clique sur la flèche */
+.side_bar_nav_gauche.elargir {
+    width: 155px;
+}
+
+/* Listes de la navigation */
+.side_bar_nav_gauche ul {
+    list-style-type: none;
+    padding: 0px;
+    margin: 0px;
+}
+
+.side_bar_nav_gauche ul li {
     display: flex;
     align-items: center;
+    width: 100%;
 }
 
-.logo {
-    width: 50px;
+/* Taille des icônes */
+.side_bar_nav_gauche img {
     height: 50px;
-    margin-right: 15px;
-    margin-left: 20px; /* Décaler le logo pour qu'il ne soit pas collé */
+    width: 50px;
+    margin: 2px;
 }
 
-h1 {
-    font-size: 24px;
+/* Style du bouton d'extension */
+.side_bar_nav_gauche button {
+    cursor: pointer;
+    padding: 0;
+    align-self: flex-end;
+    border-radius: 50%;
+    width: 54px;
+    height: 54px;
+    background-color: transparent;
 }
 
-/* Section de bienvenue */
+/* Animation de la flèche */
+#expand_icon {
+    transition: transform 0.4s;
+}
+
+#expand_icon:hover {
+    border: 5px solid lime;
+    border-radius: 50%;
+}
+
+/* Pivoter l'icône lors de l'extension */
+.pivoter_img {
+    transform: rotate(180deg);
+}
+
+/* Cacher les textes par défaut */
+.show_texte_navi_on_extend {
+    display: none;
+}
+
+/* Afficher les textes lorsque la barre est élargie */
+.show_texte_navi_on_extend.visible {
+    display: block;
+}
+
+/* ✅ Ajustement du dernier élément de la barre de navigation */
+.side_bar_nav_gauche ul:last-child {
+    margin-bottom: 10px; /* Ajoute un petit espace en bas */
+}
+
+/* ✅ Ajustement spécifique de la dernière icône */
+.side_bar_nav_gauche ul li:last-child {
+    margin-bottom: 15px; /* Permet d'éviter qu'elle touche le bas */
+}
+
+/* ------------------- */
+/* SECTION DE BIENVENUE */
+/* ------------------- */
 .welcome-section {
     text-align: center;
-    margin: 30px 0;
+    margin: 30px auto;
+    max-width: 600px;
+    width: 100%;
 }
 
+/* Titre */
 .welcome-title {
     font-size: 28px;
     font-weight: bold;
     color: var(--bright-teal);
 }
 
+/* Texte */
 .welcome-text {
     font-size: 18px;
     max-width: 600px;
     margin: auto;
 }
 
-/* Conteneur principal */
+/* ------------------- */
+/* CONTENEUR PRINCIPAL */
+/* ------------------- */
+#corps {
+    width: calc(100% - 70px); /* Évite que la barre de navigation écrase le contenu */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+/* Ajustement du formulaire */
 .container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
 }
 
-/* Boîte extérieure */
+/* ✅ Ajustement de la boîte du formulaire */
 .outer-box {
     background-color: var(--pale-green);
     padding: 20px;
     border-radius: 12px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto; /* Centre parfaitement la box */
+    display: flex;
+    justify-content: center; /* Assure un bon centrage du contenu */
 }
 
 /* Boîte intérieure */
@@ -108,8 +210,9 @@ h1 {
     color: white;
 }
 
-.input-group input {
-    width: calc(100% - 20px); /* Ajustement pour uniformiser les marges */
+.input-group input,
+textarea {
+    width: calc(100% - 20px);
     padding: 10px;
     border: none;
     border-radius: 5px;
@@ -117,6 +220,12 @@ h1 {
     color: var(--dark-blue);
     margin: 0 auto;
     display: block;
+}
+
+/* Zone de texte (pour Sign Up) */
+textarea {
+    resize: none;
+    height: 80px;
 }
 
 /* Liens */
@@ -155,3 +264,32 @@ h1 {
 .btn-connexion:hover {
     background-color: var(--light-teal);
 }
+
+/* Case à cocher (pour Sign Up) */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.checkbox-group input {
+    margin-right: 10px;
+}
+
+footer {
+    text-align: center;
+    width: 100%;
+}
+
+.footer-text {
+    font-size: 12px;
+    font-style: italic;
+    color: white;
+    margin-top: 100px; /* Ajuste si besoin pour bien le descendre */
+    margin-bottom: 20px;
+}
+
+
+
+
+

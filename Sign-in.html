@@ -3,53 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page de Connexion</title>
-    <link rel="stylesheet" href="/Styles/Sign-in.css">
+    <title>Connexion</title>
+    
+    <!-- ✅ Inclusion des fichiers CSS -->
+    <link rel="stylesheet" href="/Styles/Sign-in.css"> 
+
+    <!-- ✅ Inclusion des scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="./Scripts/expand_navi_bar.js" defer></script>
 </head>
 <body>
+
+    <!-- ✅ Header contenant la barre de navigation -->
     <header>
-        <div class="header-left">
-            <img src="logo.png" alt="Logo de l'application" class="logo">
-            <h1>Nom application/site</h1>
-        </div>
+        <nav class="side_bar_nav_gauche">
+            <ul>
+                <li>
+                    <a href="index.html"><img src="ressources/home.png" alt="Accueil"></a>
+                    <h5 class="show_texte_navi_on_extend">Accueil</h5>
+                </li>
+            </ul>
+
+            <button id="expand_navi_btn"><img id="expand_icon" src="ressources/expand.png" alt="Expander"></button>
+
+            <ul>
+                <li>
+                    <a href="Activity.html"><img src="ressources/Teamate_example.webp" alt="Activités"></a>
+                    <h5 class="show_texte_navi_on_extend">Activités</h5>
+                </li>
+                <li>
+                    <a href="Teams.html"><img src="ressources/Teamate_example.webp" alt="Équipes"></a>
+                    <h5 class="show_texte_navi_on_extend">Équipes</h5>
+                </li>
+                <li>
+                    <a href="Friends.html"><img src="ressources/friends_example.png" alt="Amis"></a>
+                    <h5 class="show_texte_navi_on_extend">Amis</h5>
+                </li>
+                <li>
+                    <a href="Profile.html"><img class="teams_dispo_img" src="ressources/user_profile_image_example.png" alt="Profil"></a>
+                    <h5 class="show_texte_navi_on_extend">Mon Profil</h5>
+                </li>
+            </ul>
+        </nav>
     </header>
 
-    <!-- Section de bienvenue -->
-    <div class="welcome-section">
-        <h2 class="welcome-title">Rejoignez la communauté des passionnés !</h2>
-        <p class="welcome-text">
-            Trouvez votre sport ou jeu préféré, créez ou rejoignez une équipe, 
-            et connectez-vous avec des joueurs partageant les mêmes intérêts. 
-            Ensemble, bâtissons la meilleure expérience d’équipe !
-        </p>
-    </div>
+    <div id="corps">
+        <!-- ✅ Section de bienvenue -->
+        <div class="welcome-section">
+            <h2 class="welcome-title">Rejoignez la communauté des passionnés !</h2>
+            <p class="welcome-text">
+                Trouvez votre sport ou jeu préféré, créez ou rejoignez une équipe, 
+                et connectez-vous avec des joueurs partageant les mêmes intérêts. 
+                Ensemble, bâtissons la meilleure expérience d’équipe !
+            </p>
+        </div>
 
-    <!-- Formulaire de connexion -->
-    <div class="container">
-        <main>
-            <div class="outer-box">
-                <div class="login-box">
-                    <h3 class="form-title">Connexion</h3>
-                    <form action="#" method="POST">
-                        <div class="input-group">
-                            <label for="email">Nom utilisateur/email *</label>
-                            <input type="text" id="email" name="email" required>
-                        </div>
+        <!-- ✅ Formulaire de connexion -->
+        <div class="container">
+            <main>
+                <div class="outer-box">
+                    <div class="login-box">
+                        <h3 class="form-title">Connexion</h3>
+                        <form action="#" method="POST">
+                            <div class="input-group">
+                                <label for="email">Nom utilisateur/email *</label>
+                                <input type="text" id="email" name="email" required>
+                            </div>
 
-                        <div class="input-group">
-                            <label for="password">Mot de passe *</label>
-                            <input type="password" id="password" name="password" required>
-                        </div>
+                            <div class="input-group">
+                                <label for="password">Mot de passe *</label>
+                                <input type="password" id="password" name="password" required>
+                            </div>
 
-                        <a href="#" class="forgot-password">Mot de passe oublié ?</a>
+                            <a href="#" class="forgot-password">Mot de passe oublié ?</a>
 
-                        <button type="submit" class="btn-connexion">CONNEXION</button>
+                            <button type="submit" class="btn-connexion">CONNEXION</button>
 
-                        <p class="signup-link">Pas de compte ? <a href="Sign-up.html">S'inscrire</a>.</p>
-                    </form>
+                            <p class="signup-link">Pas de compte ? <a href="Sign-up.html">S'inscrire</a>.</p>
+                        </form>
+                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
+    <footer>
+        <p class="footer-text">© 2025 Find Your Game, tous droits réservés.</p>
+    </footer>
+    
+
 </body>
 </html>
