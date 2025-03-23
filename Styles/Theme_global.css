@@ -26,14 +26,19 @@
     color: #fff;
     padding: 5px;
     height: 100vh;
-    width: auto;
+    width: 70px;
+    overflow: hidden;
+    transition: width 0.1s ease;
+}
+.side_bar_nav_gauche.elargir {
+    width: 155px;
 }
 
 /*Style des listes non ordonnees de la bare de navigation*/
 .side_bar_nav_gauche ul {
     list-style-type: none;
-    padding: 0;
-    margin: 0;
+    padding: 0px;
+    margin: 0px;
   }
 .side_bar_nav_gauche ul li{
     display: flex;
@@ -46,6 +51,36 @@
     height: 50px;
     width: 50px;
     margin: 2px;
+}
+.side_bar_nav_gauche button{
+    cursor:pointer;
+    padding: 0;
+    align-self: flex-end;
+    border-radius: 50%;
+    width: 54px;
+    height: 54px;
+    background-color: transparent;
+}
+/*regler le temps ou la durer de l'animation de rotation pour le bouton expand*/
+#expand_icon{
+    transition: transform 0.4s;
+}
+#expand_icon:hover{
+    border: 5px solid lime;
+    border-radius: 50%;
+}
+/*Permer de pivoter(180 deg) l'image du bouton expand de la bare navigation quand il est clique*/
+.pivoter_img{
+    transform: rotate(180deg);
+}
+/*Cacher le text de la bare navigation par defaut*/
+.show_texte_navi_on_extend {
+    display: none;
+}
+
+/*On rend les element textuels visible avec la proprite (classlist)'toggle'*/
+.show_texte_navi_on_extend.visible {
+    display: block; 
 }
 
 #logo{
@@ -60,6 +95,7 @@ body{
     display: flex;
     flex-direction: row;
     height: 100vh;
+    width: 99%;
 }
 
 /* CSS pour le footer global*/
