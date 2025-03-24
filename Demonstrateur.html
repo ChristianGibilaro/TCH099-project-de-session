@@ -1,104 +1,107 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="Styles\normalize.css">
-    <link rel="stylesheet" href="Styles\style.css">
-    <script type="module" src="Scripts\animationScript.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demonstrateur</title>
+    
+    <!-- ✅ Inclusion du CSS -->
+    <link rel="stylesheet" href="/Styles/Demonstrateur.css">
 </head>
 
 <body>
-    <div id="menu">
-        <table id="options">
-            <thead>
-              <tr>
-                <th><img src="ressources/site_logo_example.webp" height="150px" width="150px"></th>
-                <th id="siteName"></th>
-              </tr>
-            </thead>
-            <tbody>
 
-              <tr>
-                <td><img src="ressources/team_level_example.webp" height="100px" width="100px"></td>
-                <td id="option1" class="link"></td>
-              </tr>
+    <div class="banniere">
+      <div id="logo">
+        <img src="ressources/activity_logo_example.png" alt="banniere">
+      </div>
+      <img src="ressources/activity_image_example.jpg" alt="banniere">
 
-              <tr>
-                <td><img src="ressources/Teamate_example.webp" height="100px" width="100px"></td>
-                <td id="option2" class="link"></td>
-              </tr>
-
-              <tr>
-                <td><img src="ressources/friends_example.png" height="100px" width="100px"></td>
-                <td id="option3" class="link"></td>
-              </tr>
-
-            </tbody>
-            <tfoot>
-              <tr>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
-        <span id="menuToggle" onclick="toggleMenu()"> <div id="menuArrow">》</div></span>
     </div>
-    <main>
-        <header>
 
-        </header>
-        <div class="scrollable">
-            <div class="navbar">
-                <button>JEUX VIDÉOS</button>
-                <button>SPORTS</button>
-            </div>
-            
-            <div class="container">
-                <div class="card">
-                    <h2>JEUX VIDÉOS</h2>
-                    <div class="game-box">HELLDIVERS - Membres : 30 245</div>
-                </div>
-                <div class="card">
-                    <h2>POPULAIRES</h2>
-                    <div class="game-box">HELLDIVERS - Membres : 30 245</div>
-                </div>
-            </div>
-        </div>
+    <!-- Description -->
+    <div id="description" class="description">
+      <div class="left-text">
+        Ceci est-un texte (Gauche)
+      </div>
+      <div class="right-text">
+        Ceci est-un texte (Droite)
+      </div>
+    </div>
 
-    </main>
-    <footer>
-        
-    </footer>
+    <!-- Barre d’onglets -->
+    <div class="barre-onglets">
+        <button class="onglet actif">Profil</button>
+        <button class="onglet">Player CV</button>
+        <button class="onglet">Teams</button>
+        <button class="onglet">Market List</button>
+        <button class="onglet last">
+            Community<br><span class="sous-texte">review</span>
+        </button>
+    </div>
+
+     <!-- Liste Board-->
+
+  <div class="activity-board">
+    <h2>Activity Market</h2>
+    <div class="board-wrapper">
+      <table class="activity-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Ville</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Exemple d’annonce -->
+          <tr>
+            <td><img src="ressources/annonce.png" alt="Annonce"></td>
+            <td>Paris</td>
+            <td>Tournoi Fortnite ce week-end !</td>
+          </tr>
+          <!-- Répéter pour chaque activité -->
+          <tr>
+            <td><img src="ressources/annonce.png" alt="Annonce"></td>
+            <td>Paris</td>
+            <td>Tournoi Fortnite ce week-end !</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/annonce.png" alt="Annonce"></td>
+            <td>Paris</td>
+            <td>Tournoi Fortnite ce week-end !</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/annonce.png" alt="Annonce"></td>
+            <td>Paris</td>
+            <td>Tournoi Fortnite ce week-end !</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/annonce.png" alt="Annonce"></td>
+            <td>Paris</td>
+            <td>Tournoi Fortnite ce week-end !</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/annonce.png" alt="Annonce"></td>
+            <td>Paris</td>
+            <td>Tournoi Fortnite ce week-end !</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+
+
 </body>
-
 </html>
-<script>
-    let isMenuOpen = false;
-    let siteName = "Find Your Game"
-    let options = ["Activities", "Classified Teams","Miscellaneous Teams"];
+     <!-- <div class="announcement-card">
+          <img src="ressources/annonce.png" alt="Annonce 1">
+          <p class="location">Paris</p>
+          <p class="description">Tournoi Fortnite ce week-end !</p>
+        </div> -->
 
-    function toggleMenu() {
-        if(!isMenuOpen)
-    {
-        isMenuOpen = true;
-        menu = document.getElementById("menu");
-        menu.style.width = "15%";
-        document.getElementById("menuArrow").textContent ="《 ";
-        document.getElementById("siteName").textContent = siteName;
-        document.getElementById("option1").textContent = options[0];
-        document.getElementById("option2").textContent = options[1];
-        document.getElementById("option3").textContent = options[2];
-    }else{
-        isMenuOpen = false;
-        menu = document.getElementById("menu");
-        menu.style.width = "5%";
-        document.getElementById("menuArrow").textContent = " 》";
-        document.getElementById("siteName").textContent = "";
-        document.getElementById("option1").textContent = "";
-        document.getElementById("option2").textContent = "";
-        document.getElementById("option3").textContent = "";
-    }
-    
-  }
-</script>
+
+
+
+  

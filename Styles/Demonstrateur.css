@@ -1,0 +1,175 @@
+/* Couleurs principales */
+:root {
+    --bg-dark: #0F0D05;
+    --text-light: #FFFFFF;
+    --accent: #6BB1EE;
+    --secondary: #4B6166;
+    --secondary-light: #9AB8EB;
+  }
+
+  
+  /* Structure générale */
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .banniere {
+    border: solid 5px red;
+    height: 120px;
+  }
+  
+  .banniere img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; object-position: 0 30%;
+  }
+    #logo {
+    position: absolute;
+    height: 60px;
+    width: 160px;
+    border: solid 5px rgb(0, 8, 255);
+    }
+    
+  
+
+  
+  #image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  /* Description */
+  .description {
+    display: flex;
+    align-items: center;
+   height: 80px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #cccccc;
+    border: solid 5px greenyellow;
+  }
+  
+  .right-text{
+    text-align: right;
+    border: solid rgb(16, 255, 215);
+    height: 100%;
+    width: 20%;
+  }
+  .left-text{
+    border: solid rgb(255, 11, 243);
+    height: 100%;
+    width: 80%;
+  }
+  
+  
+  /* Barre d’onglets (façon onglets Instagram) */
+  .barre-onglets {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 0;
+    margin-bottom: 30px;
+  }
+  
+  .onglet {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1rem;
+    margin: 0 15px;
+    padding: 8px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+  
+  .onglet:hover {
+    color: var(--secondary-light);
+  }
+  
+  .onglet.actif {
+    color: var(--accent);
+    font-weight: bold;
+    border-bottom: 2px solid var(--accent);
+  }
+  
+  .last {
+    margin-right: 0;
+  }
+  
+  /* Adaptation responsive */
+  @media screen and (max-width: 600px) {
+    .profil-view {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .barre-onglets {
+      flex-wrap: wrap;
+    }
+  
+    .onglet {
+      margin: 5px 10px;
+    }
+  }
+  
+
+  .activity-board {
+    width: 400px; 
+    margin: 0 auto; 
+    background-color: #161616; 
+    border-radius: 8px;
+    padding: 20px;
+    color: #FFFFFF;
+  }
+  
+  .activity-board h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  
+  .board-wrapper {
+    max-height: 300px;     /* Hauteur max avant scroll */
+    overflow-y: auto;      /* Barre de défilement verticale */
+    overflow-x: hidden;    /* Pas de défilement horizontal */
+    border: 1px solid #4B6166;
+    border-radius: 8px;
+    background-color: #252525;
+  }
+  
+  .activity-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .activity-table thead {
+    background-color: #4B6166;
+    color: #FFFFFF;
+  }
+  
+  .activity-table th, 
+  .activity-table td {
+    text-align: left;
+    padding: 8px;
+  }
+  
+  .activity-table tbody tr {
+    border-bottom: 1px solid #3D3D3D;
+  }
+  
+  .activity-table img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  

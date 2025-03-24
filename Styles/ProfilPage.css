@@ -1,0 +1,116 @@
+/* Couleurs principales */
+:root {
+    --bg-dark: #0F0D05;
+    --text-light: #FFFFFF;
+    --accent: #6BB1EE;
+    --secondary: #4B6166;
+    --secondary-light: #9AB8EB;
+  }
+
+
+#title {
+    
+}
+  
+  /* Structure générale */
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-light);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Section Profil */
+  .profil-view {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    padding: 30px 20px 10px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  
+  #pseudo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  #image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+  
+  #gps {
+    color: var(--secondary-light);
+    margin: 10px 0;
+    font-size: 0.9rem;
+  }
+  
+  /* Description */
+  .description {
+    max-width: 900px;
+    margin: 0 auto 20px;
+    padding: 0 20px;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #cccccc;
+  }
+  
+  /* Barre d’onglets (façon onglets Instagram) */
+  .barre-onglets {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 10px 0;
+    margin-bottom: 30px;
+  }
+  
+  .onglet {
+    background: none;
+    border: none;
+    color: var(--text-light);
+    font-size: 1rem;
+    margin: 0 15px;
+    padding: 8px 0;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+  
+  .onglet:hover {
+    color: var(--secondary-light);
+  }
+  
+  .onglet.actif {
+    color: var(--accent);
+    font-weight: bold;
+    border-bottom: 2px solid var(--accent);
+  }
+  
+  .last {
+    margin-right: 0;
+  }
+  
+  /* Adaptation responsive */
+  @media screen and (max-width: 600px) {
+    .profil-view {
+      flex-direction: column;
+      text-align: center;
+    }
+    
+    .barre-onglets {
+      flex-wrap: wrap;
+    }
+  
+    .onglet {
+      margin: 5px 10px;
+    }
+  }
+  
