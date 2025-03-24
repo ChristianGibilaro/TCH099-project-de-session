@@ -164,6 +164,7 @@
   
   .activity-table tbody tr {
     border-bottom: 1px solid #3D3D3D;
+    transition: background-color 0.2s ease;
   }
   
   .activity-table img {
@@ -173,3 +174,15 @@
     border-radius: 4px;
   }
   
+  .activity-table tbody tr:hover {
+    animation: subtleShake 0.4s ease-in-out;
+}
+
+@keyframes subtleShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-1px); }
+    40% { transform: translateX(1px); }
+    60% { transform: translateX(-1px); }
+    80% { transform: translateX(1px); }
+    100% { transform: translateX(0); }
+}
