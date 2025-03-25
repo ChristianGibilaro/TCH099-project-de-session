@@ -51,7 +51,10 @@
                 android:layout_height="40dp"
                 android:background="?android:selectableItemBackgroundBorderless"
                 android:contentDescription="Create Conversation"
-                android:src="@drawable/add" />
+                android:src="@drawable/add"
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true" />
+
         </LinearLayout>
     </LinearLayout>
 
