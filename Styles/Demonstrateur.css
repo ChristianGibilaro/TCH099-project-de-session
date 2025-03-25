@@ -1,188 +1,325 @@
-/* Couleurs principales */
-:root {
-    --bg-dark: #0F0D05;
-    --text-light: #FFFFFF;
-    --accent: #6BB1EE;
-    --secondary: #4B6166;
-    --secondary-light: #9AB8EB;
-  }
+    /* Couleurs principales */
+    :root {
+    
+      /*-- VARIABLE GLOBALE --*/
+  
+      --bg-dark: #0F0D05;
+      --text-light: #FFFFFF;
+      --accent: #6BB1EE;
+      --secondary: #4B6166;
+      --secondary-light: #9AB8EB;
+  
+      --police: Arial, sans-serif;
+  
+      --verticalOnePercent: 1vh;
+      --HorizontalOnePercent:  1vw;
 
+      --MenuWidth: 80px;
+      --MenuWidthClosed: 80px;
+      --MenuWidthOpened: 320px;
+
+      --MenuOpacityMax: 0.9;
+      --MenuOpacity:0;
+      --MenuTextOpacity: 0;
   
-  /* Structure générale */
-  body {
-    background-color: var(--bg-dark);
-    color: var(--text-light);
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .banniere {
-    border: solid 5px red;
-    height: 120px;
-  }
-  
-  .banniere img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover; object-position: 0 30%;
-  }
-    #logo {
-    position: absolute;
-    height: 60px;
-    width: 160px;
-    border: solid 5px rgb(0, 8, 255);
     }
     
-  
+    /* Structure générale */
 
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: var(--police);
+    }
+
+    /*--------------------------menu----------------------------*/
+
+    header {
+      border: solid 5px rgb(0, 255, 255); /*tmp*/
+
+      padding-top: 20px;
+      background-color: var(--bg-dark);
+      position: fixed;
+      width: var(--MenuWidth);
+      height: 100%;
+      overflow-x: hidden;
+      transition: 0.5s;
+      z-index: 900;
+    }
+
+    header table{
+      width: var(--MenuWidthOpened);
+    }
+
+    #dimmer {
+        display: block;
+        background:black;
+        opacity: var(--MenuOpacity);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 100;
+        pointer-events: none;
+        transition: 0.5s;
+    }
+
+    #title{
+      font-size: xx-large;
+    }
+
+    #title .Name{
+      opacity: var(--MenuTextOpacity);
+      transition: 0.5s;
+    }
+
+    #title img, .menuButton img{
+      
+      width: 70px;
+      height: 70px;
+    }
+
+    .icon{
+      width: var(--MenuWidthClosed);
+    }
+
+    .menuOptions{
+      width: calc(var(--MenuWidthOpened) - var(--MenuWidthClosed));
+      opacity: var(--MenuTextOpacity);
+      transition: 0.5s;
+      overflow: hidden;
+      padding-left: 20px;
+      font-size: x-large;
+      
+    }
+
+    .menuButton{
+      border: solid 5px rgb(0, 255, 255); /*tmp*/
+
+      height: 80px;
+      margin-top: 20px;
+    }
+
+    #bottomMenu{
+      position: absolute;
+      bottom: 30px;
+      left: 0px;
+    }
+
+    .sign{
+      width: 50%;
+    }
+
+
+ /*--------------------------le main---------------------------- FAUDRA REMPLACER (Un bug l'empeche pour l'instant)*/
+
+    #contenu{
+      transition: 0.5s;
+      height: 100%;
+      position: absolute;
+      right: 0px;
+      top: 0px;
+      width: calc(100% - var(--MenuWidth));
+    }
+
+
+    
+    /*--------------------------banniere----------------------------*/
+    #banniere {
+      border: solid 5px red; /*tmp*/
+
+      --baniereHeight: 240px;
+      --decalageHorizontalBaniere:40%;
+      --logoHeight:calc(var(--baniereHeight)/2);
   
-  #image {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+      height: var(--baniereHeight);
+    }
+    
+    #banniere img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; 
+      object-position: 0% var(--decalageHorizontalBaniere);
+    }
+    
+    #logo {
+      border: solid 5px rgb(0, 8, 255); /*tmp*/
   
-  /* Description */
-  .description {
-    display: flex;
-    align-items: center;
-   height: 80px;
-    font-size: 1rem;
-    line-height: 1.5;
-    color: #cccccc;
-    border: solid 5px greenyellow;
-  }
+      position: absolute;
+      height: var(--logoHeight);
+
+    }
+      
+    /*--------------------------Description */
+    .description {
+      border: solid 5px greenyellow;/*tmp*/
   
-  .right-text{
-    text-align: right;
-    border: solid rgb(16, 255, 215);
-    height: 100%;
-    width: 20%;
-  }
-  .left-text{
-    border: solid rgb(255, 11, 243);
-    height: 100%;
-    width: 80%;
-  }
+      display: flex;
+      align-items: center;
+      height: 140px;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    
+    .right-text{
+      border: solid rgb(16, 255, 215); /*tmp*/
+  
+      text-align: right;
+      height: 100%;
+      width: 20%;
+    }
+    .left-text{
+      border: solid rgb(255, 11, 243); /*tmp*/
+  
+      height: 100%;
+      width: 80%;
+    }
+  
+    /*--------------------------Contenu----------------------------*/
+    
+    /*--------------------------Barre d’onglets (façon onglets Instagram) */
+    .barre-onglets {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 10px 0;
+      margin-bottom: 30px;
+    }
+    
+    .onglet {
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-size: 1rem;
+      margin: 0 15px;
+      padding: 8px 0;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+    
+    .onglet:hover {
+      color: var(--secondary-light);
+    }
+    
+    .onglet.actif {
+      color: var(--accent);
+      font-weight: bold;
+      border-bottom: 2px solid var(--accent);
+    }
+    
+    .last {
+      margin-right: 0;
+    }
+    
+    /* Adaptation responsive */
+    @media screen and (max-width: 600px) {
+      .profil-view {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .barre-onglets {
+        flex-wrap: wrap;
+      }
+    
+      .onglet {
+        margin: 5px 10px;
+      }
+    }
+    
+    /*--------------------------Liste*/
   
   
-  /* Barre d’onglets (façon onglets Instagram) */
-  .barre-onglets {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    padding: 10px 0;
-    margin-bottom: 30px;
-  }
+    .liste {
+      --listeWidth: 400px;
+      --listeMaxHeight: 300px;
+      --listeScrollableHeight: 300px;
+      --Background-color: #161616;
+      --Text-color: white;
   
-  .onglet {
-    background: none;
-    border: none;
-    color: var(--text-light);
-    font-size: 1rem;
-    margin: 0 15px;
-    padding: 8px 0;
-    cursor: pointer;
-    position: relative;
-    transition: color 0.2s;
-  }
-  
-  .onglet:hover {
-    color: var(--secondary-light);
-  }
-  
-  .onglet.actif {
-    color: var(--accent);
-    font-weight: bold;
-    border-bottom: 2px solid var(--accent);
-  }
-  
-  .last {
-    margin-right: 0;
-  }
-  
-  /* Adaptation responsive */
-  @media screen and (max-width: 600px) {
-    .profil-view {
-      flex-direction: column;
+      width: var(--listeWidth);
+      margin: 0 auto; 
+      background-color: var(--Background-color);
+      border-radius: 8px;
+      padding: 20px;
+      color: var(--Text-color);
+    }
+    
+    .liste h2 {
+      margin: 0 0 10px 0;
+      font-size: 1.2rem;
       text-align: center;
     }
+  
+    .liste table{
+      border: 1px solid #4B6166;
+      border-radius: 8px;
+      background-color: #252525;
+    }
+  
+    .liste thead {
+      background-color: #4B6166;
+      color: #FFFFFF;
+    }
+  
+    .liste thead, .liste tbody tr{
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+  
+    .liste th, 
+    .liste td {
+      text-align: left;
+      padding: 8px;
+    }
+  
+    .liste-defilante {
+      display: block;
+      height: var(--listeScrollableHeight);
+      overflow-y: auto;      /* Barre de défilement verticale */
+      overflow-x: hidden;    /* Pas de défilement horizontal */
+  
+    }
     
-    .barre-onglets {
-      flex-wrap: wrap;
+    .liste tbody tr {
+      border-bottom: 1px solid #3D3D3D;
+      transition: background-color 0.2s ease;
     }
-  
-    .onglet {
-      margin: 5px 10px;
+    
+    .liste tr img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 4px;
     }
+    
+    .liste tbody tr:hover {
+      animation: subtleShake 0.4s ease-in-out;
   }
   
-
-  .activity-board {
-    width: 400px; 
-    margin: 0 auto; 
-    background-color: #161616; 
-    border-radius: 8px;
-    padding: 20px;
-    color: #FFFFFF;
+  @keyframes subtleShake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-1px); }
+      40% { transform: translateX(1px); }
+      60% { transform: translateX(-1px); }
+      80% { transform: translateX(1px); }
+      100% { transform: translateX(0); }
   }
   
-  .activity-board h2 {
-    margin: 0 0 10px 0;
-    font-size: 1.2rem;
-    text-align: center;
-  }
   
-  .board-wrapper {
-    max-height: 300px;     /* Hauteur max avant scroll */
-    overflow-y: auto;      /* Barre de défilement verticale */
-    overflow-x: hidden;    /* Pas de défilement horizontal */
-    border: 1px solid #4B6166;
-    border-radius: 8px;
-    background-color: #252525;
-  }
   
-  .activity-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
+  /*---------------------AUTRE TEMPLATES ---------------------*/
+  .SquareImage {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    
   
-  .activity-table thead {
-    background-color: #4B6166;
-    color: #FFFFFF;
-  }
-  
-  .activity-table th, 
-  .activity-table td {
-    text-align: left;
-    padding: 8px;
-  }
-  
-  .activity-table tbody tr {
-    border-bottom: 1px solid #3D3D3D;
-    transition: background-color 0.2s ease;
-  }
-  
-  .activity-table img {
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    border-radius: 4px;
-  }
-  
-  .activity-table tbody tr:hover {
-    animation: subtleShake 0.4s ease-in-out;
-}
-
-@keyframes subtleShake {
-    0% { transform: translateX(0); }
-    20% { transform: translateX(-1px); }
-    40% { transform: translateX(1px); }
-    60% { transform: translateX(-1px); }
-    80% { transform: translateX(1px); }
-    100% { transform: translateX(0); }
-}

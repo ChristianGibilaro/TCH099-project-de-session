@@ -3,43 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription</title>
-    <link rel="stylesheet" href="/Styles/Sign-in.css"> <!-- ✅ Utilisation du CSS déjà corrigé -->
+    <title>Connexion</title>
+    
+    <!-- ✅ Inclusion des fichiers CSS -->
+    <link rel="stylesheet" href="/Styles/Sign-in.css"> 
+
+    <!-- ✅ Inclusion des scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="./Scripts/expand_navi_bar.js" defer></script>
+    <script src="Scripts/animationScript.js" defer></script>
 </head>
 <body>
 
-    <!-- ✅ Barre de navigation latérale avec liens corrigés -->
-    <nav class="side_bar_nav_gauche">
-        <ul>
-            <li>
-                <a href="index.html"><img src="ressources/home.png" alt="Accueil"></a>
-                <h5 class="show_texte_navi_on_extend">Accueil</h5>
-            </li>
-        </ul>
+  <!-- Menu -->
 
-        <button id="expand_navi_btn"><img id="expand_icon" src="ressources/expand.png" alt="Expander"></button>
+<header onclick="toggleMenu()">
+    <!-- Button en haut -->
+    <table>
+      <thead id="title">
+        <th class="icon"><img src="ressources/Commun/Main_logo_example.png"></th>
+        <th class="Name"><a href="Main.html">Find My Team</a></th>
+      </thead>
+      <tbody>
+        
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/activity_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Activity.html">Activity</a>
+          </td>
+        </tr>
 
-        <ul>
-            <li>
-                <a href="Activity.html"><img src="ressources/Teamate_example.webp" alt="Activités"></a>
-                <h5 class="show_texte_navi_on_extend">Activités</h5>
-            </li>
-            <li>
-                <a href="Teams.html"><img src="ressources/Teamate_example.webp" alt="Équipes"></a>
-                <h5 class="show_texte_navi_on_extend">Équipes</h5>
-            </li>
-            <li>
-                <a href="Friends.html"><img src="ressources/friends_example.png" alt="Amis"></a>
-                <h5 class="show_texte_navi_on_extend">Amis</h5>
-            </li>
-            <li>
-                <a href="Profile.html"><img class="teams_dispo_img" src="ressources/user_profile_image_example.png" alt="Profil"></a>
-                <h5 class="show_texte_navi_on_extend">Mon Profil</h5>
-            </li>
-        </ul>
-    </nav>
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/teams_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Teams.html">Teams</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- Button en bas -->
+    <div id="bottomMenu">
+      <table>
+        <tbody>
+          <tr class="menuButton">
+            <td class="menuOptions sign">
+              <a href="Sign-in.html">SIGN-IN</a>
+            </td>
+            <td class="menuOptions sign">
+              <a href="Sign-up.html">SIGN-UP</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <table >
+        <tbody>
+          <tr class="menuButton">
+            <td class="icon">
+              <img src="ressources/Commun/user_profile_image_example.png">
+            </td>
+            <td class="menuOptions">
+              <a href="profileUtilisateur.html">HeRobrain_III</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </header>
+  <div id="dimmer">
+  </div>
+<!-- fin menu -->
+<div id="contenu">
 
     <div id="corps">
         <!-- ✅ Section de bienvenue -->
@@ -52,81 +91,80 @@
             </p>
         </div>
 
-        <!-- ✅ Formulaire d'inscription -->
-        <div class="container">
-            <main>
-                <div class="outer-box">
-                    <div class="login-box">
-                        <h3 class="form-title">Créer un compte</h3>
-                        <form action="#" method="POST">
-                            <div class="input-group">
-                                <label for="pseudonym">Pseudonyme *</label>
-                                <input type="text" id="pseudonym" name="pseudonym" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="nom">Nom *</label>
-                                <input type="text" id="nom" name="nom" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="prenom">Prénom *</label>
-                                <input type="text" id="prenom" name="prenom" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="email">Email *</label>
-                                <input type="email" id="email" name="email" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="password">Mot de passe *</label>
-                                <input type="password" id="password" name="password" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="password2">Confirmez le mot de passe *</label>
-                                <input type="password" id="password2" name="password2" required>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="image">Image de profil</label>
-                                <input type="file" id="image" name="image">
-                            </div>
-
-                            <div class="input-group">
-                                <label for="description">Description *</label>
-                                <textarea id="description" name="description" required></textarea>
-                            </div>
-
-                            <div class="input-group">
-                                <label for="age">Date de naissance *</label>
-                                <input type="date" id="age" name="age" required>
-                            </div>
-
-                            <!-- ✅ Case à cocher pour accepter les conditions -->
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="agreement" name="agreement" required>
-                                <label for="agreement">J'accepte les <a href="#">conditions générales</a>.</label>
-                            </div>
-
-                            <!-- ✅ Bouton d'inscription -->
-                            <button type="submit" class="btn-connexion">Créer un compte</button>
-
-                            <!-- ✅ Lien vers la connexion -->
-                            <p class="signup-link">Déjà un compte ? <a href="Sign-in.html">Se connecter</a>.</p>
-                        </form>
+<!-- ✅ Formulaire d'inscription -->
+<div class="container">
+    <main>
+        <div class="outer-box">
+            <div class="login-box">
+                <h3 class="form-title">Créer un compte</h3>
+                <form action="#" method="POST">
+                    <div class="input-group">
+                        <label for="pseudonym">Pseudonyme *</label>
+                        <input type="text" id="pseudonym" name="pseudonym" required>
                     </div>
-                </div>
-            </main>
+
+                    <div class="input-group">
+                        <label for="nom">Nom *</label>
+                        <input type="text" id="nom" name="nom" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="prenom">Prénom *</label>
+                        <input type="text" id="prenom" name="prenom" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Mot de passe *</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password2">Confirmez le mot de passe *</label>
+                        <input type="password" id="password2" name="password2" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="image">Image de profil</label>
+                        <input type="file" id="image" name="image">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="description">Description *</label>
+                        <textarea id="description" name="description" required></textarea>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="age">Date de naissance *</label>
+                        <input type="date" id="age" name="age" required>
+                    </div>
+
+                    <!-- ✅ Case à cocher pour accepter les conditions -->
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="agreement" name="agreement" required>
+                        <label for="agreement">J'accepte les <a href="#">conditions générales</a>.</label>
+                    </div>
+
+                    <!-- ✅ Bouton d'inscription -->
+                    <button type="submit" class="btn-connexion">Créer un compte</button>
+
+                    <!-- ✅ Lien vers la connexion -->
+                    <p class="signup-link">Déjà un compte ? <a href="Sign-in.html">Se connecter</a>.</p>
+                </form>
+            </div>
         </div>
-    </div>
+    </main>
+</div>
+</div>
 
-    <footer>
-        <p class="footer-text">© 2025 Find Your Game, tous droits réservés.</p>
-    </footer>
+<footer>
+<p class="footer-text">© 2025 Find Your Game, tous droits réservés.</p>
+</footer>
     
-    
-
+</div>
 </body>
 </html>

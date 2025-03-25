@@ -10,11 +10,75 @@
 
     <!-- ✅ Inclusion des scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="./Scripts/expand_navi_bar.js" defer></script>
+    <script src="Scripts/animationScript.js" defer></script>
 </head>
 <body>
 
+  <!-- Menu -->
+
+<header onclick="toggleMenu()">
+    <!-- Button en haut -->
+    <table>
+      <thead id="title">
+        <th class="icon"><img src="ressources/Commun/Main_logo_example.png"></th>
+        <th class="Name"><a href="Main.html">Find My Team</a></th>
+      </thead>
+      <tbody>
+        
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/activity_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Activity.html">Activity</a>
+          </td>
+        </tr>
+
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/teams_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Teams.html">Teams</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- Button en bas -->
+    <div id="bottomMenu">
+      <table>
+        <tbody>
+          <tr class="menuButton">
+            <td class="menuOptions sign">
+              <a href="Sign-in.html">SIGN-IN</a>
+            </td>
+            <td class="menuOptions sign">
+              <a href="Sign-up.html">SIGN-UP</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
   
+      <table >
+        <tbody>
+          <tr class="menuButton">
+            <td class="icon">
+              <img src="ressources/Commun/user_profile_image_example.png">
+            </td>
+            <td class="menuOptions">
+              <a href="profileUtilisateur.html">HeRobrain_III</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </header>
+  <div id="dimmer">
+  </div>
+<!-- fin menu -->
+<div id="contenu">
 
     <div id="corps">
         <!-- ✅ Section de bienvenue -->
@@ -59,6 +123,6 @@
         <p class="footer-text">© 2025 Find Your Game, tous droits réservés.</p>
     </footer>
     
-
+</div>
 </body>
 </html>

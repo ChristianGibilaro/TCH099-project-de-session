@@ -6,7 +6,147 @@
     --bright-teal: #5CE1E6;
     --pale-green: #6FC4B3;
     --dark-green: #2F4F4F;
-}
+
+
+    --MenuWidth: 80px;
+    --MenuWidthClosed: 80px;
+    --MenuWidthOpened: 320px;
+
+    --MenuOpacityMax: 0.9;
+    --MenuOpacity:0;
+    --MenuTextOpacity: 0;
+  }
+
+
+
+
+  /*--------------------------menu----------------------------*/
+
+  header {
+    border: solid 5px rgb(0, 255, 255); /*tmp*/
+
+    padding-top: 20px;
+    background-color: var(--bg-dark);
+    position: fixed;
+    width: var(--MenuWidth);
+    height: 100%;
+    overflow-x: hidden;
+    transition: 0.5s;
+    z-index: 900;
+  }
+
+  header table{
+    width: var(--MenuWidthOpened);
+  }
+
+  #dimmer {
+      display: block;
+      background:black;
+      opacity: var(--MenuOpacity);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 100;
+      pointer-events: none;
+      transition: 0.5s;
+  }
+
+  #title{
+    font-size: xx-large;
+  }
+
+  #title .Name{
+    opacity: var(--MenuTextOpacity);
+    transition: 0.5s;
+  }
+
+  #title img, .menuButton img{
+    
+    width: 70px;
+    height: 70px;
+  }
+
+  .icon{
+    width: var(--MenuWidthClosed);
+  }
+
+  .menuOptions{
+    width: calc(var(--MenuWidthOpened) - var(--MenuWidthClosed));
+    opacity: var(--MenuTextOpacity);
+    transition: 0.5s;
+    overflow: hidden;
+    padding-left: 20px;
+    font-size: x-large;
+    
+  }
+
+  .menuButton{
+    border: solid 5px rgb(0, 255, 255); /*tmp*/
+
+    height: 80px;
+    margin-top: 20px;
+  }
+
+  #bottomMenu{
+    position: absolute;
+    bottom: 30px;
+    left: 0px;
+  }
+
+  .sign{
+    width: 50%;
+  }
+
+
+
+  #contenu{
+    transition: 0.5s;
+    height: 100%;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    width: calc(100% - var(--MenuWidth));
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background-color: var(--dark-blue);
+    color: white;
+    display: flex;
+    flex-direction: column;
+
+    min-height: 100vh;
+    width: 100%;
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 html, body {
     width: 100%;
@@ -15,119 +155,12 @@ html, body {
     padding: 0;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background-color: var(--dark-blue);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    width: 100%;
-    margin-left: 70px; /* Décale le contenu pour ne pas être caché par la barre */
-}
+
 
 /* ------------------- */
 /* HEADER + NAVIGATION */
 /* ------------------- */
-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding-left: 70px; /* Décale pour prendre en compte la barre de navigation */
-    background-color: var(--deep-blue);
-}
 
-/* Barre de navigation latérale */
-.side_bar_nav_gauche {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 70px;
-    background-color: var(--deep-blue);
-    border-right: 4px solid var(--bright-teal);
-    border-radius: 0 15px 15px 0;
-    color: #fff;
-    padding: 5px;
-    height: 100vh;
-    overflow: hidden;
-    transition: width 0.2s ease;
-    position: fixed; /* Fixer la barre de navigation */
-    left: 0;
-    top: 0;
-}
-
-/* Expansion de la barre lorsqu'on clique sur la flèche */
-.side_bar_nav_gauche.elargir {
-    width: 155px;
-}
-
-/* Listes de la navigation */
-.side_bar_nav_gauche ul {
-    list-style-type: none;
-    padding: 0px;
-    margin: 0px;
-}
-
-.side_bar_nav_gauche ul li {
-    display: flex;
-    align-items: center;
-    width: 100%;
-}
-
-/* Taille des icônes */
-.side_bar_nav_gauche img {
-    height: 50px;
-    width: 50px;
-    margin: 2px;
-}
-
-/* Style du bouton d'extension */
-.side_bar_nav_gauche button {
-    cursor: pointer;
-    padding: 0;
-    align-self: flex-end;
-    border-radius: 50%;
-    width: 54px;
-    height: 54px;
-    background-color: transparent;
-}
-
-/* Animation de la flèche */
-#expand_icon {
-    transition: transform 0.4s;
-}
-
-#expand_icon:hover {
-    border: 5px solid lime;
-    border-radius: 50%;
-}
-
-/* Pivoter l'icône lors de l'extension */
-.pivoter_img {
-    transform: rotate(180deg);
-}
-
-/* Cacher les textes par défaut */
-.show_texte_navi_on_extend {
-    display: none;
-}
-
-/* Afficher les textes lorsque la barre est élargie */
-.show_texte_navi_on_extend.visible {
-    display: block;
-}
-
-/* ✅ Ajustement du dernier élément de la barre de navigation */
-.side_bar_nav_gauche ul:last-child {
-    margin-bottom: 10px; /* Ajoute un petit espace en bas */
-}
-
-/* ✅ Ajustement spécifique de la dernière icône */
-.side_bar_nav_gauche ul li:last-child {
-    margin-bottom: 15px; /* Permet d'éviter qu'elle touche le bas */
-}
 
 /* ------------------- */
 /* SECTION DE BIENVENUE */

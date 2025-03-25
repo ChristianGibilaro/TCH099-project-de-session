@@ -1,21 +1,92 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
+  <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demonstrateur</title>
-    
-    <!-- ✅ Inclusion du CSS -->
-    <link rel="stylesheet" href="/Styles/Demonstrateur.css">
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Inclusion du JS -->
+    <script src="Scripts/animationScript.js" defer></script>
+    <!-- Inclusion du CSS -->
+    <link rel="stylesheet" href="Styles\normalize.css">
+    <link rel="stylesheet" href="Styles\Demonstrateur.css">
+  </head>
 
 <body>
 
-    <div class="banniere">
+  <!-- Menu -->
+
+  <header onclick="toggleMenu()">
+    <!-- Button en haut -->
+    <table>
+      <thead id="title">
+        <th class="icon"><img src="ressources/Commun/Main_logo_example.png"></th>
+        <th class="Name"><a href="Main.html">Find My Team</a></th>
+      </thead>
+      <tbody>
+        
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/activity_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Activity.html">Activity</a>
+          </td>
+        </tr>
+
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/teams_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Teams.html">Teams</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- Button en bas -->
+    <div id="bottomMenu">
+      <table>
+        <tbody>
+          <tr class="menuButton">
+            <td class="menuOptions sign">
+              <a href="Sign-in.html">SIGN-IN</a>
+            </td>
+            <td class="menuOptions sign">
+              <a href="Sign-up.html">SIGN-UP</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <table >
+        <tbody>
+          <tr class="menuButton">
+            <td class="icon">
+              <img src="ressources/Commun/user_profile_image_example.png">
+            </td>
+            <td class="menuOptions">
+              <a href="profileUtilisateur.html">HeRobrain_III</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </header>
+  <div id="dimmer">
+  </div>
+<!-- fin menu -->
+
+
+
+  <div id="contenu">
+    <!-- Baniere -->
+    <div id="banniere">
       <div id="logo">
-        <img src="ressources/activity_logo_example.png" alt="banniere">
+        <img src="ressources/Commun/logo_example.png" alt="logo">
       </div>
-      <img src="ressources/activity_image_example.jpg" alt="banniere">
+      <img src="ressources/Commun/baniere_example.webp" alt="banniere">
 
     </div>
 
@@ -31,77 +102,63 @@
 
     <!-- Barre d’onglets -->
     <div class="barre-onglets">
-        <button class="onglet actif">Profil</button>
-        <button class="onglet">Player CV</button>
-        <button class="onglet">Teams</button>
-        <button class="onglet">Market List</button>
+        <button class="onglet actif">onglet1</button>
+        <button class="onglet">onglet2</button>
+        <button class="onglet">onglet3</button>
+        <button class="onglet">onglet4</button>
         <button class="onglet last">
-            Community<br><span class="sous-texte">review</span>
+          onglet5<br><span class="sous-texte">ex_saut de ligne</span>
         </button>
     </div>
 
-     <!-- Liste Board-->
+     <!-- Liste-->
 
-  <div class="activity-board">
-    <h2>Activity Market</h2>
-    <div class="board-wrapper">
-      <table class="activity-table">
+  <div class="liste">
+    <h2>Une liste</h2>
+      <table>
         <thead>
           <tr>
-            <th>Image</th>
-            <th>Ville</th>
-            <th>Description</th>
+            <th>Titre1</th>
+            <th>Titre2</th>
+            <th>Titre3</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody class="liste-defilante">
           <!-- Exemple d’annonce -->
           <tr>
-            <td><img src="ressources/annonce.png" alt="Annonce"></td>
-            <td>Paris</td>
-            <td>Tournoi Fortnite ce week-end !</td>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Texte</td>
+            <td>Long texte</td>
           </tr>
           <!-- Répéter pour chaque activité -->
           <tr>
-            <td><img src="ressources/annonce.png" alt="Annonce"></td>
-            <td>Paris</td>
-            <td>Tournoi Fortnite ce week-end !</td>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Texte</td>
+            <td>Long texte</td>
           </tr>
           <tr>
-            <td><img src="ressources/annonce.png" alt="Annonce"></td>
-            <td>Paris</td>
-            <td>Tournoi Fortnite ce week-end !</td>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Texte</td>
+            <td>Long texte</td>
           </tr>
           <tr>
-            <td><img src="ressources/annonce.png" alt="Annonce"></td>
-            <td>Paris</td>
-            <td>Tournoi Fortnite ce week-end !</td>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Texte</td>
+            <td>Long texte</td>
           </tr>
           <tr>
-            <td><img src="ressources/annonce.png" alt="Annonce"></td>
-            <td>Paris</td>
-            <td>Tournoi Fortnite ce week-end !</td>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Texte</td>
+            <td>Long texte</td>
           </tr>
           <tr>
-            <td><img src="ressources/annonce.png" alt="Annonce"></td>
-            <td>Paris</td>
-            <td>Tournoi Fortnite ce week-end !</td>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Texte</td>
+            <td>Long texte</td>
           </tr>
         </tbody>
       </table>
-    </div>
   </div>
-  
-
-
+</div>
 </body>
 </html>
-     <!-- <div class="announcement-card">
-          <img src="ressources/annonce.png" alt="Annonce 1">
-          <p class="location">Paris</p>
-          <p class="description">Tournoi Fortnite ce week-end !</p>
-        </div> -->
-
-
-
-
-  

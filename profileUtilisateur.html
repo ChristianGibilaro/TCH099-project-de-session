@@ -7,13 +7,78 @@
     
     <!-- ✅ Inclusion du CSS -->
     <link rel="stylesheet" href="/Styles/ProfilPage.css">
+    <script src="Scripts/animationScript.js" defer></script>
 </head>
 
 <body>
+<!-- Menu -->
 
+<header onclick="toggleMenu()">
+    <!-- Button en haut -->
+    <table>
+      <thead id="title">
+        <th class="icon"><img src="ressources/Commun/Main_logo_example.png"></th>
+        <th class="Name"><a href="Main.html">Find My Team</a></th>
+      </thead>
+      <tbody>
+        
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/activity_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Activity.html">Activity</a>
+          </td>
+        </tr>
+
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/teams_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Teams.html">Teams</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+    <!-- Button en bas -->
+    <div id="bottomMenu">
+      <table>
+        <tbody>
+          <tr class="menuButton">
+            <td class="menuOptions sign">
+              <a href="Sign-in.html">SIGN-IN</a>
+            </td>
+            <td class="menuOptions sign">
+              <a href="Sign-up.html">SIGN-UP</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <table >
+        <tbody>
+          <tr class="menuButton">
+            <td class="icon">
+              <img src="ressources/Commun/user_profile_image_example.png">
+            </td>
+            <td class="menuOptions">
+              <a href="profileUtilisateur.html">HeRobrain_III</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </header>
+  <div id="dimmer">
+  </div>
+<!-- fin menu -->
+<div id="contenu">
     <div class="profil-view">
         <h3 id="pseudo">Pseudo</h3>
-        <img id="image" src="ressources/Image profil.png" alt="profil-image">
+        <img id="image" src="ressources/Commun/user_profile_image_example.png " alt="profil-image">
         <div id="gps">📍 Montreal 10km</div>
         <div>
             short activity grade 
@@ -41,6 +106,6 @@
             Community<br><span class="sous-texte">review</span>
         </button>
     </div>
-
+</div>
 </body>
 </html>
