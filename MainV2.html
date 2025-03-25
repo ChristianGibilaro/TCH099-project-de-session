@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main V2</title>
+    
+    <link rel="stylesheet" href="/Styles/styleAccueil.css">
+   
+</head>
+
+<body>
+
+    <div class="banniere">
+      <img src="ressources/splash.png" alt="banniere">
+    </div>
+
+    <!-- Barre d’onglets -->
+  <div class="barre-onglets">
+   </div>
+     <!-- Bouton Switch -->
+  <div class="switch-container">
+    <button class="switch-btn active" id="jeux-btn">JEUX VIDÉOS</button>
+    <button class="switch-btn" id="sports-btn">SPORTS</button>
+  </div>
+
+   <div class="boards-container">
+    <!-- Board 1 : Jeux Vidéos -->
+    <div class="board">
+      <h2>Jeux Vidéos</h2>
+      <div class="board-wrapper">
+        <table class="activity-table">
+          <thead>
+            <tr>
+              <th>Jeu</th>
+              <th>Utilisateurs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>FORTNITE</td>
+              <td>🟢500 Users</td>
+            </tr>
+            <tr>
+              <td>CALL OF DUTY</td>
+              <td>🟢320 Users</td>
+            </tr>
+            <tr>
+              <td>LEAGUE OF LEGENDS</td>
+              <td>🟢450 Users</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+<!-- Board 2 : Activity Market -->
+<div class="board">
+  <h2>Activity Market</h2>
+  
+  <!-- Zone scrollable -->
+  <div class="board-wrapper">
+    <table class="activity-table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Ville</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><img src="ressources/annonce.png" alt="Annonce"></td>
+          <td>Paris</td>
+          <td>Tournoi Fortnite ce week-end !</td>
+        </tr>
+        <!-- Autres lignes... -->
+        <tr>
+          <td><img src="ressources/annonce.png" alt="Annonce"></td>
+          <td>Montreal</td>
+          <td>------</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Bouton Voir plus (placé après .board-wrapper) -->
+  <div class="view-more">
+    <button onclick="window.location.href='activityMarket.html'">Voir plus</button>
+  </div>
+</div>
+
+
+</body>
+</html>
+
+
+
+
+  

@@ -101,16 +101,8 @@ body {
   background-color: #1e98b0;
 }
 
-
-  
-
-/* Bouton Voir plus */
-.view-more {
-    text-align: center; 
-    margin-top: 10px; /* Espace au-dessus du bouton */
-  }
-  
-  .view-more button {
+ 
+  .big button {
     background-color: #004F5F;
     border: none;
     color: #FFF;
@@ -120,7 +112,7 @@ body {
     transition: background-color 0.2s;
   }
   
-  .view-more button:hover {
+  .big button:hover {
     background-color: #006D7F;
   }
   
