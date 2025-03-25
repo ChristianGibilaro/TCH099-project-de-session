@@ -4,10 +4,10 @@
       /*-- VARIABLE GLOBALE --*/
   
       --bg-dark: #0F0D05;
-      --text-light: #FFFFFF;
+      --text-big: #FFFFFF;
       --accent: #6BB1EE;
       --secondary: #4B6166;
-      --secondary-light: #9AB8EB;
+      --secondary-big: #9AB8EB;
   
       --police: Arial, sans-serif;
   
@@ -29,7 +29,7 @@
 
     body {
       background-color: var(--bg-dark);
-      color: var(--text-light);
+      color: var(--text-big);
       font-family: var(--police);
     }
 
@@ -193,7 +193,7 @@
     .onglet {
       background: none;
       border: none;
-      color: var(--text-light);
+      color: var(--text-big);
       font-size: 1rem;
       margin: 0 15px;
       padding: 8px 0;
@@ -203,7 +203,7 @@
     }
     
     .onglet:hover {
-      color: var(--secondary-light);
+      color: var(--secondary-big);
     }
     
     .onglet.actif {
@@ -322,5 +322,66 @@
       border-radius: 50%;
       object-fit: cover;
     }
-    
+      /*---------------------Boutton---------------------*/
   
+/* Gros Boutton */
+/* Conteneur pour aligner le bouton */
+.big {
+  text-align: center;
+  margin-top: 10px;
+}
+
+/* Style du bouton */
+.big button {
+  background-color: #004F5F;
+  border: none;
+  color: #FFF;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  
+  /* Pour l’animation */
+  position: relative;
+  overflow: hidden; /* Le ripple reste dans le bouton */
+}
+
+/* Couleur au survol */
+.big button:hover {
+  background-color: #006D7F;
+}
+
+/* Pseudo-élément pour l’effet de cercle */
+.big button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+/* Lancement de l’animation au survol */
+.big button:hover::before {
+  animation: circle 0.75s forwards;
+}
+
+/* Animation du ripple */
+@keyframes circle {
+  0% {
+    opacity: 1;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    width: 200%;
+    height: 200%;
+    opacity: 0;
+  }
+}

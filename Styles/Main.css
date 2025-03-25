@@ -1,0 +1,118 @@
+.banniere img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; object-position: 0 30%;
+  }
+  .banniere {
+    height: 240px;
+  }
+  
+    /* Barre d’onglets (façon onglets Instagram) */
+    .barre-onglets {
+        background-color:  #30D6EB;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 0;
+        margin-bottom: 30px;
+      }
+       /* Structure générale */
+
+  
+  
+/* Lignes du tableau au survol */
+.activity-table tbody tr:hover {
+    background-color: #3D3D3D;
+    animation: subtleShake 0.4s ease-in-out;
+}
+
+/* Animation légère de tremblement */
+@keyframes subtleShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-1px); }
+    40% { transform: translateX(1px); }
+    60% { transform: translateX(-1px); }
+    80% { transform: translateX(1px); }
+    100% { transform: translateX(0); }
+}
+/* Corps de la page */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #161616; /* Fond sombre */
+    font-family: Arial, sans-serif;
+    color: #FFFFFF;
+  }
+  
+  /* Conteneur global des boards */
+  .boards-container {
+    display: flex;
+    justify-content: center;    /* Centre horizontalement */
+    align-items: flex-start;    /* Aligne en haut */
+    gap: 20px;                  /* Espace entre les boards */
+    padding: 20px;
+    max-width: 1200px;          /* Largeur max (peut être ajustée) */
+    margin: 0 auto;
+  }
+  
+  /* Chaque board */
+  .board {
+    background-color: #30D6EB;  /* Couleur de fond */
+    width: 400px;               /* Même largeur pour chaque board */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Titre du board */
+  .board h2 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    text-align: center;
+    color: #161616;             /* Texte foncé sur fond clair */
+  }
+  
+  /* Zone scrollable */
+  .board-wrapper {
+    background-color: #004F5F;  /* Fond plus foncé */
+    border-radius: 8px;
+    padding: 10px;
+    max-height: 300px;          /* Hauteur max avant scroll */
+    overflow-y: auto;
+  }
+  
+  /* Table générale */
+  .activity-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  /* En-tête du tableau */
+  .activity-table thead {
+    background-color: #006D7F;
+    color: #FFFFFF;
+  }
+  
+  /* Cellules */
+  .activity-table th,
+  .activity-table td {
+    text-align: left;
+    padding: 8px;
+    border-bottom: 1px solid #2BC4C2;
+  }
+  
+  /* Effet de survol */
+  .activity-table tbody tr:hover {
+    background-color: #006D7F;
+  }
+  
+  /* Images */
+  .activity-table img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
