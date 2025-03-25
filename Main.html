@@ -1,83 +1,232 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="fr">
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="Styles\normalize.css">
-    <link rel="stylesheet" href="Styles\style.css">
-    <script type="module" src="Scripts\animationScript.js"></script>
-    <title>Acceuil FindYourGame</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main V2</title>
+    <script src="Scripts/animationScript.js" defer></script>
+    <link rel="stylesheet" href="Styles\Demonstrateur.css">
+    <link rel="stylesheet" href="/Styles/styleAccueil.css">
+   
 </head>
 
+<body>
 
 
-<div class="banner-container">
-  <img id="bannerImage" src="ressources/banniere jeux video bonne taille.png" alt="Bannière Jeux Vidéo">
-</div>
+   <!-- Menu -->
 
-<div class="mode-switch">
-  <input type="checkbox" id="toggleMode" class="toggle-checkbox">
-  <label for="toggleMode" class="toggle-label">
-      <span class="toggle-text">SPORTS</span>
-  </label>
-</div>
+   <header onclick="toggleMenu()">
+    <!-- Button en haut -->
+    <table>
+      <thead id="title">
+        <th class="icon"><img src="ressources/Commun/Main_logo_example.png"></th>
+        <th class="Name"><a href="Main.html">Find My Team</a></th>
+      </thead>
+      <tbody>
+        
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/activity_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Activity.html">Activity</a>
+          </td>
+        </tr>
 
-<!-- Conteneur global qui regroupe les deux boards -->
-<div class="boards-container">
+        <tr class="menuButton">
+          <td class="icon">
+            <img src="ressources/Commun/teams_button.png">
+          </td>
+          <td class="menuOptions">
+            <a href="Teams.html">Teams</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- Board des activités populaires -->
-    <div class="container" id="activity-container">
-        <h2 id="switchable-name">Jeux Vidéos</h2>
-        <div class="game-list">
-          <div class="game-card">
-            <h3 class="game-title">FORTNITE</h4>
-            <p class="game-members">🟢500 Users</p>
-          </div>
-          <div class="game-card">
-            <h3 class="game-title">CALL OF DUTY</h4>
-            <p class="game-members">🟢320 Users</p>
-          </div>
-          <div class="game-card">
-            <h3 class="game-title">LEAGUE OF LEGENDS</h4>
-            <p class="game-members">🟢450 Users</p>
-          </div>
-        </div>
+
+    <!-- Button en bas -->
+    <div id="bottomMenu">
+      <table>
+        <tbody>
+          <tr class="menuButton">
+            <td class="menuOptions sign">
+              <a href="Sign-in.html">SIGN-IN</a>
+            </td>
+            <td class="menuOptions sign">
+              <a href="Sign-up.html">SIGN-UP</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <table >
+        <tbody>
+          <tr class="menuButton">
+            <td class="icon">
+              <img src="ressources/Commun/user_profile_image_example.png">
+            </td>
+            <td class="menuOptions">
+              <a href="profileUtilisateur.html">HeRobrain_III</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </header>
+  <div id="dimmer">
+  </div>
+<!-- fin menu -->
+
+
+
+  <div id="contenu">
+
+    <div class="banniere">
+      <img src="ressources/Main/splash.jpg" alt="banniere">
     </div>
 
-    <!-- Board des annonces filtrées -->
-    <div class="container">
-        <h2>Activity Market</h2>
-        <div class="preview-market">
-          <div class="announcement-card">
-            <img src="ressources/annonce.png" alt="Annonce 1">
-            <p class="location">Paris</p>
-            <p class="description">Tournoi Fortnite ce week-end !</p>
-          </div>
-          <div class="announcement-card">
-            <img src="ressources/annonce.png" alt="Annonce 2">
-            <p class="location">Lyon</p>
-            <p class="description">Match de football amateur en extérieur.</p>
-          </div>
-          <div class="announcement-card">
-            <img src="ressources/annonce.png" alt="Annonce">
-            <p class="location">Marseille</p>
-            <p class="description">Session d'escalade en salle.</p>
-          </div>
-          <div class="announcement-card">
-            <img src="ressources/annonce.png" alt="Annonce">
-            <p class="location">Toulouse</p>
-            <p class="description">Tournoi FIFA 2024 sur PS5.</p>
-          </div>
-          <div class="announcement-card">
-            <img src="ressources/annonce.png" alt="Annonce">
-            <p class="location">Bordeaux</p>
-            <p class="description">Initiation au basketball avec un coach.</p>
-          </div>
-        </div>
-    </div>
+    <!-- Barre d’onglets -->
+  <div class="barre-onglets">
+   </div>
+     <!-- Bouton Switch -->
+  <div class="switch-container">
+    <button class="switch-btn active" id="jeux-btn">JEUX VIDÉOS</button>
+    <button class="switch-btn" id="sports-btn">SPORTS</button>
+  </div>
+
+
+
+
+  <div class="liste-container">
+  <div class="liste">
+    <h2>Jeux Video</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Jeu</th>
+            <th>Popularité</th>
+          </tr>
+        </thead>
+        <tbody class="liste-defilante">
+          <!-- Exemple d’annonce -->
+          <tr>
+            <td>FORTNITE</td>
+            <td>🟢500 Users</td>
+          </tr>
+          <tr>
+            <td>CALL OF DUTY</td>
+            <td>🟢320 Users</td>
+          </tr>
+          <tr>
+            <td>LEAGUE OF LEGENDS</td>
+            <td>🟢450 Users</td>
+          </tr>
+          <tr>
+            <td><a href="Activity.html">Helldivers II</a></td>
+            <td>🟢482 Users</td>
+          </tr>
+          <tr>
+            <td>Counter Strike 2</td>
+            <td>🟢450 Users</td>
+          </tr>
+          <tr>
+            <td>War Thunder</td>
+            <td>🟢450 Users</td>
+          </tr>
+          <tr>
+            <td>Dota</td>
+            <td>🟢450 Users</td>
+          </tr>
+          <tr>
+            <td>Elden Ring</td>
+            <td>🟢450 Users</td>
+          </tr>
+          <tr>
+            <td>Baldur Gate 3</td>
+            <td>🟢450 Users</td>
+          </tr>
+          <tr>
+            <td>Halo Infinite</td>
+            <td>🟢450 Users</td>
+          </tr>
+        </tbody>
+      </table>
+  </div>
+
+  <div class="liste">
+    <h2>Match Market</h2>
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Emplacement</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody class="liste-defilante">
+          <!-- Exemple d’annonce -->
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Paris</td>
+            <td>Tournoi Fortnite ce week-end !</td>
+          </tr>
+          <!-- Autres lignes... -->
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Montreal</td>
+            <td>------</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Montreal</td>
+            <td>------</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Montreal</td>
+            <td>------</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Montreal</td>
+            <td>------</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Montreal</td>
+            <td>------</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Montreal</td>
+            <td>------</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Montreal</td>
+            <td>------</td>
+          </tr>
+          <tr>
+            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
+            <td>Montreal</td>
+            <td>------</td>
+          </tr>
+        </tbody>
+      </table>
+
+        <!-- Bouton Voir plus (placé après .board-wrapper) -->
+  <div class="view-more">
+    <button onclick="window.location.href='activityMarket.html'">Voir plus</button>
+  </div>
+
+  </div>
+
+
+
 
 </div>
-
+  </div>
 
 </body>
 </html>
