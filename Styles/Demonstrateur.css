@@ -235,72 +235,27 @@
     /*--------------------------Liste*/
   
   
-    .liste {
-      --listeWidth: 400px;
-      --listeMaxHeight: 300px;
-      --listeScrollableHeight: 300px;
-      --Background-color: #161616;
-      --Text-color: white;
-  
-      width: var(--listeWidth);
-      margin: 0 auto; 
-      background-color: var(--Background-color);
-      border-radius: 8px;
-      padding: 20px;
-      color: var(--Text-color);
-    }
-    
-    .liste h2 {
-      margin: 0 0 10px 0;
-      font-size: 1.2rem;
-      text-align: center;
-    }
-  
-    .liste table{
-      border: 1px solid #4B6166;
-      border-radius: 8px;
-      background-color: #252525;
-    }
-  
-    .liste thead {
-      background-color: #4B6166;
-      color: #FFFFFF;
-    }
-  
-    .liste thead, .liste tbody tr{
+    .listeScrollable thead, .listeScrollable tbody tr{
       display: table;
       width: 100%;
       table-layout: fixed;
       border-collapse: collapse;
     }
-  
-    .liste th, 
-    .liste td {
-      text-align: left;
-      padding: 8px;
-    }
-  
-    .liste-defilante {
+
+    .listeScrollable tbody{
+      border: solid rgb(255, 16, 243); /*tmp*/
+
       display: block;
-      height: var(--listeScrollableHeight);
-      overflow-y: auto;      /* Barre de défilement verticale */
-      overflow-x: hidden;    /* Pas de défilement horizontal */
-  
+      overflow-y: auto;
+      overflow-x: hidden;
     }
     
-    .liste tbody tr {
-      border-bottom: 1px solid #3D3D3D;
+    .listeScrollable tbody tr {
       transition: background-color 0.2s ease;
     }
     
-    .liste tr img {
-      width: 40px;
-      height: 40px;
-      object-fit: cover;
-      border-radius: 4px;
-    }
     
-    .liste tbody tr:hover {
+    .listeScrollable tbody tr:hover {
       animation: subtleShake 0.4s ease-in-out;
   }
   
@@ -312,7 +267,6 @@
       80% { transform: translateX(1px); }
       100% { transform: translateX(0); }
   }
-  
   
   
   /*---------------------AUTRE TEMPLATES ---------------------*/

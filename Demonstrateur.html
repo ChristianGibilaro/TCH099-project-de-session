@@ -6,15 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Inclusion du JS -->
     <script src="Scripts/animationScript.js" defer></script>
+    <script src="Scripts/ElementCreator.js"></script>
     <!-- Inclusion du CSS -->
     <link rel="stylesheet" href="Styles\normalize.css">
     <link rel="stylesheet" href="Styles\Demonstrateur.css">
   </head>
 
 <body>
+  <script>
+    var creator = new ElementCreator("Demonstrateur");
+  </script>
 
   <!-- Menu -->
-
   <header onclick="toggleMenu()">
     <!-- Button en haut -->
     <table>
@@ -112,58 +115,24 @@
     </div>
 
      <!-- Liste-->
+  <script>
+    var elements = 
+    [['egw', "Texte", "Long texte"],
+    ['sdf', "Texte", "Long texte"],
+    ['sdf', "Texte", "Long texte"],
+    ['sdf', "Texte", "Long texte"],
+    ['sdf', "Texte", "Long texte"],
+    ['fd', "Texte", "Long texte"],
+    ['fd', "Texte", "Long texte"],
+    ['fd', "Texte", "Long texte"],
+    ['fd', "Texte", "Long texte"],
+    ['fd', "Texte", "Long texte"],
+    ['fd', "Texte", "Long texte"],
+    ['fd', "Texte", "Long texte"],
+    ['fd', "Texte", "Long texte"]];
+    var titles = ['nein', "Texte", "Long texte"];
+    document.write(creator.CreateScrollableTable("400px","500px",3,titles,elements,true,null,"margin: 0 auto;")); </script>
 
-  <div class="liste">
-    <h2>Une liste</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Titre1</th>
-            <th>Titre2</th>
-            <th>Titre3</th>
-          </tr>
-        </thead>
-        <tbody class="liste-defilante">
-          <!-- Exemple d’annonce -->
-          <tr>
-            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
-            <td>Texte</td>
-            <td>Long texte</td>
-          </tr>
-          <!-- Répéter pour chaque activité -->
-          <tr>
-            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
-            <td>Texte</td>
-            <td>Long texte</td>
-          </tr>
-          <tr>
-            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
-            <td>Texte</td>
-            <td>Long texte</td>
-          </tr>
-          <tr>
-            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
-            <td>Texte</td>
-            <td>Long texte</td>
-          </tr>
-          <tr>
-            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
-            <td>Texte</td>
-            <td>Long texte</td>
-          </tr>
-          <tr>
-            <td><img src="ressources/Commun/annonce.png" alt="Annonce"></td>
-            <td>Texte</td>
-            <td>Long texte</td>
-          </tr>
-        </tbody>
-      </table>
-  </div>
-  <br>
-   <!-- Exemple de gros bouton -->
-<div class="big">
-  <button onclick="window.location.href='VotrePage.html'">Go!</button>
-</div>
 </div>
 
 </body>

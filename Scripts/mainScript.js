@@ -1,6 +1,4 @@
 //CECI EST UN EXEMPLE DU JS QUI CE CONNECTE À L'API, MODIFIER LE LORSQUE VOUS Y SERAIT RENDU.
-
-
 let host = null;
 
 document.addEventListener("DOMContentLoaded", () => {
