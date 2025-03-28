@@ -2,6 +2,7 @@
 class ElementCreator{
     
     scrollableListeID = 0;
+    ids = [];
     pageName = ""
 
     constructor (pageName) {
@@ -11,11 +12,11 @@ class ElementCreator{
 
     /**
     * @param {String}   baseId      the base for the id ex: "scrollableTable"
-    * @param {boolean}  id          true to require the id
+    * @param {String}   id          id to apply or null for automatic Id generation
     */
     IdGenerator(baseId,id) {
-        if (id == false) {
-            return "";
+        if (id != null) {
+            return 'id = "' + id + '"'; ;
         } else {
             this.scrollableListeID++;
             return 'id = "' + baseId + '#' + this.scrollableListeID + '"';
@@ -28,7 +29,7 @@ class ElementCreator{
     * @param {Int}      colNumb     number of columns. ex: 3
     * @param {String[]} titles      like this one : [texte', "Texte", "Long texte"]
     * @param {String[][]}elements   like this one :[['texte', "Texte", "Long texte"],['texte', "Texte", "Long texte"]]
-    * @param {boolean}  id          true to generate an id
+    * @param {String}   id          apply id to the main dix ex: "liste" or put nothing to generate a id.
     * @param {String}   classes     apply more classes to the main div ex: "red rotated"
     * @param {String}   extraStyle  apply more styles to the main div ex: "margin: 0 auto;"
     */
@@ -82,11 +83,7 @@ class ElementCreator{
 
         var styleId = this.IdGenerator("scrollableTable",id);
 
-        if(id){
             console.log("ScrollableTable " + elements.length + "x" + elements[0].length + " was sucessfully created with " + styleId + " !");
-        }else{
-            console.log("ScrollableTable " + elements.length + "x" + elements[0].length + " was sucessfully created!");
-        }
 
         return '\
         <div style="' + styleWidth + extraStyle + '" class="listeScrollable ' + classes + '"' + styleId + '>' +'\
