@@ -276,6 +276,29 @@
       border-radius: 50%;
       object-fit: cover;
     }
+
+    .FillImage {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; 
+      object-position: 0% 0%;
+    }
+
+    .CenterChilds{
+      display: flex;
+      justify-content: center;
+    }
+
+    .RightChilds{
+      display: flex;
+      justify-content: right;
+    }
+
+    .LeftChilds{
+      display: flex;
+      justify-content: right;
+    }
+
       /*---------------------Boutton---------------------*/
   
 /* Gros Boutton */
