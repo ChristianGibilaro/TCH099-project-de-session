@@ -15,6 +15,8 @@
 <body>
   <script>
     var creator = new ElementCreator("Demonstrateur");
+
+    
   </script>
 
   <!-- Menu -->
@@ -113,77 +115,27 @@
           onglet5<br><span class="sous-texte">ex_saut de ligne</span>
         </button>
     </div>
-
-     <!-- Liste-->
   <script>
 
     // sera fournit par l'api
+    var titleType = [["txt"],["txt"],["txt"]];
+    var rowType = [["img","100px","100px","image_failed","FillImage","object-position: 1% 40%;"],["txt"],["txt"]];
     var elements = 
-    [[creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],
-    [creator.CreateImage("120px","120px","ressources/Commun/user_profile_image_example.png","image","test","FillImage"," object-position: 1% 40%;"), "Texte", "Long texte"],];
-    var titles = creator.CreateTableTitles( ['nein', "Texte", "Long texte"], [50,40,10],3,null,null,null);
-    var rows = creator.CreateTableRows( elements, [50,40,10],3,null,null,"text-align: center;");
-    //----titles,titleSize,colNumb,id,classes,extraStyle
-
-    document.write(creator.CreateScrollableTable(null,"100%",3,titles,rows,null,null,null));
+    [["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
+    ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],];
+    var titles = ['nein', "Texte", "Long texte"];
+    //----
+    var titlesRow = creator.CreateTableTitles( titles, [50,40,10],3,null,null,null);
+    var rows = creator.CreateTableRows( elements, rowType,[50,40,10],3,null,null,"text-align: center;");
+    document.write(creator.CreateScrollableTable("30%","300px",titlesRow,rows,null,null,null));
     
     </script>
 

@@ -35,7 +35,7 @@ class ElementCreator{
     * @param {String}   classes     apply more classes to the main div ex: "red rotated" or null to apply the defeault class: generatedScrollableTable
     * @param {String}   extraStyle  apply more styles to the main div ex: "margin: 0 auto;"
     */
-    CreateScrollableTable (width,height,colNumb,titles,elements,id,classes,extraStyle){
+    CreateScrollableTable (width,height,titles,elements,id,classes,extraStyle){
 
         
         var styleWidth = "";
@@ -67,7 +67,7 @@ class ElementCreator{
             console.log("ScrollableTable was sucessfully created with " + styleId + " !");
 
         return '\
-        <div style="' + styleWidth + extraStyle + 'height: 100%; " class="listeScrollable ' + classes + '"' + styleId + '>' +'\
+        <div style="' + styleWidth + extraStyle + ' " class="listeScrollable ' + classes + '"' + styleId + '>' +'\
             <table style>\
                 <thead>' +
                 titles +
@@ -186,7 +186,8 @@ class ElementCreator{
     * @param {String}   classes     apply more classes to the main div ex: "red rotated" or null to apply the defeault class: generatedScrollableTable
     * @param {String}   extraStyle  apply more styles to the main div ex: "margin: 0 auto;"
     */
-    CreateTableRows (elements,elementsSize,colNumb,id,classes,extraStyle){
+    CreateTableRows (elements,elementsType,elementsSize,colNumb,id,classes,extraStyle){
+
         if(elementsSize != null){
             var checkWidth = 0;
             for(var i = 0; i < elementsSize.length ; i++){
@@ -218,9 +219,18 @@ class ElementCreator{
             if(elements[i].length != colNumb){
                 valid = i;
                 break;
-            }
+            }//[["img","100px","100px","image_failed","FillImage","object-position: 1% 40%;"],["txt"],["txt"]];
             for(var j = 0; j < elements[i].length; j++){
-                outRows += '<td style= "width: ' + elementsSize[j] + '%;">' + elements[i][j] + '</td>';
+                switch(elementsType[j][0]){
+                    case "img":
+                        outRows += '<td style= "width: ' + elementsSize[j] + '%;">' + 
+                        this.CreateImage(elementsType[j][1],elementsType[j][2],elements[j][j],elementsType[j][3],null,elementsType[j][4],elementsType[j][5]) + '</td>';
+                        break;
+                    case "txt":
+                        outRows += '<td style= "width: ' + elementsSize[j] + '%;">' + elements[i][j] + '</td>';
+                        break;
+                    
+                }
             }
             outRows += '</tr>';
         }
