@@ -243,8 +243,8 @@
     }
 
     .listeScrollable tbody{
-      border: solid rgb(255, 16, 243); /*tmp*/
-
+      border: solid rgb(44, 130, 90); /*tmp*/
+      
       display: block;
       overflow-y: auto;
       overflow-x: hidden;
@@ -301,6 +301,11 @@
     .LeftChilds{
       display: flex;
       justify-content: right;
+    }
+
+    .SideBySide {
+      display: flex;
+      flex-wrap: wrap; /* Permet le retour à la ligne si l'espace est insuffisant */
     }
 
       /*---------------------Boutton---------------------*/

@@ -117,9 +117,9 @@
     </div>
   <script>
 
+
+
     // sera fournit par l'api
-    var titleType = [["txt"],["txt"],["txt"]];
-    var rowType = [["img","100px","100px","image_failed","FillImage","object-position: 1% 40%;"],["txt"],["txt"]];
     var elements = 
     [["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
@@ -133,10 +133,23 @@
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],];
     var titles = ['nein', "Texte", "Long texte"];
     //----
+
+
+
+
+    var titleType = [["txt"],["txt"],["txt"]];
+    var rowType = [["img","100px","100px","image_failed","FillImage","object-position: 1% 40%;"],["txt"],["txt"]];
     var titlesRow = creator.CreateTableTitles( titles, [50,40,10],3,null,null,null);
     var rows = creator.CreateTableRows( elements, rowType,[50,40,10],3,null,null,"text-align: center;");
-    document.write(creator.CreateScrollableTable("30%","300px",titlesRow,rows,null,null,null));
-    
+
+
+    document.write(creator.SideBySide("100%", "500px",null,"CenterChilds","border: solid rgb(154, 172, 42);",
+    creator.CreateScrollableTable("300px","300px",titlesRow,rows,null,null,null),
+    creator.CreateScrollableTable("300px","300px",titlesRow,rows,null,null,null),
+    creator.CreateScrollableTable("300px","300px",titlesRow,rows,null,null,null),
+    creator.CreateScrollableTable("300px","300px",titlesRow,rows,null,null,null)));
+
+
     </script>
 
     <div style="height: 150px; width: 100%;" class="CenterChilds">

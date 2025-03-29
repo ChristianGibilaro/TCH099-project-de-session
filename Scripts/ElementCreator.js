@@ -5,6 +5,7 @@ class ElementCreator{
     imageID = 0;
     tabletitlesID = 0;
     tableRowID = 0;
+    sideBySideID = 0;
 
     pageName = "";
 
@@ -245,4 +246,39 @@ class ElementCreator{
         
     }
 
+    SideBySide(width,height,id,classes,extraStyle,...element){
+
+        if(width != null){
+            width = "width: " + width + ";"
+        }else{
+            width = ""
+        }
+    
+        if(height != null){
+            height = "height: " + height + ";"
+        }else{
+            height = ""
+        }
+
+        if(classes == null){
+            classes = "generatedSideBySide";
+        }
+
+        if(extraStyle == null){
+            extraStyle = "";
+        }
+
+        this.sideBySideID++;
+        var styleId = this.IdGenerator("SideBySide",id,this.sideBySideID);
+
+        var outDiv = '<div class = "SideBySide ' + classes +'" style = "' + extraStyle + height + width + '" id="' + styleId + '>'
+        for(var i = 0; i < element.length;i++){
+            outDiv += element[i];
+        }
+        outDiv += "</div>";
+
+        console.log("side by Side was sucessfully created with " + styleId + " !");
+
+        return outDiv;
+    }
 }
