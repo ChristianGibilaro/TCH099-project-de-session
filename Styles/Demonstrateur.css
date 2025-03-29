@@ -257,8 +257,7 @@
     .listeScrollable thead th {
       border: solid rgb(255, 16, 243);
     }
-    
-    
+
     
     .listeScrollable tbody tr:hover {
       animation: subtleShake 0.4s ease-in-out;
