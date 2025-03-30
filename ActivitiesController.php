@@ -18,12 +18,12 @@ class ActivitiesController
                 $videoFolder = 'ressources/videos/';
 
                 // Création des dossiers s'ils n'existent pas. On a pas vraiment besoins puisqu'on predefinit les repertoires d,avance
-                /*if (!file_exists($imageFolder)) {
+                if (!file_exists($imageFolder)) {
                     mkdir($imageFolder, 0755, true);
                 }
                 if (!file_exists($videoFolder)) {
                     mkdir($videoFolder, 0755, true);
-                }*/
+                }
 
                 // Détection du type MIME(extention:png, jpeg, gif, avi...etc.)
                 $fileType = mime_content_type($fileTmpPath);
@@ -57,7 +57,9 @@ class ActivitiesController
                     $description = htmlspecialchars($_POST['description']);
                     $age = htmlspecialchars($_POST['age']);
 
-                    echo json_encode($nom);
+                    //$position = 1;
+
+                    //echo json_encode($nom);
 
                     /*if (!isset($_POST['description'])){
                         $description = null;
@@ -65,11 +67,25 @@ class ActivitiesController
                     if (!isset($_POST['age'])){
                         $age = null;
                     }*/
+                    
+                    /*$stmt = $pdo->prepare('INSERT INTO Position (Name, Country, State, City, Street, Number, GPS, Local_Time)
+                                        VALUES (:nom, :country, :state, :city, :street, :number, :gps, :local_time)');
+                    $stmt->execute([
+                        //':id' => null,
+                        ':nom' => $nom,
+                        ':country' => 'Canada',
+                        ':state' => 'Quebec',
+                        ':city' => 'Montreal',
+                        ':street' => 'Centre Ville',
+                        ':number' => 1230,
+                        ':gps' => null,
+                        ':local_time' => 17,
+                    ]);
 
     
                     // Insert into database
-                    $stmt = $pdo->prepare('INSERT INTO lyes (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
-                                           VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, :language_id, :creation_date, :position_id, :description, :age)');
+                    $stmt = $pdo->prepare('INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
+                                           VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, (SELECT ID FROM Language WHERE ID = :language_id), :creation_date, (SELECT id FROM Position WHERE name = :nom), :description, :age)');
                     $stmt->execute([
                         //':id' => null,
                         ':img' => 'http://localhost:9999/'.$destinationPath,
@@ -77,15 +93,46 @@ class ActivitiesController
                         ':nom' => $nom,
                         ':email' => $email,
                         ':passwordd' => password_hash($password, PASSWORD_DEFAULT),//$password,
-                        ':last_login' => date('Y-m-d'),
+                        ':last_login' => '2025-04-01',
                         ':language_id' => 1,
-                        ':creation_date' => '1990-01-01',//null,
+                        ':creation_date' => date('Y-m-d H:i:s'),//null,
                         ':position_id' => 10,
                         ':description' => $description,
-                        ':age' => $age
+                        ':age' => '2025-04-01',//$age
                     ]);
     
-                    echo json_encode(['success' => true, 'message' => 'Creation compte reussie !']);
+                    echo json_encode(['success' => true, 'message' => 'Creation compte reussie !']);*/
+                    
+                    try {
+                        $stmtPosition = $pdo->prepare('INSERT INTO Position (Name) VALUES (:name)');
+                        $stmtPosition->execute([':name' => $nom]);
+                        $positionID = $pdo->lastInsertId();
+                    } catch (PDOException $e) {
+                        echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout de la position.']);
+                        return;
+                    }
+
+                    try {
+                        $stmtUser = $pdo->prepare('INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
+                                                VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, :language_id, :creation_date, :position_id, :description, :age)');
+                        $stmtUser->execute([
+                            ':img' => 'http://localhost:9999/'.$destinationPath,
+                            ':pseudo' => $pseudonym,
+                            ':nom' => $nom,
+                            ':email' => $email,
+                            ':passwordd' => password_hash($password, PASSWORD_DEFAULT),
+                            ':last_login' => '2025-04-01',
+                            ':language_id' => 1,
+                            ':creation_date' => date('Y-m-d H:i:s'),
+                            ':position_id' => $positionID,
+                            ':description' => $description,
+                            ':age' => $age
+                        ]);
+                        echo json_encode(['success' => true, 'message' => 'Compte créé avec succès !']);
+                    } catch (PDOException $e) {
+                        echo json_encode(['success' => false, 'message' => 'Erreur lors de la création du compte.']);
+                    }
+
                 } else {
                     echo json_encode(['success' => false, 'message' => 'La creation du compte a echouee!']);
                 }
