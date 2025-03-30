@@ -10,7 +10,8 @@
 
     <!-- ✅ Inclusion des scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="Scripts/animationScript.js" defer></script>
+    <!--script src="Scripts/animationScript.js" defer></script-->
+    <script src="Scripts/createUser.js" defer></script>
 </head>
 <body>
 
@@ -97,7 +98,7 @@
         <div class="outer-box">
             <div class="login-box">
                 <h3 class="form-title">Créer un compte</h3>
-                <form action="#" method="POST">
+                <form id="form_new_user_id" method="POST" enctype="multipart/form-data">
                     <div class="input-group">
                         <label for="pseudonym">Pseudonyme *</label>
                         <input type="text" id="pseudonym" name="pseudonym" required>
@@ -108,10 +109,10 @@
                         <input type="text" id="nom" name="nom" required>
                     </div>
 
-                    <div class="input-group">
+                    <!--div class="input-group">
                         <label for="prenom">Prénom *</label>
                         <input type="text" id="prenom" name="prenom" required>
-                    </div>
+                    </div-->
 
                     <div class="input-group">
                         <label for="email">Email *</label>
@@ -150,7 +151,7 @@
                     </div>
 
                     <!-- ✅ Bouton d'inscription -->
-                    <button type="submit" class="btn-connexion">Créer un compte</button>
+                    <button type="button" id="soummission_btn" class="btn-connexion">Créer un compte</button>
 
                     <!-- ✅ Lien vers la connexion -->
                     <p class="signup-link">Déjà un compte ? <a href="Sign-in.html">Se connecter</a>.</p>
