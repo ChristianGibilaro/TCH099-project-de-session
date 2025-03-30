@@ -26,3 +26,21 @@ function toggleMenu() {
     }
 
 }
+
+// Fonctions pour afficher la section correspondante à l'onglet cliqué
+function afficherSection(id, bouton) {
+    // Cacher toutes les sections
+    document.querySelectorAll('.contenu-onglet').forEach(section => {
+        section.style.display = 'none';
+    });
+
+    // Afficher la section sélectionnée
+    document.getElementById(id).style.display = 'block';
+
+    // Mettre à jour l'onglet actif
+    document.querySelectorAll('.barre-onglets .onglet').forEach(btn => {
+        btn.classList.remove('actif');
+    });
+
+    bouton.classList.add('actif');
+}

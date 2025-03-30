@@ -105,19 +105,37 @@
       </div>
     </div>
 
-    <!-- Barre d’onglets -->
+        <!-- Barre d’onglets -->
+    <!-- ajout de on click pour que js sache quoi afficher -->
     <div class="barre-onglets">
-        <button class="onglet actif">onglet1</button>
-        <button class="onglet">onglet2</button>
-        <button class="onglet">onglet3</button>
-        <button class="onglet">onglet4</button>
-        <button class="onglet last">
-          onglet5<br><span class="sous-texte">ex_saut de ligne</span>
-        </button>
-    </div>
+      <button class="onglet actif" onclick="afficherSection('section1', this)">Onglet 1</button>
+      <button class="onglet" onclick="afficherSection('section2', this)">Onglet 2</button>
+      <button class="onglet" onclick="afficherSection('section3', this)">Onglet 3</button>
+      <button class="onglet" onclick="afficherSection('section4', this)">Onglet 4</button>
+      <button class="onglet last" onclick="afficherSection('section5', this)">
+          Onglet 5<br><span class="sous-texte">ex_saut de ligne</span>
+      </button>
+  </div>
+
+  <!-- Contenu des onglets qui change selon js -->
+<div id="sections-container">
+  
+  
+  <div id="section1" class="contenu-onglet">Contenu de l’onglet 1</div>
+  
+  <div id="section2" class="contenu-onglet" style="display: none;">Contenu de l'onglet 2</div>
+  
+  <div id="section3" class="contenu-onglet" style="display: none;">Contenu de l’onglet 3</div>
+  
+  <div id="section4" class="contenu-onglet" style="display: none;">Contenu de l’onglet 4</div>
+  
+  <div id="section5" class="contenu-onglet" style="display: none;">Contenu de l’onglet 5</div>
+
+
+</div>
+  
+  
   <script>
-
-
 
     // sera fournit par l'api
     var elements = 
