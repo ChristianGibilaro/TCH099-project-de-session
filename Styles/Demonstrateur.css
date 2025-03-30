@@ -243,8 +243,8 @@
     }
 
     .listeScrollable tbody{
-      border: solid rgb(255, 16, 243); /*tmp*/
-
+      border: solid rgb(44, 130, 90); /*tmp*/
+      
       display: block;
       overflow-y: auto;
       overflow-x: hidden;
@@ -253,7 +253,11 @@
     .listeScrollable tbody tr {
       transition: background-color 0.2s ease;
     }
-    
+
+    .listeScrollable thead th {
+      border: solid rgb(255, 16, 243);
+    }
+
     
     .listeScrollable tbody tr:hover {
       animation: subtleShake 0.4s ease-in-out;
@@ -276,6 +280,34 @@
       border-radius: 50%;
       object-fit: cover;
     }
+
+    .FillImage {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; 
+      object-position: 0% 0%;
+    }
+
+    .CenterChilds{
+      display: flex;
+      justify-content: center;
+    }
+
+    .RightChilds{
+      display: flex;
+      justify-content: right;
+    }
+
+    .LeftChilds{
+      display: flex;
+      justify-content: right;
+    }
+
+    .SideBySide {
+      display: flex;
+      flex-wrap: wrap; /* Permet le retour à la ligne si l'espace est insuffisant */
+    }
+
       /*---------------------Boutton---------------------*/
   
 /* Gros Boutton */
@@ -339,3 +371,5 @@
     opacity: 0;
   }
 }
+
+/*---------------------CSS DU MARKETPLACE---------------------*/
