@@ -4,7 +4,7 @@
     
     require 'config.php';
     require 'ActivitiesController.php';
-    //require './src/controllers/ActivitiesController.php';
+    //require 'src/controllers/ActivitiesController.php';
 
 
     /*get('/api/activities', function() {
