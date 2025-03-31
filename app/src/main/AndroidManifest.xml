@@ -34,6 +34,9 @@
             android:name=".Forgot"
             android:exported="false" />
         <activity
+            android:name=".MarginItemDecoration"
+            android:exported="false" />
+        <activity
             android:name=".MessagerieHome"
             android:exported="true" />
         <activity

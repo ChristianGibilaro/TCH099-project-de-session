@@ -49,6 +49,9 @@ public class MessagerieHome extends AppCompatActivity {
                 startActivityForResult(intent, REQUEST_CREATE_CONVO);
             }
         });
+        int marginInPixels = getResources().getDimensionPixelSize(R.dimen.item_margin);
+        convoList.addItemDecoration(new MarginItemDecoration(marginInPixels));
+
     }
 
     @Override
