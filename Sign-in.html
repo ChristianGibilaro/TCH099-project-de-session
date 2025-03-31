@@ -11,6 +11,7 @@
     <!-- ✅ Inclusion des scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="Scripts/animationScript.js" defer></script>
+    <script src="Scripts/createUser.js" defer></script>
 </head>
 <body>
 
@@ -97,7 +98,7 @@
                 <div class="outer-box">
                     <div class="login-box">
                         <h3 class="form-title">Connexion</h3>
-                        <form action="#" method="POST">
+                        <form id="form_connect_user_id" action="#" method="POST">
                             <div class="input-group">
                                 <label for="email">Nom utilisateur/email *</label>
                                 <input type="text" id="email" name="email" required>
@@ -110,7 +111,7 @@
 
                             <a href="#" class="forgot-password">Mot de passe oublié ?</a>
 
-                            <button type="submit" class="btn-connexion">CONNEXION</button>
+                            <button type="button" id="connexion_btn" class="btn-connexion">CONNEXION</button>
 
                             <p class="signup-link">Pas de compte ? <a href="Sign-up.html">S'inscrire</a>.</p>
                         </form>
