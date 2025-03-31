@@ -4,6 +4,7 @@
     
     require 'config.php';
     require 'ActivitiesController.php';
+    require './src/controllers/TeamController.php';
     //require './src/controllers/ActivitiesController.php';
 
 
@@ -29,11 +30,17 @@
     post('/api/creerUser', function() {
         ActivitiesController::creerUser();
     });
-
-    //La route pour la creation d'un nouveau compte
-    post('/api/connexionUser', function() {
+     //La route pour la creation d'un nouveau compte
+     post('/api/connexionUser', function() {
         ActivitiesController::connexionUser();
     });
+
+    post('/api/creerTeam', function() {
+    TeamController::creerTeam();
+    });
+    get('/api/teams/$id', function($id){
+        TeamController::getTeam($id);
+     });
 
     //Route Random
     get('/api/activities/random', function() {
