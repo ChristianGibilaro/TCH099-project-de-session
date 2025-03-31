@@ -6,24 +6,23 @@ async function creerUser(event) {
 
     // Create a FormData object from the form
     const formData = new FormData(form);
-    //console.log(formData.values);
+    console.log(formData.values);
 
     try {
-        const response = await fetch('http://localhost:8000/api/creerUser', {
+        const response = await fetch('http://localhost:9999/api/creerUser', {
             method: 'POST',
             body: formData,
         });
 
         // Traitement de la reponse
         if (response.ok) {
-            const result = await response.json();
-            console.log(result);
-            //form.reset(); // Reset the form after successful submission
+            //const result = await response.json();
+            //form.reset(); // Reinitialiser le formulaire si la soummission est reussie.
         } else {
-            console.log('Failed to create the activity. Please try again.');
+            console.log('FRONT-END:Echec creation nouveau compte.');
         }
     } catch (error) {
         console.error('Error:', error);
-        console.log('An error occurred while submitting the form. Please try again later.');
+        console.log('Une erreur est survenue lors de la soummission.');
     }
 }
