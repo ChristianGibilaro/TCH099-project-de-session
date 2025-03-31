@@ -30,6 +30,11 @@
         ActivitiesController::creerUser();
     });
 
+    //La route pour la creation d'un nouveau compte
+    post('/api/connexionUser', function() {
+        ActivitiesController::connexionUser();
+    });
+
     //Route Random
     get('/api/activities/random', function() {
         ActivitiesController::getRandomActivities();
