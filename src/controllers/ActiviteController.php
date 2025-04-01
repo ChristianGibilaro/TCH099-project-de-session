@@ -15,7 +15,6 @@ class ActiviteController
             return;
         }
 
-        // 1) Lire le JSON brut
         $inputJSON = file_get_contents('php://input');
         $data = json_decode($inputJSON, true);
 
@@ -24,13 +23,11 @@ class ActiviteController
             return;
         }
 
-        // 2) Extraire les champs requis
         $title        = $data['title']        ?? null;
-        $isSport      = $data['isSport']      ?? null;  // booléen → b'1' / b'0'
+        $isSport      = $data['isSport']      ?? null;  
         $mainImg      = $data['main_img']     ?? null;
         $description  = $data['description']  ?? null;
 
-        // 3) Vérifier les champs obligatoires
         if (!$title || $isSport === null || !$mainImg || !$description) {
             echo json_encode([
                 'success' => false,
@@ -39,10 +36,8 @@ class ActiviteController
             return;
         }
 
-        // Convertir isSport bool → b'1' / b'0'
         $bitValue = ($isSport) ? "b'1'" : "b'0'";
 
-        // Champs facultatifs
         $logoImg        = $data['logo_img']        ?? null;
         $pointValue     = $data['point_value']     ?? null;
         $word4player    = $data['word_4_player']   ?? null;
@@ -56,8 +51,7 @@ class ActiviteController
         $friendSecond   = $data['friend_second_color'] ?? null;
 
         try {
-            // 4) Préparer la requête INSERT
-            //    NB: le champ Creation_Date se remplit tout seul (DEFAULT CURRENT_TIMESTAMP).
+            // Préparer la requête INSERT
             $sql = "
                 INSERT INTO Activity
                   (Title, IsSport, Main_Img, Description,
@@ -72,7 +66,6 @@ class ActiviteController
             ";
             $stmt = $pdo->prepare($sql);
 
-            // 5) Bind
             $stmt->bindValue(':title',    $title);
             $stmt->bindValue(':mainImg',  $mainImg);
             $stmt->bindValue(':descr',    $description);
