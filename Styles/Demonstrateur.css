@@ -1,121 +1,182 @@
     /* Couleurs principales */
     :root {
-    
+
       /*-- VARIABLE GLOBALE --*/
-  
-      --bg-dark: #0F0D05;
-      --text-big: #FFFFFF;
-      --accent: #6BB1EE;
-      --secondary: #4B6166;
-      --secondary-big: #9AB8EB;
-  
       --police: Arial, sans-serif;
-  
-      --verticalOnePercent: 1vh;
-      --HorizontalOnePercent:  1vw;
+
+      --bg-dark: #1a1a1b;
+      --bg-dark2: #272729;
+      --bg-darkLite: #343536;
+
+      --text: #bebebe;
+
+      --accent: #7cbcec;
+      --accent2: #0a79b9;
+      --accentHover: #54a3e6;
+
+      --link: #365dea;
+      --bold: #ffffff;
+
+      --border-radius: 8px;
+      --shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
 
       --MenuWidth: 80px;
       --MenuWidthClosed: 80px;
       --MenuWidthOpened: 320px;
 
       --MenuOpacityMax: 0.9;
-      --MenuOpacity:0;
+      --MenuOpacity: 0;
       --MenuTextOpacity: 0;
       --DimmerClick: none;
-  
     }
-    
+
     /* Structure générale */
 
     body {
       background-color: var(--bg-dark);
-      color: var(--text-big);
+      color: var(--text);
       font-family: var(--police);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      font-size: large;
+    }
+
+    a{
+      color: var(--link);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    a:visited {
+      /*color: var(--link) ;*/
+      text-decoration: none ;
+    }
+
+    strong{
+      font-size: xx-large;
+      color: var(--accent2);
     }
 
     /*--------------------------menu----------------------------*/
 
     header {
-      border: solid 5px rgb(0, 255, 255); /*tmp*/
-
       padding-top: 20px;
       background-color: var(--bg-dark);
+      border-right: solid var(--accent2);
       position: fixed;
       width: var(--MenuWidth);
       height: 100%;
       overflow-x: hidden;
-      transition: 0.5s;
+      transition: width 0.3s ease-in-out;
+      box-shadow: var(--shadow);
       z-index: 900;
     }
 
-    header table{
+    header a,
+    header:visited  {
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    header table {
+      width: var(--MenuWidthOpened);
+    }
+
+    header tbody,
+    header thead {
+      display: grid;
       width: var(--MenuWidthOpened);
     }
 
     #dimmer {
-        display: block;
-        background:black;
-        opacity: var(--MenuOpacity);
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 100;
-        pointer-events: var(--DimmerClick);
-        transition: 0.5s;
+      display: block;
+      background: black;
+      opacity: var(--MenuOpacity);
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 100;
+      pointer-events: var(--DimmerClick);
+      transition: 0.5s;
     }
 
-    #title{
+    #title {
       font-size: xx-large;
     }
 
-    #title .Name{
+    #title .Name {
       opacity: var(--MenuTextOpacity);
       transition: 0.5s;
     }
 
-    #title img, .menuButton img{
-      
+    thead .icon img {
       width: 70px;
       height: 70px;
     }
 
-    .icon{
-      width: var(--MenuWidthClosed);
+    tbody .icon img {
+
     }
 
-    .menuOptions{
+    .icon {
+      width: var(--MenuWidthClosed);
+      text-align: center;
+      width: 50px;
+    }
+
+    tbody .icon div {
+      height: 50px;
+      width: 50px;
+      background-color: var(--accent);
+  }
+
+    .logo {
       width: calc(var(--MenuWidthOpened) - var(--MenuWidthClosed));
       opacity: var(--MenuTextOpacity);
       transition: 0.5s;
       overflow: hidden;
-      padding-left: 20px;
       font-size: x-large;
-      
+      pointer-events: var(--DimmerClick);
     }
 
-    .menuButton{
-      border: solid 5px rgb(0, 255, 255); /*tmp*/
+    .menuOptions {
+      width: calc(var(--MenuWidthOpened) - var(--MenuWidthClosed));
+      opacity: var(--MenuTextOpacity);
+      transition: 0.5s;
+      overflow: hidden;
+      font-size: x-large;
+      pointer-events: var(--DimmerClick);
 
-      height: 80px;
-      margin-top: 20px;
+      border-radius: var(--border-radius);
+      border-bottom: solid var(--bg-darkLite);
+      border-top: solid var(--bg-darkLite);
     }
 
-    #bottomMenu{
+    .menuOptions:hover {
+      background-color: var(--bg-darkLite);
+    }
+
+    .menuRow {
+      border-radius: 5px;
+    }
+
+    .menuRow td {
+      height: 50px;
+      text-align: center;
+    }
+
+    #bottomMenu {
       position: absolute;
       bottom: 30px;
       left: 0px;
     }
 
-    .sign{
-      width: 50%;
-    }
 
-
- /*--------------------------le main---------------------------- FAUDRA REMPLACER (Un bug l'empeche pour l'instant)*/
-
-    #contenu{
+    /*--------------------------le main---------------------------- FAUDRA REMPLACER (Un bug l'empeche pour l'instant)*/
+    /*--------------------------Contenu----------------------------*/
+    #contenu {
       transition: 0.5s;
       height: 100%;
       position: absolute;
@@ -125,251 +186,283 @@
     }
 
 
-    
+
     /*--------------------------banniere----------------------------*/
     #banniere {
-      border: solid 5px red; /*tmp*/
-
       --baniereHeight: 240px;
-      --decalageHorizontalBaniere:40%;
-      --logoHeight:calc(var(--baniereHeight)/2);
-  
+      --decalageHorizontalBaniere: 40%;
+      --logoHeight: calc(var(--baniereHeight)/2);
+      border-bottom: 4px solid var(--accent);
       height: var(--baniereHeight);
     }
-    
+
     #banniere img {
       width: 100%;
       height: 100%;
-      object-fit: cover; 
+      object-fit: cover;
       object-position: 0% var(--decalageHorizontalBaniere);
     }
-    
+
     #logo {
-      border: solid 5px rgb(0, 8, 255); /*tmp*/
-  
       position: absolute;
       height: var(--logoHeight);
-
     }
-      
+
     /*--------------------------Description */
     .description {
-      border: solid 5px greenyellow;/*tmp*/
-  
+      background-color: var(--bg-dark2);
+      color: var(--accent);
+      border-bottom: solid var(--bg-darkLite);
       display: flex;
       align-items: center;
       height: 140px;
-      font-size: 1rem;
-      line-height: 1.5;
+      font-size: larger;
+      line-height: 1.2;
+
+      background-color: var(--bg-dark2);
+      padding: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
     }
-    
-    .right-text{
-      border: solid rgb(16, 255, 215); /*tmp*/
-  
+
+    .right-text {
       text-align: right;
       height: 100%;
       width: 20%;
     }
-    .left-text{
-      border: solid rgb(255, 11, 243); /*tmp*/
-  
+
+    .left-text {
       height: 100%;
       width: 80%;
     }
-  
-    /*--------------------------Contenu----------------------------*/
-    
+
+
+
     /*--------------------------Barre d’onglets (façon onglets Instagram) */
     .barre-onglets {
       display: flex;
       justify-content: center;
       align-items: center;
-      border-top: 1px solid rgba(255, 255, 255, 0.2);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      padding: 10px 0;
-      margin-bottom: 30px;
+      background-color: var(--bg-darkLite);
+      border-radius: var(--border-radius);
     }
-    
+
     .onglet {
       background: none;
       border: none;
-      color: var(--text-big);
+      color: var(--text);
       font-size: 1rem;
       margin: 0 15px;
       padding: 8px 0;
       cursor: pointer;
       position: relative;
       transition: color 0.2s;
+      border-radius: var(--border-radius);
     }
-    
+
     .onglet:hover {
-      color: var(--secondary-big);
+      color: var(--accentHover);
     }
-    
+
     .onglet.actif {
       color: var(--accent);
       font-weight: bold;
       border-bottom: 2px solid var(--accent);
     }
-    
+
     .last {
       margin-right: 0;
     }
-    
+
     /* Adaptation responsive */
     @media screen and (max-width: 600px) {
       .profil-view {
         flex-direction: column;
         text-align: center;
       }
-      
+
       .barre-onglets {
         flex-wrap: wrap;
       }
-    
+
       .onglet {
         margin: 5px 10px;
       }
     }
-    
+
     /*--------------------------Liste*/
-  
-  
-    .listeScrollable thead, .listeScrollable tbody tr{
+
+    .listeScrollable {
+      background-color: var(--bg-dark2);
+      border-radius: 2px;
+      margin: 60px;
+      box-shadow: var(--shadow);
+    }
+
+    .listeScrollable thead,
+    .listeScrollable tbody tr {
       display: table;
       width: 100%;
       table-layout: fixed;
       border-collapse: collapse;
     }
 
-    .listeScrollable tbody{
-      border: solid rgb(44, 130, 90); /*tmp*/
-      
+    .listeScrollable tbody {
       display: block;
       overflow-y: auto;
       overflow-x: hidden;
     }
-    
+
     .listeScrollable tbody tr {
-      transition: background-color 0.2s ease;
+      background-color: var(--bg-darkLite);
+      border-top: solid var(--accent);
+      border-bottom: solid var(--accent);
+      transition: 0.2s ease;
     }
 
-    .listeScrollable thead th {
-      border: solid rgb(255, 16, 243);
-    }
-
-    
     .listeScrollable tbody tr:hover {
-      animation: subtleShake 0.4s ease-in-out;
-  }
-  
-  @keyframes subtleShake {
-      0% { transform: translateX(0); }
-      20% { transform: translateX(-1px); }
-      40% { transform: translateX(1px); }
-      60% { transform: translateX(-1px); }
-      80% { transform: translateX(1px); }
-      100% { transform: translateX(0); }
-  }
-  
-  
-  /*---------------------AUTRE TEMPLATES ---------------------*/
-  .SquareImage {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .listeScrollable thead th {}
+
+    @keyframes subtleShake {
+      0% {
+        transform: translateX(0);
+      }
+
+      20% {
+        transform: translateX(-1px);
+      }
+
+      40% {
+        transform: translateX(1px);
+      }
+
+      60% {
+        transform: translateX(-1px);
+      }
+
+      80% {
+        transform: translateX(1px);
+      }
+
+      100% {
+        transform: translateX(0);
+      }
+    }
+
+
+    /*---------------------AUTRE CLASSES TEMPLATES ---------------------*/
+    .SquareImage {
       width: 120px;
       height: 120px;
       border-radius: 50%;
       object-fit: cover;
     }
 
-    .FillImage {
+    .FillImage img {
       width: 100%;
       height: 100%;
-      object-fit: cover; 
+      object-fit: cover;
       object-position: 0% 0%;
     }
 
-    .CenterChilds{
+    .CenterChilds {
       display: flex;
       justify-content: center;
     }
 
-    .RightChilds{
+    .RightChilds {
       display: flex;
       justify-content: right;
     }
 
-    .LeftChilds{
+    .LeftChilds {
       display: flex;
       justify-content: right;
     }
 
     .SideBySide {
       display: flex;
-      flex-wrap: wrap; /* Permet le retour à la ligne si l'espace est insuffisant */
+      flex-wrap: wrap;
+      /* Permet le retour à la ligne si l'espace est insuffisant */
     }
 
-      /*---------------------Boutton---------------------*/
+
+
+
+
+
+
+
+
+
+    /*______________________________________________________________________________ A TRIER __________________________________________________________________________________________
   
 /* Gros Boutton */
-/* Conteneur pour aligner le bouton */
-.big {
-  text-align: center;
-  margin-top: 10px;
-}
+    /* Conteneur pour aligner le bouton */
+    .big {
+      text-align: center;
+      margin-top: 10px;
+    }
 
-/* Style du bouton */
-.big button {
-  background-color: #004F5F;
-  border: none;
-  color: #FFF;
-  padding: 10px 20px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  
-  /* Pour l’animation */
-  position: relative;
-  overflow: hidden; /* Le ripple reste dans le bouton */
-}
+    /* Style du bouton */
+    .big button {
+      background-color: #004F5F;
+      border: none;
+      color: #FFF;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
 
-/* Couleur au survol */
-.big button:hover {
-  background-color: #006D7F;
-}
+      /* Pour l’animation */
+      position: relative;
+      overflow: hidden;
+      /* Le ripple reste dans le bouton */
+    }
 
-/* Pseudo-élément pour l’effet de cercle */
-.big button::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 2;
-  width: 0;
-  height: 0;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  opacity: 0;
-}
+    /* Couleur au survol */
+    .big button:hover {
+      background-color: #006D7F;
+    }
 
-/* Lancement de l’animation au survol */
-.big button:hover::before {
-  animation: circle 0.75s forwards;
-}
+    /* Pseudo-élément pour l’effet de cercle */
+    .big button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 2;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+    }
 
-/* Animation du ripple */
-@keyframes circle {
-  0% {
-    opacity: 1;
-  }
-  40% {
-    opacity: 1;
-  }
-  100% {
-    width: 200%;
-    height: 200%;
-    opacity: 0;
-  }
-}
+    /* Lancement de l’animation au survol */
+    .big button:hover::before {
+      animation: circle 0.75s forwards;
+    }
 
-/*---------------------CSS DU MARKETPLACE---------------------*/
+    /* Animation du ripple */
+    @keyframes circle {
+      0% {
+        opacity: 1;
+      }
+
+      40% {
+        opacity: 1;
+      }
+
+      100% {
+        width: 200%;
+        height: 200%;
+        opacity: 0;
+      }
+    }
+
+    /*---------------------CSS DU MARKETPLACE---------------------*/

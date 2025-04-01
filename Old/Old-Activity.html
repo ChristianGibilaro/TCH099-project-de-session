@@ -1,0 +1,365 @@
+
+               
+               <!DOCTYPE html>
+               <html lang="fr">
+                 <head>
+                   <meta charset="UTF-8">
+                   <title>Activite</title>
+                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                   <!-- Inclusion du JS -->
+                   <script src="Scripts/animationScript.js" defer></script>
+                   <!-- Inclusion du CSS -->
+                   <link rel="stylesheet" href="Styles\normalize.css">
+                   <link rel="stylesheet" href="Styles\Demonstrateur.css">
+                   <link rel="stylesheet" href="Styles/Activity.css">
+                 </head>
+               
+               <body>
+               
+                 <!-- Menu -->
+               
+                 <header onclick="toggleMenu()">
+                   <!-- Button en haut -->
+                   <table>
+                     <thead id="title">
+                       <th class="icon"><img src="ressources/Commun/Main_logo_example.png"></th>
+                       <th class="Name"><a href="Main.html">Find My Team</a></th>
+                     </thead>
+                     <tbody>
+                       
+                       <tr class="menuButton">
+                         <td class="icon">
+                           <img src="ressources/Commun/activity_button.png">
+                         </td>
+                         <td class="menuOptions">
+                           <a href="Activity.html">Activity</a>
+                         </td>
+                       </tr>
+               
+                       <tr class="menuButton">
+                         <td class="icon">
+                           <img src="ressources/Commun/teams_button.png">
+                         </td>
+                         <td class="menuOptions">
+                           <a href="Teams.html">Teams</a>
+                         </td>
+                       </tr>
+                     </tbody>
+                   </table>
+               
+               
+                   <!-- Button en bas -->
+                   <div id="bottomMenu">
+                     <table>
+                       <tbody>
+                         <tr class="menuButton">
+                           <td class="menuOptions sign">
+                             <a href="Sign-in.html">SIGN-IN</a>
+                           </td>
+                           <td class="menuOptions sign">
+                             <a href="Sign-up.html">SIGN-UP</a>
+                           </td>
+                         </tr>
+                       </tbody>
+                     </table>
+                 
+                     <table >
+                       <tbody>
+                         <tr class="menuButton">
+                           <td class="icon">
+                             <img src="ressources/Commun/user_profile_image_example.png">
+                           </td>
+                           <td class="menuOptions">
+                             <a href="profileUtilisateur.html">HeRobrain_III</a>
+                           </td>
+                         </tr>
+                       </tbody>
+                     </table>
+                   </div>
+                 </header>
+                 <div id="dimmer">
+                 </div>
+               <!-- fin menu -->
+               
+               
+               
+                 <div id="contenu">
+                   <!-- Baniere -->
+                   <div id="banniere">
+                     <div id="logo">
+                       <img src="ressources/Activity/activity_logo_example.png" alt="logo">
+                     </div>
+                     <img src="ressources/Commun/baniere_example.webp" alt="banniere">
+               
+                   </div>
+               
+                   <!-- Description -->
+                   <div id="description" class="description">
+                     <div class="left-text">
+                        <ul>
+                            <li>Welcome to the HELLDRIVERS II team hub!</li>
+                            <li>Please observe the fallowing Patriotic <a href="Activity.html">Community guide</a>. <br>
+                                Deviations in attention will be considered treason!</li><br>
+                            <li>Developed by Arowhead Game Studios</li>
+                        </ul>
+                     </div>
+                     <div class="right-text">
+                        <ul>
+                            <li><span>234890</span> divers active</li>
+                            <li><span>452</span> Legions</li>
+                            <li><span>3021</span> divers in action</li>
+                        </ul>
+                     </div>
+                   </div>
+               
+                   <!-- Barre d’onglets -->
+                   <div class="barre-onglets">
+                       <button class="onglet actif">View</button>
+                       <button class="onglet">Options</button>
+                   </div>
+               
+                    <!-- Liste-->
+                    <div class="liste-container"> <!-- Container qui enveloppe les deux listes-->
+                        <!-- Liste-->
+                    
+                      <div class="liste">
+                        <h2>Quick Games</h2>
+                          <table>
+                            <thead>
+                              <tr>
+                                <th></th>
+                                <th>Host</th>
+                                <th></th>
+                                <th>Difficulty</th>
+                                <th>Places</th>
+                                <th></th>
+                              </tr>
+                            </thead>
+                            <tbody class="liste-defilante">
+                              <!-- Exemple d’annonce -->
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/user_profile_image_example.png"></td>
+                                <td>HeRobrain_III</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg" ></td>
+                                <td>Super Helldive</td>
+                                <td>3/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <!-- Répéter pour chaque  -->
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                              <tr>
+                                <td style="width: 40px;" ><img src="ressources/Commun/annonce.png"></td>
+                                <td>Username</td>
+                                <td><img src="ressources/Activity/team_level_example.webp" class="centerImg"></td>
+                                <td>Helldive</td>
+                                <td>0/4</td>
+                                <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                              </tr>
+                            </tbody>
+                          </table>
+                      </div>
+                    
+                           
+                      <div class="liste">
+                        <h2>Legions</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th></th>
+                                    <th>Name</th>
+                                    <th>Size</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody class="liste-defilante">
+                                <!-- Exemple d’annonce -->
+                                <tr>
+                                    <td>1- 123 exfills</td>
+                                    <td><img src="ressources/Activity/SuperEarth.jpg" alt=""></td>
+                                    <td>Malevelon Creekers</td>
+                                    <td>12 904</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <!-- Répéter pour chaque activité -->
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                                <tr>
+                                    <td>1- x exfills</td>
+                                    <td><img src="ressources/Commun/annonce.png" alt=""></td>
+                                    <td>Legion of Super Earth</td>
+                                    <td>999 999</td>
+                                    <td><img src="ressources/Activity/Teamate_example.webp" alt=""></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+
+                    </div> <!-- Fin du container qui enveloppe les deux listes-->
+                 
+               </div>
+               </body>
+               </html>

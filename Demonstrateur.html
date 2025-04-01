@@ -1,144 +1,31 @@
 <!DOCTYPE html>
 <html lang="fr">
-  <head>
-    <meta charset="UTF-8">
-    <title>Demonstrateur</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Inclusion du JS -->
-    <script src="Scripts/animationScript.js" defer></script>
-    <script src="Scripts/ElementCreator.js"></script>
-    <!-- Inclusion du CSS -->
-    <link rel="stylesheet" href="Styles\normalize.css">
-    <link rel="stylesheet" href="Styles\Demonstrateur.css">
-  </head>
 
-<body>
-  <script>
-    var creator = new ElementCreator("Demonstrateur");
+<head>
 
-    
-  </script>
-
-  <!-- Menu -->
-  <header onclick="toggleMenu()">
-    <!-- Button en haut -->
-    <table>
-      <thead id="title">
-        <th class="icon"><img src="ressources/Commun/Main_logo_example.png"></th>
-        <th class="Name"><a href="Main.html">Find My Team</a></th>
-      </thead>
-      <tbody>
-        
-        <tr class="menuButton">
-          <td class="icon">
-            <img src="ressources/Commun/activity_button.png">
-          </td>
-          <td class="menuOptions">
-            <a href="Activity.html">Activity</a>
-          </td>
-        </tr>
-
-        <tr class="menuButton">
-          <td class="icon">
-            <img src="ressources/Commun/teams_button.png">
-          </td>
-          <td class="menuOptions">
-            <a href="Teams.html">Teams</a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
-
-    <!-- Button en bas -->
-    <div id="bottomMenu">
-      <table>
-        <tbody>
-          <tr class="menuButton">
-            <td class="menuOptions sign">
-              <a href="Sign-in.html">SIGN-IN</a>
-            </td>
-            <td class="menuOptions sign">
-              <a href="Sign-up.html">SIGN-UP</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+  <meta charset="UTF-8">
+  <title>Demonstrateur</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-      <table >
-        <tbody>
-          <tr class="menuButton">
-            <td class="icon">
-              <img src="ressources/Commun/user_profile_image_example.png">
-            </td>
-            <td class="menuOptions">
-              <a href="profileUtilisateur.html">HeRobrain_III</a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </header>
-  <div id="dimmer" onclick="toggleMenu()"> 
-  </div>
-<!-- fin menu -->
+  <!-- Inclusion du JS -->
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+
+  <!-- Inclusion du CSS -->
+  <link rel="stylesheet" href="Styles\normalize.css">
+  <link rel="stylesheet" href="Styles\Demonstrateur.css">
+  <link rel="stylesheet" href="Styles\test.css">
+
+</head>
 
 
 
-  <div id="contenu">
-    <!-- Baniere -->
-    <div id="banniere">
-      <div id="logo">
-        <img src="ressources/Commun/logo_example.png" alt="logo">
-      </div>
-      <img src="ressources/Commun/baniere_example.webp" alt="banniere">
+<!------------------------------------------------ Object et vars ----------------------------------------------->
+<script>
+  var creator = new ElementCreator("Demonstrateur");
 
-    </div>
-
-    <!-- Description -->
-    <div id="description" class="description">
-      <div class="left-text">
-        Ceci est-un texte (Gauche)
-      </div>
-      <div class="right-text">
-        Ceci est-un texte (Droite)
-      </div>
-    </div>
-
-        <!-- Barre d’onglets -->
-    <!-- ajout de on click pour que js sache quoi afficher -->
-    <div class="barre-onglets">
-      <button class="onglet actif" onclick="afficherSection('section1', this)">Onglet 1</button>
-      <button class="onglet" onclick="afficherSection('section2', this)">Onglet 2</button>
-      <button class="onglet" onclick="afficherSection('section3', this)">Onglet 3</button>
-      <button class="onglet" onclick="afficherSection('section4', this)">Onglet 4</button>
-      <button class="onglet last" onclick="afficherSection('section5', this)">
-          Onglet 5<br><span class="sous-texte">ex_saut de ligne</span>
-      </button>
-  </div>
-
-  <!-- Contenu des onglets qui change selon js -->
-<div id="sections-container">
-  
-  
-  <div id="section1" class="contenu-onglet">Contenu de l’onglet 1</div>
-  
-  <div id="section2" class="contenu-onglet" style="display: none;">Contenu de l'onglet 2</div>
-  
-  <div id="section3" class="contenu-onglet" style="display: none;">Contenu de l’onglet 3</div>
-  
-  <div id="section4" class="contenu-onglet" style="display: none;">Contenu de l’onglet 4</div>
-  
-  <div id="section5" class="contenu-onglet" style="display: none;">Contenu de l’onglet 5</div>
-
-
-</div>
-  
-  
-  <script>
-
-    // sera fournit par l'api
-    var elements = 
+  //Fournit par l'api
+  var elements =
     [["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
@@ -149,76 +36,94 @@
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],];
-    var titles = ['nein', "Texte", "Long texte"];
-    //----
+  var titles = ['nein', "Texte", "Long texte"];
+ 
+
+</script>
+ <!------------------------------------------------ fin vars ----------------------------------------------->
 
 
+<body>
+
+  <!------------------------------------------------ Menu ----------------------------------------------->
+  <header onclick="toggleMenu()">
+    <script>
+      document.write(creator.CreateMenu(["ressources/Commun/Main_logo_example.png", "ressources/Commun/logo_example.png"],
+        [["ressources/Commun/activity_button.png", "Activities", "Activity.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"]],
+        [["ressources/Commun/activity_button.png", "Sign-up", "Sign-up.html"], ["ressources/Commun/activity_button.png", "Sign-In", "Sign-in.html"], ["ressources/Commun/user_profile_image_example.png", "HeRobrain_III", "profileUtilisateur.html"]]));
+    </script>
+  </header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+  <!------------------------------------------------ fin Menu ----------------------------------------------->
 
 
-    var titleType = [["txt"],["txt"],["txt"]];
-    var rowType = [["img","100px","100px","image_failed","FillImage","object-position: 1% 40%;"],["txt"],["txt"]];
-    var titlesRow = creator.CreateTableTitles( titles, [50,40,10],3,null,null,null);
-    var rows = creator.CreateTableRows( elements, rowType,[50,40,10],3,null,null,"text-align: center;");
-
-
-    document.write(creator.SideBySide("100%", "500px",null,"CenterChilds","border: solid rgb(154, 172, 42);",
-    creator.CreateScrollableTable("300px","300px",titlesRow,rows,null,null,null),
-    creator.CreateScrollableTable("300px","300px",titlesRow,rows,null,null,null),
-    creator.CreateScrollableTable("300px","300px",titlesRow,rows,null,null,null),
-    creator.CreateScrollableTable("300px","300px",titlesRow,rows,null,null,null)));
-
-
+  <!------------------------------------------------ Contenu ----------------------------------------------->
+  <div id="contenu">
+    
+    <!------------ Baniere ------------>
+    <script>
+      document.write(creator.CreateHero("ressources/Commun/baniere_example.webp", "ressources/Commun/logo_example.png"));
     </script>
 
-    <div style="height: 150px; width: 100%;" class="CenterChilds">
-      <script>
-        document.write(creator.CreateImage("500px",null,"ressources/Commun/baniere_example.webp","image",null,"FillImage"," object-position: 1% 40%;"));
-      </script>
+    <!------------ Description ------------>
+    <script>
+      document.write(creator.CreateDesc("Website Name: Lunar Covenant", "Stats"));
+    </script>
+
+    <!------------ Selecteur d'onglet ------------>
+    <div class="barre-onglets">
+      <button class="onglet actif" onclick="afficherSection('section1', this)">Exemple Listes</button>
+      <button class="onglet" onclick="afficherSection('section2', this)">Exemple Image</button>
+      <button class="onglet" onclick="afficherSection('section3', this)">Grid</button>
+      <button class="onglet" onclick="afficherSection('section4', this)">Onglet 4</button>
+      <button class="onglet last" onclick="afficherSection('section5', this)">
+        Onglet 5<br><span class="sous-texte">ex_saut de ligne</span>
+      </button>
     </div>
 
-</div>
+    <!------------ Onglet ------------>
+    <div id="sections-container">
 
-<!-- Début espace marketplace -->
- <!--
-<div class="marketplace">
-  <div class="item">
-      <img src="ressources/splash.png" alt="Nissan 300zx">
-      <div class="info">
-          <h3>2 500 $US</h3>
-          <p>1995 Nissan 300zx Coupe 2D</p>
-          <span>Daly City, CA - 200k miles</span>
+      <!----- Onglet 1 ------->
+      <div id="section1" class="contenu-onglet">
+        <script>
+          //Head du tableau
+          var titleType = [["txt"], ["txt"], ["txt"]];
+          var titlesRow = creator.CreateTableTitles(titles, [40, 40, 20], 3, null, null, null);
+
+          //Les ligne du tableau
+          var rowType = [["img", "100px", "100px", "image_failed", "FillImage", "object-position: 1% 40%;"], ["txt"], ["txt"]];
+          var rows = creator.CreateTableRows(elements, rowType, [40, 40, 20], 3, null, null, "text-align: center;");
+
+          //Un tableu scrollable
+          document.write(creator.PutInDiv(creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null), "", "CenterChilds", "width = 100%;"));
+
+          //2 tableu cote a cote scrollable
+          document.write(creator.SideBySide(null, null, null, "CenterChilds", "border: solid rgb(154, 172, 42);",
+            creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null),
+            creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null)));
+          
+        </script>
       </div>
-  </div>
 
-  <div class="item">
-      <img src="ressources/splash.png" alt="Yamaha yzf">
-      <div class="info">
-          <h3>3 000 $US</h3>
-          <p>2006 Yamaha yzf</p>
-          <span>San Francisco, CA - 47k miles</span>
+      <!----- Onglet 2 ------->
+      <div id="section2" class="contenu-onglet" style="display: none;">
+        <script>
+          //Une image
+          document.write(creator.CreateImage("500px", null, "ressources/Commun/baniere_example.webp", "image", null, "FillImage", " object-position: 1% 40%;"));
+        </script>
       </div>
-  </div>
 
-  <div class="item">
-      <img src="ressources/splash.png" alt="Bougainvillea">
-      <div class="info">
-          <h3>15 $US</h3>
-          <p>Bougainvillea / Bugambilias</p>
-          <span>Napa, CA</span>
-      </div>
-  </div>
+      <!----- Onglet 3 ------->
+      <div id="section3" class="contenu-onglet" style="display: none;">Contenu de l’onglet 3</div>
 
-  <div class="item">
-      <img src="ressources/splash.png" alt="Surfboard">
-      <div class="info">
-          <h3>100 $US</h3>
-          <p>Beginner surfboard</p>
-          <span>San Francisco, CA</span>
-      </div>
-  </div>
-</div>
--->
-<!-- Fin espace marketplace -->
+      <!----- Onglet 4 ------->
+      <div id="section4" class="contenu-onglet" style="display: none;">Contenu de l’onglet 4</div>
 
+      <!----- Onglet 5 ------->
+      <div id="section5" class="contenu-onglet" style="display: none;">Contenu de l’onglet 5</div>
+    </div>
+  </div>
 </body>
+
 </html>
