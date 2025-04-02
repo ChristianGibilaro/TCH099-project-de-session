@@ -3,11 +3,13 @@ package com.example.lab1;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,9 +18,9 @@ public class Login extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
     private TextView tvForgotPassword;
-    private ImageView ivLoginIcon, ivSignupIcon;
+    private Button btnLogin, btnSignup;
 
-    // JSON contenant uniquement le compte admin TEMPORAIRE!!!!!!!!!!!!!!!!!!
+    // JSON contenant uniquement le compte admin TEMPORAIRE
     private static final String JSON_DATA = "{\n" +
             "  \"clients\": [\n" +
             "      {\n" +
@@ -37,14 +39,14 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_login); // Vérifie bien que c'est le bon layout
 
         // Initialisation des vues
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
-        ivLoginIcon = findViewById(R.id.ivLoginIcon);
-        ivSignupIcon = findViewById(R.id.ivSignupIcon);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnSignup = findViewById(R.id.btnSignup);
 
         // Si un email a été transmis depuis Register/forgot, le préremplir
         String registeredEmail = getIntent().getStringExtra("registeredEmail");
@@ -62,16 +64,16 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        // Clic sur l'icône de login, vérification des identifiants
-        ivLoginIcon.setOnClickListener(new View.OnClickListener() {
+        // Clic sur le bouton de connexion : vérification des identifiants
+        btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 verifyCredentials();
             }
         });
 
-        // Clic sur l'icône de signup
-        ivSignupIcon.setOnClickListener(new View.OnClickListener() {
+        // Clic sur le bouton d'inscription
+        btnSignup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Login.this, Register.class);

@@ -1,116 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/constraintLayout"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#272226">
-
-    <!-- Titre : Se connecter -->
-
-    <!-- Champ Email -->
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="32dp"
+    android:background="#F0F0F0">
 
     <TextView
-        android:id="@+id/tvLoginTitle"
+        android:id="@+id/tvTitre"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="136dp"
+        android:text="Find My Game"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="32dp"
+        android:textColor="#000000"/>
+
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:drawable/edit_text"/>
+
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Mot de passe"
+        android:inputType="textPassword"
+        android:padding="12dp"
+        android:layout_marginBottom="24dp"
+        android:background="@android:drawable/edit_text"/>
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:text="Se connecter"
+        android:backgroundTint="#000000"
         android:textColor="#FFFFFF"
-        android:textSize="24sp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="12dp"
+        android:layout_marginBottom="24dp"/>
 
     <TextView
         android:id="@+id/tvForgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="24dp"
-        android:layout_marginTop="4dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:text="Mot de passe oublié?"
-        android:textColor="#FFCC00"
-        android:textSize="14sp"
-        app:layout_constraintLeft_toLeftOf="@id/etPassword"
-        app:layout_constraintTop_toBottomOf="@id/etPassword" />
+        android:text="Mot de passe oublié ?"
+        android:textColor="#0066CC"
+        android:layout_marginBottom="12dp"/>
 
-    <EditText
-        android:id="@+id/etEmail"
-        android:layout_width="0dp"
+    <Button
+        android:id="@+id/btnSignup"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginRight="32dp"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
+        android:text="Créer un compte"
+        android:backgroundTint="#000000"
         android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvLoginTitle" />
+        android:padding="12dp"/>
 
-    <EditText
-        android:id="@+id/etPassword"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="32dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="32dp"
-        android:hint="Mot de passe"
-        android:inputType="textPassword"
-        android:textColor="#FFFFFF"
-        android:textColorHint="#AAAAAA"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/etEmail" />
-
-    <ImageView
-        android:id="@+id/ivLoginIcon"
-        android:layout_width="172dp"
-        android:layout_height="151dp"
-        android:clickable="true"
-        android:contentDescription="Accéder à Register"
-        android:focusable="true"
-        android:src="@drawable/login"
-        app:layout_constraintTop_toTopOf="@+id/guideline"
-        tools:layout_editor_absoluteX="32dp" />
-
-    <ImageView
-        android:id="@+id/ivSignupIcon"
-        android:layout_width="172dp"
-        android:layout_height="151dp"
-        android:layout_marginTop="22dp"
-        android:clickable="true"
-        android:contentDescription="Accéder à Home"
-        android:focusable="true"
-        android:src="@drawable/signup"
-        app:layout_constraintStart_toEndOf="@+id/ivLoginIcon"
-        app:layout_constraintTop_toTopOf="@+id/guideline" />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="92dp"
-        android:layout_height="86dp"
-        app:srcCompat="@drawable/logo"
-        tools:layout_editor_absoluteX="-2dp"
-        tools:layout_editor_absoluteY="2dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="321dp" />
-
-    <!-- Champ Mot de passe -->
-
-    <!-- Lien Mot de passe oublié -->
-
-    <!-- Conteneur des icônes -->
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
