@@ -28,6 +28,8 @@
       --MenuOpacity: 0;
       --MenuTextOpacity: 0;
       --DimmerClick: none;
+
+      --HeadHeight: 0;
     }
 
     /* Structure générale */
@@ -248,6 +250,9 @@
       border-radius: var(--border-radius);
     }
 
+    #sections-container {
+      height: 100%
+    }
     .onglet {
       background: none;
       border: none;
