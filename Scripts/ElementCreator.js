@@ -225,7 +225,7 @@ class ElementCreator {
                 switch (elementsType[j][0]) {
                     case "img":
                         outRows += '<td style= "width: ' + elementsSize[j] + '%;">' +
-                            this.CreateImage(elementsType[j][1], elementsType[j][2], elements[j][j], elementsType[j][3], null, elementsType[j][4], elementsType[j][5]) + '</td>';
+                            this.CreateImage(elementsType[j][1], elementsType[j][2], elements[i][j], elementsType[j][3], null, elementsType[j][4], elementsType[j][5]) + '</td>';
                         break;
                     case "txt":
                         outRows += '<td style= "width: ' + elementsSize[j] + '%;">' + elements[i][j] + '</td>';

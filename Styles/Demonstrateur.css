@@ -214,6 +214,7 @@
       color: var(--accent);
       border-bottom: solid var(--bg-darkLite);
       display: flex;
+      
       align-items: center;
       height: 140px;
       font-size: larger;
@@ -295,7 +296,7 @@
     .listeScrollable {
       background-color: var(--bg-dark2);
       border-radius: 2px;
-      margin: 60px;
+      overflow-y: scroll;
       box-shadow: var(--shadow);
     }
 
@@ -316,7 +317,7 @@
     .listeScrollable tbody tr {
       background-color: var(--bg-darkLite);
       border-top: solid var(--accent);
-      border-bottom: solid var(--accent);
+      border-bottom: solid var(--accent2);
       transition: 0.2s ease;
     }
 
@@ -367,6 +368,8 @@
       object-fit: cover;
       object-position: 0% 0%;
     }
+
+
 
     .CenterChilds {
       display: flex;

@@ -85,7 +85,7 @@
     <div id="sections-container">
 
       <!----- Onglet 1 ------->
-      <div id="section1" class="contenu-onglet">
+      <div id="section1" class="contenu-onglet" style="height: 100%;">
         <script>
           //Head du tableau
           var titleType = [["txt"], ["txt"], ["txt"]];
@@ -96,7 +96,7 @@
           var rows = creator.CreateTableRows(elements, rowType, [40, 40, 20], 3, null, null, "text-align: center;");
 
           //Un tableu scrollable
-          document.write(creator.PutInDiv(creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null), "", "CenterChilds", "width = 100%;"));
+          document.write(creator.PutInDiv(creator.CreateScrollableTable("500px", "auto", titlesRow, rows, null, null, null), "", "CenterChilds", "width = 100%;"));
 
           //2 tableu cote a cote scrollable
           document.write(creator.SideBySide(null, null, null, "CenterChilds", "border: solid rgb(154, 172, 42);",
