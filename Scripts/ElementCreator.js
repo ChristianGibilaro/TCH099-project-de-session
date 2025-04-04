@@ -1,6 +1,6 @@
+//import './steamApiKey.js'
 // A fix: les docs des functions et images IDS
 class ElementCreator {
-
     scrollableListeID = 0;
     imageID = 0;
     tabletitlesID = 0;

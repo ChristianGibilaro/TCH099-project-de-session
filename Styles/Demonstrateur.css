@@ -41,7 +41,7 @@
       line-height: 1.6;
       margin: 0;
       padding: 0;
-      font-size: large;
+      font-size: 12px;
     }
 
     a{
@@ -55,7 +55,6 @@
     }
 
     strong{
-      font-size: xx-large;
       color: var(--accent2);
     }
 
@@ -105,7 +104,7 @@
     }
 
     #title {
-      font-size: xx-large;
+      font-size: x-large;
     }
 
     #title .Name {
@@ -218,7 +217,7 @@
       display: flex;
       
       align-items: center;
-      height: 140px;
+      height: 100px;
       font-size: larger;
       line-height: 1.2;
 
@@ -226,6 +225,10 @@
       padding: 20px;
       border-radius: var(--border-radius);
       box-shadow: var(--shadow);
+    }
+
+    .description h1, .description h2 {
+      margin: 0;
     }
 
     .right-text {
