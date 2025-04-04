@@ -49,8 +49,8 @@
         SteamController::getGameData($appid);
         });
 
-    get('/api/steam/user/$appid', function($appid){
-        SteamController::getGameData($appid);
+    get('/api/steam/user/$userid', function($userid){
+        SteamController::getUserData($userid);
         });
     
 
