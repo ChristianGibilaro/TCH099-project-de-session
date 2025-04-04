@@ -7,6 +7,7 @@
     require './src/controllers/ActiviteController.php';
     require './src/controllers/TeamController.php';
     require './src/controllers/MatchController.php';
+    require './src/controllers/SteamController.php';
 
     //ROUTES POUR LES USERS
 
@@ -42,7 +43,15 @@
 
     post('/api/creerMatch', function() {
         MatchController::creerMatch();
-        });    
+        });   
 
+    get('/api/steam/game/$appid', function($appid){
+        SteamController::getGameData($appid);
+        });
+
+    get('/api/steam/user/$appid', function($appid){
+        SteamController::getGameData($appid);
+        });
+    
 
 ?>
