@@ -22,6 +22,6 @@
         android:layout_marginStart="70dp"
         android:gravity="center_vertical"
         android:text=""
-        android:textColor="#FBFBFB"
+        android:textColor="#000000"
         android:textSize="16sp" />
 </FrameLayout>
