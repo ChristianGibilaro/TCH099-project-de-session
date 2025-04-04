@@ -477,3 +477,52 @@
     }
 
     /*---------------------CSS DU MARKETPLACE---------------------*/
+    .marketplace-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      padding: 20px;
+      justify-content: center;
+    }
+    
+    .produit-card {
+      background-color: var(--bg-dark2);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      width: 220px;
+      padding: 10px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+    
+    .produit-card img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+    }
+    
+    .produit-card h3 {
+      font-size: 1rem;
+      margin: 10px 0 5px;
+      color: var(--bold);
+    }
+    
+    .produit-card .prix {
+      color: var(--accent);
+      font-weight: bold;
+    }
+    
+    .produit-card p {
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .produit-card a img {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .produit-card a img:hover {
+      transform: scale(1.03);
+    }
+    
