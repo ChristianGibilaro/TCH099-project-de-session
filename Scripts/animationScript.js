@@ -44,3 +44,23 @@ function afficherSection(id, bouton) {
 
     bouton.classList.add('actif');
 }
+
+// Fonction pour filtrer la liste en fonction de ce que l'utilisateur tape
+document.addEventListener("DOMContentLoaded", function () {
+    const champFiltre = document.getElementById('filtre-nom');
+    const liste = document.querySelectorAll('#liste-pays li');
+  
+    champFiltre.addEventListener('input', function () {
+      const valeur = champFiltre.value.trim().toLowerCase();
+  
+      liste.forEach(item => {
+        const texte = item.textContent.trim().toLowerCase();
+        if (texte.startsWith(valeur) || valeur === "") {
+          item.style.display = '';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+  

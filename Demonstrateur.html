@@ -182,7 +182,70 @@
       </div>
 
       <!----- Onglet 4 ------->
-      <div id="section4" class="contenu-onglet" style="display: none;">Contenu de l’onglet 4</div>
+      <div id="section4" class="contenu-onglet" style="display: none;">
+
+        <div class="barre-filtres">
+          <!-- Texte + Liste filtrable (ensemble) -->
+          <div class="bloc-filtre">
+            <input type="text" id="filtre-nom" placeholder="Filtrer par nom (ex: F)">
+            <div class="liste-scrollable">
+              <ul id="liste-pays">
+                <li>France</li>
+                <li>Finlande</li>
+                <li>Fidji</li>
+                <li>États-Unis</li>
+                <li>Espagne</li>
+                <li>Égypte</li>
+                <li>Argentine</li>
+                <li>Brésil</li>
+                <li>Chine</li>
+                <li>Danemark</li>
+                <li>Estonie</li>
+                <li>Équateur</li>
+                <li>Afrique du Sud</li>
+                <li>Australie</li>
+                <li>Allemagne</li>
+                <li>Belgique</li>
+                <li>Canada</li>
+                <li>Colombie</li>
+                <li>Corée du Sud</li>
+                <li>Inde</li>
+                <li>Indonésie</li>
+                <li>Islande</li>
+                <li>Irlande</li>
+                <li>Italie</li>
+                <li>Japon</li>
+                <li>Lituanie</li>
+                <li>Maroc</li>
+                <li>Mexique</li>
+                <li>Norvège</li>
+                <li>Nouvelle-Zélande</li>
+              </ul>
+            </div>
+          </div>
+        
+          <!-- Nombre -->
+          <div class="bloc-filtre">
+            <input type="number" id="filtre-nombre" placeholder="Nombre (ex: 10)" min="0" max="100" step="1">
+          </div>
+        
+          <!-- Date / Heure -->
+          <div class="bloc-filtre">
+            <input type="datetime-local" id="filtre-datetime">
+          </div>
+        
+          <!-- Checkboxes -->
+          <div class="bloc-filtre filtre-checkboxes">
+            <label><input type="checkbox" name="categorie" value="tshirt"> T-shirt</label>
+            <label><input type="checkbox" name="categorie" value="baggy"> Baggy</label>
+            <label><input type="checkbox" name="couleur" value="jaune"> Jaune</label>
+            <label><input type="checkbox" name="couleur" value="noir"> Noir</label>
+          </div>
+        </div>
+        
+        
+      
+      </div>
 
       <!----- Onglet 5 ------->
       <div id="section5" class="contenu-onglet" style="display: none;">Contenu de l’onglet 5</div>
