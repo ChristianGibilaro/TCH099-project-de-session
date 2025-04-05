@@ -27,6 +27,10 @@ class ActivitiesController
 
                     //Si un utilisateur existe, on verifie si le hashage du mot de passe saisi correspond au hashage de la BD.
                     if ($user_infos && password_verify($password_saisie, $user_infos['Password'])) {
+                        //On met a jour la date du last_login si l'utilisateur se connecte avec succes
+                        $stmtUser = $pdo->prepare('UPDATE User SET Last_login = :last_login 
+                                                            WHERE Pseudo = :pseudo OR  Email = :email');
+                        $stmtUser->execute([':last_login' => date('Y-m-d H:i:s'),':pseudo'=>$email_saisie, ':email'=>$email_saisie]);
                         echo json_encode('Connexion réussie ! Bienvenue, ' . htmlspecialchars($user_infos['Pseudo']) . '.');
                         echo json_encode($user_infos);
                     } else {
