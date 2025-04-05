@@ -14,6 +14,39 @@ class ElementCreator {
         console.log("Creator js script initialized for page " + pageName);
     }
 
+    GetSteamGameData(appid){
+        fetch(`http://localhost:9999/api/steam/game/${appid}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des activités');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+    }
+
+    GetSteamUserData(userid){
+        fetch(`http://localhost:9999/api/steam/user/${userid}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des activités');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+    }
+
+
     /**
     * @param {String}   baseId      the base for the id ex: "scrollableTable"
     * @param {String}   id          id to apply or null for automatic Id generation
