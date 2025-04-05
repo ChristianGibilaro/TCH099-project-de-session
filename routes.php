@@ -10,6 +10,11 @@ require './src/controllers/MatchController.php';
 require './src/controllers/AndroidController.php';
 require './src/controllers/SteamController.php';
 
+//DEMARER LA SESSION GLOBALE ICI AU BESOIN SANS DEFINIR LA VARIABLE $_SESSION['parametre']
+/*if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}*/
+
 //ROUTES POUR LES USERS
 
 //La route pour la creation d'un nouveau compte

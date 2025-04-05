@@ -8,6 +8,11 @@ class ActivitiesController
         header('Access-Control-Allow-Origin: *');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            //Démarrer une session. Il faudra probablement deplacer cette ligne dans une autre place
+            //session_start();
+            if (session_status() === PHP_SESSION_NONE) {
+                session_start();
+            }            
     
             // Extraction et verification/validation des informations ou des donnees recues depuis le formulaire(front-end).
             if (isset($_POST['email'], $_POST['password'])) {
@@ -30,6 +35,11 @@ class ActivitiesController
                         //On met a jour la date du last_login si l'utilisateur se connecte avec succes
                         $stmtUser = $pdo->prepare('UPDATE User SET Last_login = :last_login 
                                                             WHERE Pseudo = :pseudo OR  Email = :email');
+                        
+                        // Stocker des informations dans la session
+                        $_SESSION['user_id'] = $user_infos['ID'];
+                        $_SESSION['user_pseudo'] = $user_infos['Pseudo'];
+
                         $stmtUser->execute([':last_login' => date('Y-m-d H:i:s'),':pseudo'=>$email_saisie, ':email'=>$email_saisie]);
                         echo json_encode('Connexion réussie ! Bienvenue, ' . htmlspecialchars($user_infos['Pseudo']) . '.');
                         echo json_encode($user_infos);
@@ -45,6 +55,7 @@ class ActivitiesController
                 echo json_encode(['success' => false, 'message' => 'Champs d\'utilisateur ou du mot de passe est vide!']);
             }
         } else {
+            //session_destroy();
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'OPERATION ECHOUEE: Base de donnees introuvable.']);
         }
