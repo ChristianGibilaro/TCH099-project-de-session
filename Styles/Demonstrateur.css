@@ -254,8 +254,10 @@
     }
 
     #sections-container {
-      height: 100%
+      height: 100%;
+      margin-left: 5px;
     }
+
     .onglet {
       background: none;
       border: none;
@@ -563,6 +565,9 @@
 
 /* Conteneur scrollable de la liste (liens avec le input texte) */
 .liste-scrollable {
+  display: none;
+  margin-top:50px;
+  position: absolute;
   max-height: 300px;
   overflow-y: auto;
   border: 1px solid var(--accent);

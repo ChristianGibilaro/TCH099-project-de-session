@@ -1,4 +1,3 @@
-//import './steamApiKey.js'
 // A fix: les docs des functions et images IDS
 class ElementCreator {
     scrollableListeID = 0;
@@ -390,18 +389,70 @@ class ElementCreator {
 }
 
 /*
-  <div id="contenu">
-    <!-- Baniere -->
+<div id="section3" class="contenu-onglet" style="display: none;">
 
+        <div class="marketplace-grid">
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
 
-    <!-- Description -->
-    <div id="description" class="description">
-      <div class="left-text">
-        Ceci est-un texte (Gauche)
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+        </div>
+
       </div>
-      <div class="right-text">
-        Ceci est-un texte (Droite)
-      </div>
-    </div>
 
   */
