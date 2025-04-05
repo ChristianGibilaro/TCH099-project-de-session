@@ -476,7 +476,7 @@
       }
     }
 
-    /*---------------------CSS DU MARKETPLACE---------------------*/
+    /*---------------------CSS DU MARKETPLACE (SECTION 3)---------------------*/
     .marketplace-grid {
       display: flex;
       flex-wrap: wrap;
@@ -525,4 +525,110 @@
     .produit-card a img:hover {
       transform: scale(1.03);
     }
-    
+
+/*--------------------- BARRE DE FILTRAGE (SECTION 4) ---------------------*/
+
+/* Conteneur général de la barre de filtres */
+.barre-filtres {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+  margin-top: 20px; /* Espacement avec ce qui précède */
+}
+
+/* Bloc individuel de filtre (utilisé pour tous les inputs) */
+.bloc-filtre {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex: 1 1 200px;
+  min-width: 200px;
+}
+
+/* Appliqué aux champs : texte, nombre, date/heure */
+.bloc-filtre input,
+.barre-filtres input[type="number"],
+.barre-filtres input[type="datetime-local"] {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  background-color: var(--bg-darkLite);
+  color: var(--text);
+}
+
+/* ========================= LISTE DÉROULANTE (TEXTE + liste) ========================= */
+
+/* Conteneur scrollable de la liste (liens avec le input texte) */
+.liste-scrollable {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--accent);
+  border-radius: var(--border-radius);
+  background-color: var(--bg-dark2);
+  box-shadow: var(--shadow);
+}
+
+/* Liste UL contenant les pays */
+#liste-pays {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Éléments individuels de la liste (liens à filtrer) */
+#liste-pays li {
+  padding: 10px;
+  border-bottom: 1px solid var(--bg-darkLite);
+  color: var(--text);
+  cursor: pointer;
+}
+
+#liste-pays li:hover {
+  background-color: var(--bg-darkLite);
+}
+
+#liste-pays li:last-child {
+  border-bottom: none;
+}
+
+/* ========================= CHECKBOXES ========================= */
+
+/* Conteneur des checkboxes */
+.filtre-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding-top: 10px;
+}
+
+/* Style de chaque case à cocher */
+.filtre-checkboxes label {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-darkLite);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+/* Décalage entre la case et le texte */
+.filtre-checkboxes input[type="checkbox"] {
+  margin-right: 6px;
+}
+
+/* Ajustement spécifique pour que les checkboxes soient alignées horizontalement */
+.bloc-filtre.filtre-checkboxes {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 0;
+  padding: 0;
+  height: auto;
+}
