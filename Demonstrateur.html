@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <title>Demonstrateur</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
+
   <!-- Inclusion du JS -->
   <script src="Scripts/animationScript.js" defer></script>
   <script src="Scripts/ElementCreator.js"></script>
@@ -14,15 +14,14 @@
   <!-- Inclusion du CSS -->
   <link rel="stylesheet" href="Styles\normalize.css">
   <link rel="stylesheet" href="Styles\Demonstrateur.css">
-  <link rel="stylesheet" href="Styles\test.css">
 
 </head>
-
-
 
 <!------------------------------------------------ Object et vars ----------------------------------------------->
 <script>
   var creator = new ElementCreator("Demonstrateur");
+  creator.GetSteamGameData("1245620");
+  creator.GetSteamUserData("76561199131939133");
 
   //Fournit par l'api
   var elements =
@@ -37,11 +36,9 @@
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],
     ["ressources/Commun/user_profile_image_example.png", "Texte", "Long texte"],];
   var titles = ['nein', "Texte", "Long texte"];
- 
 
 </script>
- <!------------------------------------------------ fin vars ----------------------------------------------->
-
+<!------------------------------------------------ fin vars ----------------------------------------------->
 
 <body>
 
@@ -59,26 +56,27 @@
 
   <!------------------------------------------------ Contenu ----------------------------------------------->
   <div id="contenu">
-    
-    <!------------ Baniere ------------>
-    <script>
-      document.write(creator.CreateHero("ressources/Commun/baniere_example.webp", "ressources/Commun/logo_example.png"));
-    </script>
+    <div id="head">
+      <!------------ Baniere ------------>
+      <script>
+        document.write(creator.CreateHero("ressources/Commun/baniere_example.webp", "ressources/Commun/logo_example.png"));
+      </script>
 
-    <!------------ Description ------------>
-    <script>
-      document.write(creator.CreateDesc("Website Name: Lunar Covenant", "Stats"));
-    </script>
+      <!------------ Description ------------>
+      <script>
+        document.write(creator.CreateDesc("Website Name: Lunar Covenant", "Stats"));
+      </script>
 
-    <!------------ Selecteur d'onglet ------------>
-    <div class="barre-onglets">
-      <button class="onglet actif" onclick="afficherSection('section1', this)">Exemple Listes</button>
-      <button class="onglet" onclick="afficherSection('section2', this)">Exemple Image</button>
-      <button class="onglet" onclick="afficherSection('section3', this)">Grid</button>
-      <button class="onglet" onclick="afficherSection('section4', this)">Onglet 4</button>
-      <button class="onglet last" onclick="afficherSection('section5', this)">
-        Onglet 5<br><span class="sous-texte">ex_saut de ligne</span>
-      </button>
+      <!------------ Selecteur d'onglet ------------>
+      <div class="barre-onglets">
+        <button class="onglet actif" onclick="afficherSection('section1', this)">Exemple Listes</button>
+        <button class="onglet" onclick="afficherSection('section2', this)">Exemple Image</button>
+        <button class="onglet" onclick="afficherSection('section3', this)">Grid</button>
+        <button class="onglet" onclick="afficherSection('section4', this)">Onglet 4</button>
+        <button class="onglet last" onclick="afficherSection('section5', this)">
+          Onglet 5<br><span class="sous-texte">ex_saut de ligne</span>
+        </button>
+      </div>
     </div>
 
     <!------------ Onglet ------------>
@@ -102,7 +100,7 @@
           document.write(creator.SideBySide(null, null, null, "CenterChilds", "border: solid rgb(154, 172, 42);",
             creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null),
             creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null)));
-          
+
         </script>
       </div>
 
@@ -115,13 +113,199 @@
       </div>
 
       <!----- Onglet 3 ------->
-      <div id="section3" class="contenu-onglet" style="display: none;">Contenu de l’onglet 3</div>
+      <div id="section3" class="contenu-onglet" style="display: none;">
+
+        <div class="marketplace-grid">
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+        </div>
+
+      </div>
 
       <!----- Onglet 4 ------->
-      <div id="section4" class="contenu-onglet" style="display: none;">Contenu de l’onglet 4</div>
+      <div id="section4" class="contenu-onglet" style="display: none;">
+
+        <div class="barre-filtres">
+          <!-- Texte + Liste filtrable (ensemble) -->
+          <div class="bloc-filtre">
+            <input type="text" id="searchBar" placeholder="Filtrer par nom (ex: F)">
+            <div class="liste-scrollable">
+              <ul id="liste-pays">
+                <li class="choice">France</li>
+                <li class="choice">Finlande</li>
+                <li class="choice">Fidji</li>
+                <li class="choice">États-Unis</li>
+                <li class="choice">Espagne</li>
+                <li class="choice">Égypte</li>
+                <li class="choice">Argentine</li>
+                <li class="choice">Brésil</li>
+                <li class="choice">Chine</li>
+                <li class="choice">Danemark</li>
+                <li class="choice">Estonie</li>
+                <li class="choice">Équateur</li>
+                <li class="choice">Afrique du Sud</li>
+                <li class="choice">Australie</li>
+                <li class="choice">Allemagne</li>
+                <li class="choice">Belgique</li>
+                <li class="choice">Canada</li>
+                <li class="choice">Colombie</li>
+                <li class="choice">Corée du Sud</li>
+                <li class="choice">Inde</li>
+                <li class="choice">Indonésie</li>
+                <li class="choice">Islande</li>
+                <li class="choice">Irlande</li>
+                <li class="choice">Italie</li>
+                <li class="choice">Japon</li>
+                <li class="choice">Lituanie</li>
+                <li class="choice">Maroc</li>
+                <li class="choice">Mexique</li>
+                <li class="choice">Norvège</li>
+                <li class="choice">Nouvelle-Zélande</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Nombre -->
+          <div class="bloc-filtre">
+            <input type="number" id="filtre-nombre" placeholder="Nombre (ex: 10)" min="0" max="100" step="1">
+          </div>
+
+          <!-- Date / Heure -->
+          <div class="bloc-filtre">
+            <input type="datetime-local" id="filtre-datetime">
+          </div>
+
+          <!-- Checkboxes -->
+          <div class="bloc-filtre filtre-checkboxes">
+            <label><input type="checkbox" name="categorie" value="tshirt"> T-shirt</label>
+            <label><input type="checkbox" name="categorie" value="baggy"> Baggy</label>
+            <label><input type="checkbox" name="couleur" value="jaune"> Jaune</label>
+            <label><input type="checkbox" name="couleur" value="noir"> Noir</label>
+          </div>
+        </div>
+        <script>
+          document.write(creator.CreateImage("500px", null, "ressources/Commun/baniere_example.webp", "image", null, "FillImage", " object-position: 1% 40%;"));
+        </script>
+        document.write(creator.CreateImage("500px", null, "ressources/Commun/baniere_example.webp", "image", null, "FillImage", " object-position: 1% 40%;"));
+
+      </div>
 
       <!----- Onglet 5 ------->
-      <div id="section5" class="contenu-onglet" style="display: none;">Contenu de l’onglet 5</div>
+      <div id="section5" class="contenu-onglet" style="display: none;">
+
+        <h3 class="form-title">Créer un compte</h3>
+        <form id="form_new_user_id" method="POST" enctype="multipart/form-data">
+          <div class="input-group">
+            <label for="pseudonym">Pseudonyme *</label>
+            <input type="text" id="pseudonym" name="pseudonym" required>
+          </div>
+
+          <div class="input-group">
+            <label for="nom">Nom *</label>
+            <input type="text" id="nom" name="nom" required>
+          </div>
+
+          <div class="input-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+
+          <div class="input-group">
+            <label for="password">Mot de passe *</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+
+          <div class="input-group">
+            <label for="password2">Confirmez le mot de passe *</label>
+            <input type="password" id="password2" name="password2" required>
+          </div>
+
+          <div class="input-group">
+            <label for="image">Image de profil</label>
+            <input type="file" id="image" name="image">
+          </div>
+
+          <div class="input-group">
+            <label for="description">Description *</label>
+            <textarea id="description" name="description" required></textarea>
+          </div>
+
+          <div class="input-group">
+            <label for="age">Date de naissance *</label>
+            <input type="date" id="age" name="age" required>
+          </div>
+
+          <!-- ✅ Case à cocher pour accepter les conditions -->
+          <div class="checkbox-group">
+            <input type="checkbox" id="agreement" name="agreement" required>
+            <label for="agreement">J'accepte les <a href="#">conditions générales</a>.</label>
+          </div>
+
+          <!-- ✅ Bouton d'inscription -->
+          <button type="button" id="soummission_btn" class="btn-connexion">Créer un compte</button>
+
+          <!-- ✅ Lien vers la connexion -->
+          <p class="signup-link">Déjà un compte ? <a href="Sign-in.html">Se connecter</a>.</p>
+        </form>
+
+      </div>
     </div>
   </div>
 </body>

@@ -1,6 +1,5 @@
 // A fix: les docs des functions et images IDS
 class ElementCreator {
-
     scrollableListeID = 0;
     imageID = 0;
     tabletitlesID = 0;
@@ -13,6 +12,39 @@ class ElementCreator {
         this.pageName = pageName;
         console.log("Creator js script initialized for page " + pageName);
     }
+
+    GetSteamGameData(appid){
+        fetch(`http://localhost:9999/api/steam/game/${appid}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des activités');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+    }
+
+    GetSteamUserData(userid){
+        fetch(`http://localhost:9999/api/steam/user/${userid}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erreur lors de la récupération des activités');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+    }
+
 
     /**
     * @param {String}   baseId      the base for the id ex: "scrollableTable"
@@ -357,18 +389,70 @@ class ElementCreator {
 }
 
 /*
-  <div id="contenu">
-    <!-- Baniere -->
+<div id="section3" class="contenu-onglet" style="display: none;">
 
+        <div class="marketplace-grid">
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
 
-    <!-- Description -->
-    <div id="description" class="description">
-      <div class="left-text">
-        Ceci est-un texte (Gauche)
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+
+          <div class="produit-card">
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
+            <h3>titre <span class="prix">prix</span></h3>
+            <p>description</p>
+          </div>
+        </div>
+
       </div>
-      <div class="right-text">
-        Ceci est-un texte (Droite)
-      </div>
-    </div>
 
   */
