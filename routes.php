@@ -8,6 +8,14 @@ require './src/controllers/ActiviteController.php';
 require './src/controllers/TeamController.php';
 require './src/controllers/MatchController.php';
 require './src/controllers/AndroidController.php';
+    require_once(__DIR__.'/router.php');
+    
+    require 'config.php';
+    require 'ActivitiesController.php';
+    require './src/controllers/ActiviteController.php';
+    require './src/controllers/TeamController.php';
+    require './src/controllers/MatchController.php';
+    require './src/controllers/SteamController.php';
 
 //ROUTES POUR LES USERS
 
@@ -44,6 +52,19 @@ post('/api/creerActivite', function() {
     });*/
 
 //ROUTES POUR LES MATCHS
+
+    post('/api/creerMatch', function() {
+        MatchController::creerMatch();
+        });   
+
+    get('/api/steam/game/$appid', function($appid){
+        SteamController::getGameData($appid);
+        });
+
+    get('/api/steam/user/$userid', function($userid){
+        SteamController::getUserData($userid);
+        });
+    
 
 post('/api/creerMatch', function() {
     MatchController::creerMatch();
