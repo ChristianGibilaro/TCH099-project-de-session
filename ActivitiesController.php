@@ -54,7 +54,7 @@ class ActivitiesController
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $fileTmpPath = $_FILES['image']['tmp_name'];
                 $fileName = basename($_FILES['image']['name']);
-                $imageFolder = 'ressources/images/';
+                $imageFolder = 'ressources/images/profile/';
                 $videoFolder = 'ressources/videos/';
 
                 // Création des dossiers s'ils n'existent pas. On a pas vraiment besoins puisqu'on predefinit les repertoires d,avance

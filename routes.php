@@ -1,48 +1,74 @@
 <?php
 
-    require_once(__DIR__.'/router.php');
-    
-    require 'config.php';
-    require 'ActivitiesController.php';
-    require './src/controllers/ActiviteController.php';
-    require './src/controllers/TeamController.php';
-    require './src/controllers/MatchController.php';
+require_once(__DIR__.'/router.php');
 
-    //ROUTES POUR LES USERS
+require 'config.php';
+require 'ActivitiesController.php';
+require './src/controllers/ActiviteController.php';
+require './src/controllers/TeamController.php';
+require './src/controllers/MatchController.php';
+require './src/controllers/AndroidController.php';
 
-    //La route pour la creation d'un nouveau compte
-    post('/api/creerUser', function() {
-        ActivitiesController::creerUser();
+//ROUTES POUR LES USERS
+
+//La route pour la creation d'un nouveau compte
+post('/api/creerUser', function() {
+    ActivitiesController::creerUser();
+});
+    //La route pour la connexion de l'utilisateur
+post('/api/connexionUser', function() {
+    ActivitiesController::connexionUser();
+});
+
+get('/api/inconnu/${userID}', function($userID){
+    AndroidController::getAllDatAndroid($userID);
     });
-     //La route pour la creation d'un nouveau compte
-    post('/api/connexionUser', function() {
-        ActivitiesController::connexionUser();
+
+//ROUTES POUR LES TEAMS
+
+post('/api/creerTeam', function() {
+    TeamController::creerTeam();
+});
+get('/api/teams/$id', function($id){
+    TeamController::getTeam($id);
     });
 
-    //ROUTES POUR LES TEAMS
+    //ROUTES POUR LES ACTIVITES
 
-    post('/api/creerTeam', function() {
-        TeamController::creerTeam();
+post('/api/creerActivite', function() {
+    ActiviteController::creerActivite();
     });
-    get('/api/teams/$id', function($id){
-        TeamController::getTeam($id);
-     });
 
-     //ROUTES POUR LES ACTIVITES
+/*get('/api/activities/$id', function($id){
+    ActiviteController::getActivite($id);
+    });*/
 
-    post('/api/creerActivite', function() {
-        ActiviteController::creerActivite();
-        });
+//ROUTES POUR LES MATCHS
 
-    get('/api/activities/$id', function($id){
-        ActiviteController::getActivite($id);
-        });
+post('/api/creerMatch', function() {
+    MatchController::creerMatch();
+    });
 
-    //ROUTES POUR LES MATCHS
+/***Les routes pour Android */
+get('/api/singleUserOnly/${userID}', function($userID){
+    AndroidController::getUserOnly($userID);
+ });
+ get('/api/singleMessageOnly/${msgID}', function($msgID){
+    AndroidController::getMessageOnly($msgID);
+ });
+ get('/api/singleMessageSelonUserIDOnly/${userID}', function($userID){
+    AndroidController::getMessageSelonUserID($userID);
+ });
+ 
+ get('/api/singleMessageSelonChatIDOnly/${chatID}', function($chatID){
+    AndroidController::getMessageSelonChatID($chatID);
+ });
+ 
+ get('/api/singleChatOnly/${chatID}', function($chatID){
+    AndroidController::getChatOnly($chatID);
+ });
 
-    post('/api/creerMatch', function() {
-        MatchController::creerMatch();
-        });    
-
-
+ get('/api/singleChateSelonMessageIDOnly/${msgID}', function($msgID){
+    AndroidController::getChatSelonMessageID($msgID);
+ });
 ?>

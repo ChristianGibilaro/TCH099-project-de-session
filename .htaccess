@@ -1,8 +1,9 @@
 RewriteEngine On
 RewriteCond %{REQUEST_URI} !(\.png|\.jpg|\.webp|\.gif|\.jpeg|\.zip|\.css|\.svg|\.js|\.pdf|\.mp4|\.mov|\.avi|\.mkv)$
 
-RewriteCond %{REQUEST_URI} !^/ressources/images/
-#RewriteCond %{REQUEST_URI} !^/ressources/videos/
+RewriteCond %{REQUEST_URI} !^/ressources/images/profile/
+RewriteCond %{REQUEST_URI} !^/ressources/images/team/
+RewriteCond %{REQUEST_URI} !^/ressources/videos/
 
 <IfModule mod_headers.c>
     Header set Access-Control-Allow-Origin "*"
