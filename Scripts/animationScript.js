@@ -88,3 +88,44 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
   
+//Fonction pour afficher l'image ou la vidéo sélectionnée en grand
+function changerMedia(element) {
+  const container = document.getElementById("media-display");
+  container.innerHTML = "";
+
+  // Retirer les anciens "actif"
+  document.querySelectorAll('.media-thumbnails img, .media-thumbnails video')
+    .forEach(el => el.classList.remove('active-media'));
+
+  // Ajouter la classe active à l'élément sélectionné
+  element.classList.add('active-media');
+
+  // Affichage principal
+  if (element.tagName === "IMG") {
+    const img = document.createElement("img");
+    img.src = element.src;
+    img.alt = "media";
+    container.appendChild(img);
+  } else if (element.tagName === "VIDEO") {
+    const video = document.createElement("video");
+    video.src = element.src;
+    video.controls = true;
+    video.autoplay = true;
+    container.appendChild(video);
+  }
+}
+
+//Fonction pour scroller
+function scrollMediaThumbnails(direction) {
+  const container = document.getElementById("media-thumbnails");
+  const scrollAmount = 200; // px
+
+  container.scrollBy({
+    left: direction * scrollAmount,
+    behavior: 'smooth'
+  });
+}
+
+document.querySelectorAll('.media-thumbnails video').forEach(video => {
+  video.disablePictureInPicture = true;
+});
