@@ -4,37 +4,62 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class MessagerieCreate extends AppCompatActivity {
 
-    private EditText etConvoName, etParticipants;
-    private Button btnCreate;
+    private EditText etConversationNameCreateMessage, etMemberPseudoCreateMessage, etAdditionalInfoCreateMessage;
+    private LinearLayout btnAddMemberCreateMessageContainer, layoutAddButtonCreateMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messagerie_create);
 
-        etConvoName = findViewById(R.id.etConvoName);
-        etParticipants = findViewById(R.id.etParticipants);
-        btnCreate = findViewById(R.id.btnCreate);
+        etConversationNameCreateMessage = findViewById(R.id.etConversationNameCreateMessage);
+        etMemberPseudoCreateMessage = findViewById(R.id.etMemberPseudoCreateMessage);
+        etAdditionalInfoCreateMessage = findViewById(R.id.etAdditionalInfoCreateMessage);
+        btnAddMemberCreateMessageContainer = findViewById(R.id.btnAddMemberCreateMessageContainer);
+        layoutAddButtonCreateMessage = findViewById(R.id.layoutAddButtonCreateMessage);
 
-        btnCreate.setOnClickListener(new View.OnClickListener() {
+        // Le champ d'affichage des membres ne doit pas être éditable
+        etAdditionalInfoCreateMessage.setEnabled(false);
+
+        // Ajout du pseudo lorsqu'on clique sur le bouton d'ajout de membre
+        btnAddMemberCreateMessageContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String name = etConvoName.getText().toString().trim();
-                String members = etParticipants.getText().toString().trim();
-
-                if(name.isEmpty() || members.isEmpty()){
-                    Toast.makeText(MessagerieCreate.this, "Please fill in both conversation name and members.", Toast.LENGTH_SHORT).show();
+                String newMember = etMemberPseudoCreateMessage.getText().toString().trim();
+                if (newMember.isEmpty()) {
+                    Toast.makeText(MessagerieCreate.this, "Veuillez saisir un pseudo.", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                // Return the conversation details
+                String currentMembers = etAdditionalInfoCreateMessage.getText().toString().trim();
+                String updatedMembers;
+                if (currentMembers.isEmpty()) {
+                    updatedMembers = newMember;
+                } else {
+                    updatedMembers = currentMembers + ", " + newMember;
+                }
+                etAdditionalInfoCreateMessage.setText(updatedMembers);
+                etMemberPseudoCreateMessage.setText("");
+            }
+        });
+
+        // Bouton "Ajouter" pour renvoyer les informations de la conversation
+        layoutAddButtonCreateMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String convoName = etConversationNameCreateMessage.getText().toString().trim();
+                String members = etAdditionalInfoCreateMessage.getText().toString().trim();
+                if (convoName.isEmpty() || members.isEmpty()) {
+                    Toast.makeText(MessagerieCreate.this, "Veuillez remplir le nom de la conversation et ajouter au moins un membre.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("convoName", name);
+                resultIntent.putExtra("convoName", convoName);
                 resultIntent.putExtra("convoMembers", members);
                 setResult(RESULT_OK, resultIntent);
                 finish();

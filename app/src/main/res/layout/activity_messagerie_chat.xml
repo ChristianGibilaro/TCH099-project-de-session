@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- Header area with a back button and conversation name -->
+    <!-- Header area with a back button, a default picture, and conversation name -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
@@ -17,12 +17,21 @@
 
         <ImageButton
             android:id="@+id/btnBack"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
+            android:layout_width="46dp"
+            android:layout_height="46dp"
             android:background="?android:selectableItemBackgroundBorderless"
             android:contentDescription="Back"
-            android:src="@drawable/left"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/left" />
+
+        <!-- Default picture 10dp to the right of the back button -->
+        <ImageView
+            android:id="@+id/imgDefaultPicture"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="20dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/playericon" />
 
         <TextView
             android:id="@+id/tvConvoName"
@@ -67,12 +76,12 @@
 
         <ImageButton
             android:id="@+id/btnSend"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="43dp"
+            android:layout_height="43dp"
             android:background="?android:selectableItemBackgroundBorderless"
             android:contentDescription="Send Message"
-            android:src="@drawable/send"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop"
+            android:src="@drawable/send" />
     </LinearLayout>
 
 </RelativeLayout>

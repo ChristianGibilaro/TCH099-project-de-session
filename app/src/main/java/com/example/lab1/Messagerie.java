@@ -3,7 +3,7 @@ package com.example.lab1;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class Messagerie extends AppCompatActivity {
+public class  Messagerie extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
