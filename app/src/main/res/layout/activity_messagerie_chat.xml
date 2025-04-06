@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212">
+    android:background="#FFFFFF">
 
-    <!-- Zone d'en-tête -->
+    <!-- Header area with a back button and conversation name -->
     <LinearLayout
         android:id="@+id/header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#1F1F1F"
+        android:background="#FFFFFF"
         android:elevation="4dp"
         android:orientation="horizontal"
         android:padding="16dp">
@@ -23,8 +22,7 @@
             android:background="?android:selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:src="@drawable/left"
-            android:scaleType="centerCrop"
-            app:tint="#FFFFFF" />
+            android:scaleType="centerCrop" />
 
         <TextView
             android:id="@+id/tvConvoName"
@@ -32,12 +30,12 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:text="Conversation Name"
-            android:textColor="#FBFBFB"
+            android:textColor="#000000"
             android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- RecyclerView pour les messages -->
+    <!-- RecyclerView for messages (occupies space between header and message bar) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerMessages"
         android:layout_width="match_parent"
@@ -46,10 +44,9 @@
         android:layout_above="@id/messageBar"
         android:padding="16dp"
         android:clipToPadding="false"
-        android:scrollbars="vertical"
-        android:background="#121212" />
+        android:scrollbars="vertical" />
 
-    <!-- Barre d'envoi des messages -->
+    <!-- Message input bar at the bottom -->
     <LinearLayout
         android:id="@+id/messageBar"
         android:layout_width="match_parent"
@@ -57,7 +54,7 @@
         android:layout_alignParentBottom="true"
         android:orientation="horizontal"
         android:padding="8dp"
-        android:background="#1F1F1F">
+        android:background="#F0F0F0">
 
         <EditText
             android:id="@+id/etMessage"
@@ -66,8 +63,7 @@
             android:layout_weight="1"
             android:hint="Type your message..."
             android:padding="8dp"
-            android:background="@drawable/edittext_dark_background"
-            android:textColor="#FBFBFB"/>
+            android:background="@android:color/white" />
 
         <ImageButton
             android:id="@+id/btnSend"
@@ -76,8 +72,7 @@
             android:background="?android:selectableItemBackgroundBorderless"
             android:contentDescription="Send Message"
             android:src="@drawable/send"
-            android:scaleType="centerCrop"
-            app:tint="#FFFFFF" />
+            android:scaleType="centerCrop" />
     </LinearLayout>
 
 </RelativeLayout>
