@@ -3,6 +3,7 @@
 include_once(__DIR__ . '/../../config.php');
 class AndroidController
 {
+    
     //Collecter les donnees de plusieurs tabes d'un coup des tables suivantes: User, Message, Chat et ChatMessage
     public static function getAllDatAndroid($userID){
         global $pdo;
@@ -95,6 +96,9 @@ class AndroidController
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
             
             echo json_encode($userData);
+            if (session_status() === PHP_SESSION_ACTIVE) {
+            }
+           
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Table "Message"):' => $e->getMessage()]);
@@ -208,5 +212,77 @@ class AndroidController
             echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Table "Chat"):' => $e->getMessage()]);
         }
 
+    }
+
+    /***************************Requetes 'POST' pour Android */
+    public static function creerChat(){
+        
+        global $pdo;
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: *');
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+            // Extraction et verification/validation des informations ou des donnees recues depuis le formulaire(front-end).
+            if (isset($_POST['chat_name'])) {
+                $chat_name = htmlspecialchars($_POST['chat_name']);
+
+                //Verification si l'utilisateur/email existe dans la basse de donnees.
+                try {
+                    $stmtUser = $pdo->prepare('SELECT User.ID FROM User WHERE   User.ID = :user_id');
+                    $stmtUser->bindParam(':user_id',$_SESSION['user_id']);
+
+                    $stmtUser->execute();
+
+                    $user_id = $stmtUser->fetch(PDO::FETCH_ASSOC);
+
+                    //Verifier si un ID utilisateur existe dans la session courante
+                    if ($user_id) {
+
+                        $stmtChat = $pdo->prepare('INSERT INTO Chat(name) VALUES (name = :chat_name)');
+
+                        $stmtChat->execute([':chat_name' => $chat_name ]);
+                        echo json_encode($user_id);
+
+                        //stocker les ID utilisateur et chat dans la table ChatCreator
+                        $stmtChatName = $pdo->prepare('SELECT Chat.ID FROM Chat WHERE   name = :chat_name');
+                        $stmtChatName->bindParam(':chat_name',$chat_name);
+
+                        $stmtChatName->execute();
+
+                        $chat_id = $stmtChatName->fetch(PDO::FETCH_ASSOC);
+                
+                        try {
+        
+                            //Verifier si un ID utilisateur existe dans la session courante
+                            if ($chat_id) {
+        
+                                $stmtChatCreator = $pdo->prepare('INSERT INTO ChatCreatot(UserID, TeamID, ChatID) VALUES (name = :chat_name)');
+        
+                                $stmtChatCreator->execute(['user_id' => $user_id,':chat_id' => $chat_id ]);
+        
+                            } else {
+                                echo json_encode('ID d\'utilisateur introuvable.');
+                            }
+        
+                        } catch (PDOException $e) {
+                            echo json_encode(['success' => false, 'message' => 'Erreur est survenue lors du traitement de la requete.']);
+                        }
+                    } else {
+                        echo json_encode('ID d\'utilisateur introuvable.');
+                    }
+
+                } catch (PDOException $e) {
+                    echo json_encode(['success' => false, 'message' => 'Erreur est survenue lors du traitement de la requete.']);
+                }
+                
+
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Le chat n\'a pas pu etre cree!']);
+            }
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'OPERATION ECHOUEE: Base de donnees introuvable.']);
+        }
     }
 }

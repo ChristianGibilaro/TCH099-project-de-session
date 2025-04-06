@@ -1,8 +1,10 @@
 <?php
-include_once("config.php");
+
+include_once 'config.php';
 class ActivitiesController
 {
     public static function connexionUser(){
+        
         global $pdo;
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: *');
@@ -32,8 +34,12 @@ class ActivitiesController
                                                             WHERE Pseudo = :pseudo OR  Email = :email');
                         
                         // Stocker des informations dans la session
-                        $_SESSION['user_id'] = $user_infos['ID'];
-                        $_SESSION['user_pseudo'] = $user_infos['Pseudo'];
+                        if (session_status() === PHP_SESSION_ACTIVE) {
+                            //echo json_encode('La session est  ouverte');
+                            $_SESSION["user_id"] = $user_infos['ID'];
+                            $_SESSION["user_pseudo"] = $user_infos['Pseudo'];
+                            
+                        }
 
                         $stmtUser->execute([':last_login' => date('Y-m-d H:i:s'),':pseudo'=>$email_saisie, ':email'=>$email_saisie]);
                         echo json_encode('Connexion réussie ! Bienvenue, ' . htmlspecialchars($user_infos['Pseudo']) . '.');
@@ -45,6 +51,7 @@ class ActivitiesController
                 } catch (PDOException $e) {
                     echo json_encode(['success' => false, 'message' => 'Erreur est survenue lors du traitement de la requete.']);
                 }
+                
 
             } else {
                 echo json_encode(['success' => false, 'message' => 'Champs d\'utilisateur ou du mot de passe est vide!']);

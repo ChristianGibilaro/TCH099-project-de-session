@@ -1,5 +1,4 @@
 <?php
-
 require_once(__DIR__.'/router.php');
 
 require 'config.php';
@@ -9,11 +8,6 @@ require './src/controllers/TeamController.php';
 require './src/controllers/MatchController.php';
 require './src/controllers/AndroidController.php';
 require './src/controllers/SteamController.php';
-
-//DEMARER LA SESSION GLOBALE ICI AU BESOIN SANS DEFINIR LA VARIABLE $_SESSION['parametre']
-/*if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}*/
 
 //ROUTES POUR LES USERS
 
@@ -90,5 +84,9 @@ get('/api/singleUserOnly/${userID}', function($userID){
 
  get('/api/singleChateSelonMessageIDOnly/${msgID}', function($msgID){
     AndroidController::getChatSelonMessageID($msgID);
+ });
+
+ post('/api/creerChat', function(){
+    AndroidController::creerChat();
  });
 ?>

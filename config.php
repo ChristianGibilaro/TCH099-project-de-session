@@ -1,4 +1,6 @@
 <?php
+include_once 'session_demarrage.php';
+//session_start();
     //configuration et connexion à la base de données
     $host = 'db';
     $db = 'mydatabase';
