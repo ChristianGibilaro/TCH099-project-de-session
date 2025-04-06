@@ -386,73 +386,40 @@ class ElementCreator {
     PutInDiv(child, id, classes, extraStyle){
         return '<div id="' + id + '" style = "' + extraStyle + '" class = "' + classes + '">' + child + '</div>'
     }
-}
+
+    CreateGrid(elements,elementsType,id,classes,extraStyles){
+        var out = 0;
+        for (var i = 0; i < elements.length; i++) {
+            
+            if (elements[i].length != colNumb) {
+                valid = i;
+                break;
+            }//[["img","100px","100px","image_failed","FillImage","object-position: 1% 40%;"],["txt"],["txt"]];
+            for (var j = 0; j < elements[i].length; j++) {
+                switch (elementsType[j][0]) {
+                    case "img":
+                        outRows += '<td style= "width: ' + elementsSize[j] + '%;">' +
+                            this.CreateImage(elementsType[j][1], elementsType[j][2], elements[i][j], elementsType[j][3], null, elementsType[j][4], elementsType[j][5]) + '</td>';
+                        break;
+                    case "txt":
+                        outRows += '<td style= "width: ' + elementsSize[j] + '%;">' + elements[i][j] + '</td>';
+                        break;
+
+                }
+            }
+            outRows += '</tr>';
+        }
+
+    }
 
 /*
-<div id="section3" class="contenu-onglet" style="display: none;">
-
         <div class="marketplace-grid">
           <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
-          </div>
-
-          <div class="produit-card">
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit"></a>
-            <h3>titre <span class="prix">prix</span></h3>
-            <p>description</p>
+            <a href="Activity.html"><img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037" height="40px" style="border: solid var(--accent);"></a>
+            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit" style="border: solid var(--accent);"></a>
+            <h3>Creator: HeRobrain_III <br><span class="prix"> 4/6 places</span></h3>
+            <p>Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100</p>
           </div>
         </div>
-
-      </div>
 
   */
