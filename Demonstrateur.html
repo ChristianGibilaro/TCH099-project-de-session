@@ -71,11 +71,12 @@
       <div class="barre-onglets">
         <button class="onglet actif" onclick="afficherSection('section1', this)">Exemple Listes</button>
         <button class="onglet" onclick="afficherSection('section2', this)">Exemple Image</button>
-        <button class="onglet" onclick="afficherSection('section3', this)">Grid</button>
-        <button class="onglet" onclick="afficherSection('section4', this)">Onglet 4</button>
+        <button class="onglet" onclick="afficherSection('section3', this)">Marketplace</button>
+        <button class="onglet" onclick="afficherSection('section4', this)">Barre à filtres</button>
         <button class="onglet last" onclick="afficherSection('section5', this)">
-          Onglet 5<br><span class="sous-texte">ex_saut de ligne</span>
+          Form<br><span class="sous-texte">ex_saut de ligne</span>
         </button>
+        <button class="onglet" onclick="afficherSection('section6', this)">Media</button>
       </div>
     </div>
 
@@ -308,6 +309,43 @@
         </form>
 
       </div>
+
+      <div id="section6" class="contenu-onglet" style="display: none;">
+        
+        <h2>
+          <div class="media-viewer">
+            <div class="media-display" id="media-display">
+              <!-- Le contenu principal (image ou vidéo) s'affichera ici -->
+              <img src="ressources/Media/got_2.png" alt="media principal" id="media-principal" />
+            </div>
+
+            <div class="media-thumbnails-container">
+              <button class="scroll-btn left" onclick="scrollMediaThumbnails(-1)">⯇</button>
+            
+              <div class="media-thumbnails" id="media-thumbnails">
+                <img src="ressources/Media/got_imagr.png" onclick="changerMedia(this)" />
+                <img src="ressources/Media/photo_manette.jpg" onclick="changerMedia(this)" />
+                <video src="ressources/Media/video_routes.mp4" onclick="changerMedia(this)" muted></video>
+                <video src="ressources/Media/istockphoto-1265220754-640_adpp_is.mp4" onclick="changerMedia(this)" muted></video>
+                <img src="ressources/Media/got_imagr.png" onclick="changerMedia(this)" />
+                <img src="ressources/Media/photo_manette.jpg" onclick="changerMedia(this)" />
+                <video src="ressources/Media/video_routes.mp4" onclick="changerMedia(this)" muted></video>
+                <video src="ressources/Media/istockphoto-1265220754-640_adpp_is.mp4" onclick="changerMedia(this)" muted></video>
+                <img src="ressources/Media/got_imagr.png" onclick="changerMedia(this)" />
+                <img src="ressources/Media/photo_manette.jpg" onclick="changerMedia(this)" />
+                <video src="ressources/Media/video_routes.mp4" onclick="changerMedia(this)" muted></video>
+                <video src="ressources/Media/istockphoto-1265220754-640_adpp_is.mp4" onclick="changerMedia(this)" muted></video>
+              </div>
+            
+              <button class="scroll-btn right" onclick="scrollMediaThumbnails(1)">⯈</button>
+            </div>
+            
+          
+          </div>
+        </h2>
+      
+      </div>
+    
     </div>
   </div>
 </body>

@@ -637,3 +637,136 @@
   padding: 0;
   height: auto;
 }
+
+/********************************************** CSS DE L'ONGLET 6 (MÉDIA) **********************************************/
+.media-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 20px;
+}
+
+.media-display {
+  width: 100%;
+  height: 500px;
+  background-color: var(--bg-dark2);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.media-display img,
+.media-display video {
+  max-height: 100%;
+  max-width: 100%;
+  border-radius: var(--border-radius);
+}
+
+.media-thumbnails {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 10px;
+}
+
+.media-thumbnails img,
+.media-thumbnails video {
+  height: 100px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 6px;
+}
+
+.media-thumbnails img:hover,
+.media-thumbnails video:hover {
+  border-color: var(--accent);
+}
+
+#media-display {
+  width: 1000px;
+  height: 562px; /* Ratio 16:9 */
+  margin: 0 auto 30px;
+  background-color: #000;
+  border: 2px solid var(--accent);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+#media-display img,
+#media-display video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.active-media {
+  border: 2px solid var(--accent2);
+  box-shadow: 0 0 0 6px var(--accent2);
+  transition: box-shadow 0.2s ease, border 0.2s ease;
+  border-radius: 6px;
+}
+
+
+.media-thumbnails-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+
+.scroll-btn {
+  background-color: var(--bg-darkLite);
+  border: 1px solid var(--accent2);
+  color: var(--accent);
+  font-size: 24px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  z-index: 1;
+}
+
+.scroll-btn:hover {
+  background-color: var(--bg-dark);
+}
+
+#media-thumbnails {
+  flex: 1;
+  overflow-x: auto;
+  display: flex;
+  gap: 12px;
+}
+
+/* Cacher la barre de scroll visuellement tout en gardant le scroll fonctionnel */
+.media-thumbnails::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Edge */
+}
+
+.media-thumbnails {
+  -ms-overflow-style: none; /* Internet Explorer et Edge */
+  scrollbar-width: none;    /* Firefox */
+}
+
+.media-thumbnails-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+
+  background-color: var(--bg-dark2); /* fond sombre cohérent */
+  border-radius: var(--border-radius);
+  padding: 12px;
+  margin: 0 auto;
+  max-width: 1050px; /* légèrement plus large que le media principal */
+  box-shadow: var(--shadow);
+}
+
+
+
+
+

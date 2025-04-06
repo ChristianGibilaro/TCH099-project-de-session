@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+    //fetchUserData();
     const currentUrl = window.location.pathname;
 
     if (currentUrl.includes("Sign-up.html")) {
@@ -9,6 +10,40 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
+/*async function fetchUserData() {
+    const params = new URLSearchParams(window.location.search);
+    const userID = params.get('userID');
+    
+    if (!userID) {
+        console.error('userID not found in URL parameters.');
+        return null;
+    }
+    
+    console.log("ID ACTIVITY: " + userID);
+    
+    const apiUrl = `http://localhost:9999/api/inconnu/${userID}`;
+    
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        console.log('User Data:', data);
+        return data;
+    } catch (error) {
+        console.error(`Failed to fetch data from ${apiUrl}:`, error.message);
+        return null;
+    }
+}*/
   
 
 //document.getElementById('soummission_btn').addEventListener('click', creerUser);
