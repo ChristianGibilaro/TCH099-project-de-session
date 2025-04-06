@@ -7,7 +7,7 @@ require './src/controllers/ActiviteController.php';
 require './src/controllers/TeamController.php';
 require './src/controllers/MatchController.php';
 require './src/controllers/AndroidController.php';
-require './src/controllers/SteamController.php';
+
 
 //ROUTES POUR LES USERS
 
@@ -88,5 +88,9 @@ get('/api/singleUserOnly/${userID}', function($userID){
 
  post('/api/creerChat', function(){
     AndroidController::creerChat();
+ });
+
+ post('/api/envoyerMessage', function(){
+    AndroidController::createMessage();
  });
 ?>

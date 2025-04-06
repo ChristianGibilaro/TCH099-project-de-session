@@ -1,6 +1,7 @@
 <?php
 
 include_once(__DIR__ . '/../../config.php');
+
 class AndroidController
 {
     
@@ -283,6 +284,84 @@ class AndroidController
         } else {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'OPERATION ECHOUEE: Base de donnees introuvable.']);
+        }
+    }
+
+
+    public static function createMessage()
+    {
+        global $pdo;
+        header('Content-Type: application/json');
+
+       
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Utilisez POST pour créer un message.'
+            ]);
+            return;
+        }
+
+        
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+
+       
+        if (!is_array($data)) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Corps de requête invalide (JSON attendu).'
+            ]);
+            return;
+        }
+
+        
+        $userID  = $data['userID']  ?? null;
+        $content = $data['content'] ?? null;
+
+        if (!$userID || !$content) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Champs 'userID' et 'content' obligatoires."
+            ]);
+            return;
+        }
+
+    
+        $file = $data['file'] ?? null;
+
+        try {
+           
+            $sql = "
+                INSERT INTO `Message`
+                  (UserID, Content, File)
+                VALUES
+                  (:uID, :cont, :file)
+            ";
+            $stmt = $pdo->prepare($sql);
+
+           
+            $stmt->bindValue(':uID',  $userID,  PDO::PARAM_INT);
+            $stmt->bindValue(':cont', $content, PDO::PARAM_STR);
+            $stmt->bindValue(':file', $file);
+
+           
+            $stmt->execute();
+            $newId = $pdo->lastInsertId();
+
+          
+            echo json_encode([
+                'success'  => true,
+                'message'  => 'Message créé avec succès.',
+                'messageID'=> $newId
+            ]);
+
+        } catch (PDOException $e) {
+           
+            echo json_encode([
+                'success' => false,
+                'message' => "Erreur DB : " . $e->getMessage()
+            ]);
         }
     }
 }
