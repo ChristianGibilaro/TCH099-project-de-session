@@ -258,9 +258,9 @@ class AndroidController
                             //Verifier si un ID utilisateur existe dans la session courante
                             if ($chat_id) {
         
-                                $stmtChatCreator = $pdo->prepare('INSERT INTO ChatCreatot(UserID, TeamID, ChatID) VALUES (name = :chat_name)');
+                                $stmtChatCreator = $pdo->prepare('INSERT INTO ChatCreatot(UserID, TeamID, ChatID) VALUES (:user_id, null,:chat_id)');
         
-                                $stmtChatCreator->execute(['user_id' => $user_id,':chat_id' => $chat_id ]);
+                                $stmtChatCreator->execute([':user_id' => $user_id,':chat_id' => $chat_id ]);
         
                             } else {
                                 echo json_encode('ID d\'utilisateur introuvable.');
