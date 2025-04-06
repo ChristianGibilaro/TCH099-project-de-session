@@ -1,27 +1,30 @@
 package com.example.lab1;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RatingBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Home extends AppCompatActivity {
 
     private ImageButton btnLogout, btnMessages;
-    private ImageView btnAdd; // The add button (ImageView)
+    private ImageView btnAdd;
     private RecyclerView photoGrid;
-    private PhotoAdapter adapter;
-
-    // Array of random image resource IDs in res/drawable temporaire pis pour tester les features
+    private PostAdapter adapter;
     private int[] randomImages = {R.drawable.image, R.drawable.logo};
 
     @Override
@@ -35,41 +38,31 @@ public class Home extends AppCompatActivity {
         RatingBar ratingBar = findViewById(R.id.ratingBar);
         photoGrid = findViewById(R.id.photoGrid);
 
-        // Setup RecyclerView with a 3-column grid
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
-        photoGrid.setLayoutManager(gridLayoutManager);
+        // Utiliser un LinearLayoutManager pour un affichage en "mur"
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        photoGrid.setLayoutManager(layoutManager);
 
-        // Create adapter
-        adapter = new PhotoAdapter();
+        // Création de l'adapter et affectation au RecyclerView
+        adapter = new PostAdapter();
         photoGrid.setAdapter(adapter);
 
-        // When "Add" is clicked, place a random image in the next empty square.
+        // Ajout de quelques posts initiaux pour tester
+        adapter.addPost(new Post(R.drawable.image, "Mon premier post"));
+        adapter.addPost(new Post(R.drawable.logo, "Mon deuxième post"));
+
+        // Bouton "Add content" : ajoute un nouveau post aléatoire
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int nextEmpty = adapter.getNextEmptySquare();
-                if (nextEmpty == -1) {
-                    // Grid is full: add another row (3 more empty cells)
-                    adapter.addRow();
-                    // Now re-check the next empty
-                    nextEmpty = adapter.getNextEmptySquare();
-                }
-
-                if (nextEmpty != -1) {
-                    // Pick a random image from the array
-                    Random rand = new Random();
-                    int randomIndex = rand.nextInt(randomImages.length);
-                    int selectedImage = randomImages[randomIndex];
-
-                    // Place the image in the next empty cell
-                    adapter.setImageAtPosition(nextEmpty, selectedImage);
-                } else {
-                    Toast.makeText(Home.this, "No empty cell, even after adding a row!", Toast.LENGTH_SHORT).show();
-                }
+                Random rand = new Random();
+                int randomIndex = rand.nextInt(randomImages.length);
+                int selectedImage = randomImages[randomIndex];
+                String newDescription = "Post aléatoire #" + (adapter.getItemCount() + 1);
+                adapter.addPost(new Post(selectedImage, newDescription));
             }
         });
 
-        // Logout button -> go back to Login
+        // Bouton Logout : retourne à la page Login
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,7 +72,7 @@ public class Home extends AppCompatActivity {
             }
         });
 
-        // Messages button -> open Messagerie activity
+        // Bouton Messages : ouvre l'activité de messagerie
         btnMessages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,5 +80,66 @@ public class Home extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    // Modèle de publication (Post)
+    private static class Post {
+        private int imageResId;
+        private String description;
+
+        public Post(int imageResId, String description) {
+            this.imageResId = imageResId;
+            this.description = description;
+        }
+
+        public int getImageResId() {
+            return imageResId;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    // Adapter pour gérer le mur de publications
+    private class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
+
+        private ArrayList<Post> postList = new ArrayList<>();
+
+        public void addPost(Post post) {
+            postList.add(post);
+            notifyItemInserted(postList.size() - 1);
+        }
+
+        @NonNull
+        @Override
+        public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            // On "inflate" le layout pour chaque publication (item_post.xml)
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
+            return new PostViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
+            Post currentPost = postList.get(position);
+            holder.postImage.setImageResource(currentPost.getImageResId());
+            holder.postDescription.setText(currentPost.getDescription());
+        }
+
+        @Override
+        public int getItemCount() {
+            return postList.size();
+        }
+
+        class PostViewHolder extends RecyclerView.ViewHolder {
+            ImageView postImage;
+            TextView postDescription;
+
+            public PostViewHolder(@NonNull View itemView) {
+                super(itemView);
+                postImage = itemView.findViewById(R.id.postImage);
+                postDescription = itemView.findViewById(R.id.postDescription);
+            }
+        }
     }
 }
