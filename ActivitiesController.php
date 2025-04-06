@@ -8,11 +8,6 @@ class ActivitiesController
         header('Access-Control-Allow-Origin: *');
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            //Démarrer une session. Il faudra probablement deplacer cette ligne dans une autre place
-            //session_start();
-            if (session_status() === PHP_SESSION_NONE) {
-                session_start();
-            }            
     
             // Extraction et verification/validation des informations ou des donnees recues depuis le formulaire(front-end).
             if (isset($_POST['email'], $_POST['password'])) {

@@ -1,7 +1,6 @@
 <?php
 
 include_once(__DIR__ . '/../../config.php');
-
 class AndroidController
 {
     //Collecter les donnees de plusieurs tabes d'un coup des tables suivantes: User, Message, Chat et ChatMessage
@@ -95,7 +94,6 @@ class AndroidController
             $stmt->execute(['msgID' => $msgID]);
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
             
-
             echo json_encode($userData);
         } catch (PDOException $e) {
             http_response_code(500);
