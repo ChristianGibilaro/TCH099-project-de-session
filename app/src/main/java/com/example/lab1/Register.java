@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log; // Import Log for debugging
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -35,7 +36,6 @@ public class Register extends AppCompatActivity {
 
     // Replace with your actual register endpoint URL
     private final String REGISTER_URL = "http://10.0.2.2:9999/api/creerUser";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,16 +129,22 @@ public class Register extends AppCompatActivity {
             json.put("pseudo", pseudo);
             json.put("email", email);
             json.put("password", password);
-            if (!TextUtils.isEmpty(adresse)) {
-                json.put("address", adresse);
-            }
+            // If address is not empty, add it; otherwise set to null
+            json.put("address", TextUtils.isEmpty(adresse) ? JSONObject.NULL : adresse);
+            // Optionally add the image if selected
             if (imageUri != null) {
-                // Optionally encode the image as Base64 and add it as "image"
-                // Example: json.put("image", encodedImage);
+                // You can encode the image to Base64 if needed.
+                // For now, we leave it out or send the imageUri as a string.
+                json.put("imageUri", imageUri.toString());
+            } else {
+                json.put("imageUri", JSONObject.NULL);
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+        // Debug print: log the JSON payload before sending
+        Log.d("Register", "Sending JSON: " + json.toString());
 
         // Execute the POST request asynchronously
         new RegisterTask().execute(json.toString());
