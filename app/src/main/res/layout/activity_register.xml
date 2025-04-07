@@ -8,22 +8,22 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:gravity="center_horizontal"
+        android:orientation="vertical"
         android:padding="32dp">
 
-        <!-- Titre de la page d'inscription -->
+        <!-- Title -->
         <TextView
             android:id="@+id/tvRegisterTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
             android:text="Inscription"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="#000000"
-            android:layout_marginBottom="32dp" />
+            android:textColor="#000000" />
 
-        <!-- ImageView pour sélectionner l'image de profil -->
+        <!-- Profile Image Picker -->
         <ImageView
             android:id="@+id/ivProfilePicker"
             android:layout_width="100dp"
@@ -32,7 +32,7 @@
             android:scaleType="centerCrop"
             android:layout_marginBottom="16dp" />
 
-        <!-- Aperçu de l'image de profil, caché par défaut -->
+        <!-- Profile Image Preview (hidden by default) -->
         <ImageView
             android:id="@+id/ivProfilePreview"
             android:layout_width="100dp"
@@ -40,7 +40,7 @@
             android:visibility="gone"
             android:layout_marginBottom="16dp" />
 
-        <!-- Champs d'inscription -->
+        <!-- Pseudonyme Field -->
         <EditText
             android:id="@+id/etPseudonyme"
             android:layout_width="match_parent"
@@ -50,6 +50,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
+        <!-- Nom Field -->
         <EditText
             android:id="@+id/etNom"
             android:layout_width="match_parent"
@@ -59,6 +60,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
+        <!-- Prénom Field -->
         <EditText
             android:id="@+id/etPrenom"
             android:layout_width="match_parent"
@@ -68,6 +70,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
+        <!-- Email Field -->
         <EditText
             android:id="@+id/etEmail"
             android:layout_width="match_parent"
@@ -78,35 +81,17 @@
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
-        <EditText
-            android:id="@+id/etAge"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Âge"
-            android:inputType="number"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"
-            android:background="@android:drawable/edit_text" />
-
-        <EditText
-            android:id="@+id/etTelephone"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Téléphone"
-            android:inputType="phone"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"
-            android:background="@android:drawable/edit_text" />
-
+        <!-- Adresse Field (Optional) -->
         <EditText
             android:id="@+id/etAdresse"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Adresse"
+            android:hint="Adresse (optionnel)"
             android:padding="12dp"
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
+        <!-- Password Field -->
         <EditText
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
@@ -117,6 +102,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
+        <!-- Confirm Password Field -->
         <EditText
             android:id="@+id/etConfirmPassword"
             android:layout_width="match_parent"
@@ -127,16 +113,7 @@
             android:layout_marginBottom="16dp"
             android:background="@android:drawable/edit_text" />
 
-        <EditText
-            android:id="@+id/etDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Description (max 50 mots)"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"
-            android:background="@android:drawable/edit_text" />
-
-        <!-- CheckBox pour accepter le règlement -->
+        <!-- Accept Regulations CheckBox -->
         <CheckBox
             android:id="@+id/cbReglement"
             android:layout_width="wrap_content"
@@ -144,7 +121,7 @@
             android:text="J'accepte le règlement"
             android:layout_marginBottom="24dp" />
 
-        <!-- Bouton d'inscription -->
+        <!-- Register Button -->
         <Button
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
