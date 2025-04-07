@@ -7,13 +7,14 @@ require './src/controllers/ActiviteController.php';
 require './src/controllers/TeamController.php';
 require './src/controllers/MatchController.php';
 require './src/controllers/AndroidController.php';
+require './src/controllers/UserController.php';
 
 
 //ROUTES POUR LES USERS
 
 //La route pour la creation d'un nouveau compte
-post('/api/creerUser', function() {
-    ActivitiesController::creerUser();
+post('/api/createUser', function() {
+    UserController::createUser();
 });
     //La route pour la connexion de l'utilisateur
 post('/api/connexionUser', function() {
