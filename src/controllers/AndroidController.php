@@ -227,23 +227,24 @@ class AndroidController
             // Extraction et verification/validation des informations ou des donnees recues depuis le formulaire(front-end).
             if (isset($_POST['chat_name'])) {
                 $chat_name = htmlspecialchars($_POST['chat_name']);
+                //echo json_encode('Le nom du nouveau Chat: '.$chat_name);
+                $userID = 8;
 
                 //Verification si l'utilisateur/email existe dans la basse de donnees.
                 try {
                     $stmtUser = $pdo->prepare('SELECT User.ID FROM User WHERE   User.ID = :user_id');
-                    $stmtUser->bindParam(':user_id',$_SESSION['user_id']);
+                    //$stmtUser->bindParam(':user_id',$_SESSION['user_id']);
 
-                    $stmtUser->execute();
+                    $stmtUser->execute([':user_id'=>$userID]);
 
                     $user_id = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
                     //Verifier si un ID utilisateur existe dans la session courante
-                    if ($user_id) {
+                    if ($user_id['ID']) {
 
-                        $stmtChat = $pdo->prepare('INSERT INTO Chat(name) VALUES (name = :chat_name)');
+                        $stmtChat = $pdo->prepare('INSERT INTO Chat(name) VALUES (:chat_name)');
 
                         $stmtChat->execute([':chat_name' => $chat_name ]);
-                        echo json_encode($user_id);
 
                         //stocker les ID utilisateur et chat dans la table ChatCreator
                         $stmtChatName = $pdo->prepare('SELECT Chat.ID FROM Chat WHERE   name = :chat_name');
@@ -254,27 +255,28 @@ class AndroidController
                         $chat_id = $stmtChatName->fetch(PDO::FETCH_ASSOC);
                 
                         try {
+                            if ($chat_id['ID']) {
+                                echo json_encode('chat id: '.$chat_id['ID']);
+                                echo json_encode('utilisateur id depuis la 4eme requete: '.$user_id['ID']);
         
-                            //Verifier si un ID utilisateur existe dans la session courante
-                            if ($chat_id) {
-        
-                                $stmtChatCreator = $pdo->prepare('INSERT INTO ChatCreatot(UserID, TeamID, ChatID) VALUES (:user_id, null,:chat_id)');
-        
-                                $stmtChatCreator->execute([':user_id' => $user_id,':chat_id' => $chat_id ]);
+                                $stmtChatCreator = $pdo->prepare('INSERT INTO ChatCreator(UserID, TeamID, ChatID) VALUES (:user_id, null,:chat_id)');
+                                $stmtChatCreator->bindParam(':user_id',$user_id['ID']);
+                                $stmtChatCreator->bindParam(':chat_id',$chat_id['ID']);
+                                $stmtChatCreator->execute();
         
                             } else {
                                 echo json_encode('ID d\'utilisateur introuvable.');
                             }
         
                         } catch (PDOException $e) {
-                            echo json_encode(['success' => false, 'message' => 'Erreur est survenue lors du traitement de la requete.']);
+                            echo json_encode(['success' => false, 'message' => 'Erreur est survenue lors du traitement de la requete.'.$e]);
                         }
                     } else {
                         echo json_encode('ID d\'utilisateur introuvable.');
                     }
 
                 } catch (PDOException $e) {
-                    echo json_encode(['success' => false, 'message' => 'Erreur est survenue lors du traitement de la requete.']);
+                    echo json_encode(['success' => false, 'message' => 'Erreur est survenue lors du traitement de la requete.'.$userID]);
                 }
                 
 

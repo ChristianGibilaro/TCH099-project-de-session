@@ -34,7 +34,7 @@ class ActivitiesController
                                                             WHERE Pseudo = :pseudo OR  Email = :email');
                         
                         // Stocker des informations dans la session
-                        if (session_status() === PHP_SESSION_ACTIVE) {
+                        if (session_status() === PHP_SESSION_ACTIVE && !isset($_SESSION["user_id"])) {
                             //echo json_encode('La session est  ouverte');
                             $_SESSION["user_id"] = $user_infos['ID'];
                             $_SESSION["user_pseudo"] = $user_infos['Pseudo'];
