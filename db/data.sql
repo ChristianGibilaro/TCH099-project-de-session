@@ -1,32 +1,59 @@
--- dumping data for table `coaches`
-INSERT INTO `coaches` (`name`) VALUES
-('Sensei Hiro'),
-('Amélie'),
-('Lucas'),
-('Nina'),
-('Paul');
+-- =========================
+-- 1) Positions (exemple)
+-- =========================
+INSERT INTO `Position` (`Name`, `Country`, `State`, `City`, `Street`, `Number`, `GPS`, `Local_Time`)
+VALUES
+  ('Tour Eiffel', 'France', 'Île-de-France', 'Paris',    'Champ de Mars', 5,   '48.8584,2.2945', 1),
+  ('Big Ben',     'England', NULL,           'London',   'Westminster',   1,   '51.5007,-0.1246',1);
 
--- dumping data for table `locations`
-INSERT INTO `locations` (`name`, `logo`) VALUES
-('Extérieur', 'ressources/park.png'),
-('Intérieur', 'ressources/architecture-and-city.png');
+-- =========================
+-- 2) Types (exemple)
+-- =========================
+INSERT INTO `Type` (`Name`)
+VALUES
+  ('Sport'),
+  ('E-Sport');
 
--- dumping data for table `coaches`
-INSERT INTO `levels` (`name`) VALUES
-('Expert'),
-('Intermédiaire'),
-('Débutant'),
-('Tous les niveaux');
+-- =========================
+-- 3) Languages
+-- =========================
+INSERT INTO `Language` (`Name`)
+VALUES
+  ('Français'),
+  ('English');
 
--- dumping data for table `activities` with updated foreign keys
-INSERT INTO `activities` (`id`, `name`, `description`, `image`, `level_id`, `coach_id`, `schedule_day`, `schedule_time`, `location_id`) VALUES
-(1, 'Course à pied', 'Améliorez votre endurance et découvrez le plaisir de courir en plein air.', 'ressources/running.png', 'Tous niveaux', 1, 'Dimanche', '8h - 9h', 1),
-(2, 'Yoga', 'Retrouver votre équilibre intérieur avec nos séances de yoga apaisantes', 'ressources/yoga.png', 'Débutant', 2, 'Lundi', '10h - 11h', 2),
-(3, 'Calisthenic', 'Renforcez votre corps avec des exercices au poids du corps puissants et dynamiques.', 'ressources/calisthenic.png', 'Tous niveaux', 3, 'Mardi', '18h - 19h', 1),
-(4, 'Natation', 'Plongez dans la santé et la vitalité grâce à nos cours de natation adaptés à tous les niveaux.', 'ressources/natation.png', 'Intermédiaire', 4, 'Mercredi', '14h - 15h', 2),
-(5, 'Sports Aériens', 'Volez vers de nouvelles sensations avec nos sports aériens exaltants.', 'ressources/aerien.png', 'Expert', 5, 'Jeudi', '16h - 17h', 1),
-(6, 'Karaté', 'Développez votre discipline et vos compétences en arts martiaux.', 'ressources/karate.png', 'Expert', 1, 'Mardi', '18h - 19h30', 2);
+-- =========================
+-- 4) Environments
+-- =========================
+INSERT INTO `Environment` (`Name`)
+VALUES
+  ('Indoor'),
+  ('Outdoor');
 
--- dumping data for table `users`
-INSERT INTO `users` (`first_name`, `last_name`, `username`, `password`) 
-VALUES ('Test', 'User', 'testuser', '$2y$10$E6Y0YWY2NzMwMDEzMjZidHOplRl25gNcBznF1XZgdcdkaFUYOpim');
+-- =========================
+-- 5) Levels 
+-- =========================
+INSERT INTO `Level` (`Name`, `Img`, `Index`)
+VALUES
+  ('Débutant',  NULL, 1),
+  ('Intermédiaire', NULL, 2),
+  ('Expert',    NULL, 3);
+
+-- =========================
+-- 6) Ranks 
+-- =========================
+INSERT INTO `Rank` (`Name`, `Img`, `Index`)
+VALUES
+  ('Captain',   'https://exemple.com/captain.png',   1),
+  ('Lieutenant','https://exemple.com/lieutenant.png',2),
+  ('Member',    'https://exemple.com/member.png',    3);
+
+-- =========================
+-- 7) Activity
+-- =========================
+INSERT INTO `Activity`
+  (`Title`, `IsSport`, `Main_Img`, `Description`)
+VALUES
+  ('Football', b'1', 'https://exemple.com/football.png','Activité Football'),
+  ('Chess',    b'0', 'https://exemple.com/chess.png',   'Jeu d’échecs');
+
