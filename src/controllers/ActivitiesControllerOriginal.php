@@ -4,8 +4,8 @@ include_once(__DIR__ . '/../../config.php');
 
 class ActivitiesControllerO
 {
-
-    public static function creerUser() {
+    
+    public static function creewrUser() {
         global $pdo;
         header('Content-Type: application/json');
         /*header('Access-Control-Allow-Origin: *');  

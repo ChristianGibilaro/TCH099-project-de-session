@@ -132,7 +132,7 @@ class ActiviteController
             ]);
         }
     }
-
+    /*
     public static function creerUser() {
         global $pdo;
         header('Content-Type: application/json');
@@ -223,6 +223,7 @@ class ActiviteController
             echo json_encode(['success' => false, 'message' => 'La création du compte a échoué!']);
         }
     }
+        */
     
 }
 

@@ -8,20 +8,38 @@ class UserController
         global $pdo;
         header('Content-Type: application/json');
 
+        // Read raw JSON input
         $inputJSON = file_get_contents('php://input');
         $data = json_decode($inputJSON, true);
+
+        // Log the raw input for debugging
+        error_log("createUser received JSON: " . $inputJSON);
 
         $pseudo   = $data['Pseudo']  ?? null;
         $name     = $data['Name']    ?? null;
         $email    = $data['Email']   ?? null;
         $password = $data['Password']?? null;
 
+        // Debug: Log received data
+        error_log("createUser: Pseudo={$pseudo}, Name={$name}, Email={$email}");
+
+        // Optional parameters with defaults:
         $img         = $data['Img']           ?? 'https://exemple.com/default.png';
         $lastLogin   = $data['Last_Login']    ?? date('Y-m-d');
         $languageID  = $data['LanguageID']    ?? 1;
         $positionID  = $data['PositionID']    ?? null;
         $description = $data['Description']   ?? null;
         $birth       = $data['Birth']         ?? null;
+
+        // Check for required fields
+        if (!$pseudo || !$name || !$email || !$password) {
+            echo json_encode([
+                'success' => false,
+                'message' => 'Missing required fields'
+            ]);
+            error_log("createUser error: Missing required fields");
+            return;
+        }
 
         try {
             $sql = "
@@ -36,27 +54,31 @@ class UserController
             $stmt->bindValue(':pseudo',    $pseudo);
             $stmt->bindValue(':name',      $name);
             $stmt->bindValue(':email',     $email);
+            // In production, make sure to hash the password!
             $stmt->bindValue(':pwd',       $password);
             $stmt->bindValue(':lastLogin', $lastLogin);
-            $stmt->bindValue(':langID',    $languageID,  \PDO::PARAM_INT);
-            $stmt->bindValue(':posID',     $positionID,  \PDO::PARAM_INT);
+            $stmt->bindValue(':langID',    $languageID, \PDO::PARAM_INT);
+            $stmt->bindValue(':posID',     $positionID, \PDO::PARAM_INT);
             $stmt->bindValue(':descr',     $description);
             $stmt->bindValue(':birth',     $birth);
 
             $stmt->execute();
             $newUserId = $pdo->lastInsertId();
 
-            echo json_encode([
+            $response = [
                 'success' => true,
                 'message' => 'Utilisateur créé avec succès',
                 'userID'  => $newUserId
-            ]);
+            ];
+            echo json_encode($response);
+            error_log("createUser success: " . json_encode($response));
         } catch (\PDOException $e) {
-        
+            $errorMsg = "Erreur DB : " . $e->getMessage();
             echo json_encode([
                 'success' => false,
-                'message' => "Erreur DB : " . $e->getMessage()
+                'message' => $errorMsg
             ]);
+            error_log("createUser PDOException: " . $errorMsg);
         }
     }
 }
