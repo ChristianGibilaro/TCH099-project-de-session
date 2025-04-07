@@ -132,6 +132,98 @@ class ActiviteController
             ]);
         }
     }
+
+    public static function creerUser() {
+        global $pdo;
+        header('Content-Type: application/json');
+    
+        // Vérifier que la méthode HTTP est POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'OPERATION ECHOUEE.']);
+            return;
+        }
+        
+        // Traitement optionnel du fichier (image ou vidéo)
+        $imageUrl = null; // Par défaut, aucun fichier
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['image']['tmp_name'];
+            $fileName = basename($_FILES['image']['name']);
+            $imageFolder = 'ressources/images/';
+            $videoFolder = 'ressources/videos/';
+    
+            // Détection du type MIME
+            $fileType = mime_content_type($fileTmpPath);
+            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            $allowedVideoTypes = ['video/mp4', 'video/x-msvideo', 'video/webm'];
+    
+            // Choix du répertoire cible en fonction du type MIME
+            if (in_array($fileType, $allowedImageTypes)) {
+                $destinationPath = $imageFolder . $fileName;
+            } elseif (in_array($fileType, $allowedVideoTypes)) {
+                $destinationPath = $videoFolder . $fileName;
+            } else {
+                // Si le type de fichier n'est pas autorisé, on renvoie une erreur.
+                echo json_encode(['success' => false, 'message' => 'Type de fichier non pris en charge.']);
+                return;
+            }
+    
+            // Tente de déplacer le fichier vers le dossier cible
+            if (move_uploaded_file($fileTmpPath, $destinationPath)) {
+                $imageUrl = 'http://localhost:8000/' . $destinationPath;
+            } 
+            // Sinon, on laisse $imageUrl à null (fichier non disponible)
+        }
+        
+        // Vérification des champs obligatoires
+        if (!isset($_POST['pseudonym'], $_POST['nom'], $_POST['email'], $_POST['password'])) {
+            echo json_encode(['success' => false, 'message' => 'Les champs obligatoires ne sont pas remplis.']);
+            return;
+        }
+        
+        // Récupération et nettoyage des données
+        $pseudonym = htmlspecialchars(trim($_POST['pseudonym']));
+        $nom       = htmlspecialchars(trim($_POST['nom']));
+        $email     = htmlspecialchars(trim($_POST['email']));
+        $password  = htmlspecialchars(trim($_POST['password']));
+        
+        // Champs optionnels : description et age. Si non fournis ou vides, on met null.
+        $description = (isset($_POST['description']) && trim($_POST['description']) !== '')
+                            ? htmlspecialchars(trim($_POST['description']))
+                            : null;
+        $age = (isset($_POST['age']) && trim($_POST['age']) !== '')
+                            ? htmlspecialchars(trim($_POST['age']))
+                            : null;
+        
+        // Préparation de la requête d'insertion dans la base de données
+        $stmt = $pdo->prepare('INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
+                               VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, :language_id, :creation_date, :position_id, :description, :age)');
+        
+        $result = $stmt->execute([
+            ':img'           => $imageUrl,  // Peut être null si aucun fichier n'est téléversé
+            ':pseudo'        => $pseudonym,
+            ':nom'           => $nom,
+            ':email'         => $email,
+            ':passwordd'     => password_hash($password, PASSWORD_DEFAULT),
+            ':last_login'    => date('Y-m-d'),
+            ':language_id'   => 1,
+            ':creation_date' => '1990-01-01', // Vous pouvez adapter cette valeur
+            ':position_id'   => 10,
+            ':description'   => $description,
+            ':age'           => $age
+        ]);
+        
+        // Envoi de la réponse JSON
+        if ($result) {
+            echo json_encode([
+                'success' => true,
+                'message' => 'Création compte réussie !',
+                'nom'     => $nom
+            ]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'La création du compte a échoué!']);
+        }
+    }
+    
 }
 
 ?>

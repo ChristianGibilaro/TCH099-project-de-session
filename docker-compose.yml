@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   web:
-    build: .
+    image: tch099-project-de-session-web:latest
     ports:
       - "9999:80"
     volumes:
