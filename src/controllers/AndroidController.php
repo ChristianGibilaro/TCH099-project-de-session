@@ -364,6 +364,7 @@ class AndroidController
                 'success' => false,
                 'message' => "Erreur DB : " . $e->getMessage()
             ]);
+            echo $_SESSION["user_id"];
         }
     }
 }

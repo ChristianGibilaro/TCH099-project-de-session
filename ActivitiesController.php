@@ -114,51 +114,6 @@ class ActivitiesController
                     $description = htmlspecialchars($_POST['description']);
                     $age = htmlspecialchars($_POST['age']);
 
-                    //$position = 1;
-
-                    //echo json_encode($nom);
-
-                    /*if (!isset($_POST['description'])){
-                        $description = null;
-                    }
-                    if (!isset($_POST['age'])){
-                        $age = null;
-                    }*/
-                    
-                    /*$stmt = $pdo->prepare('INSERT INTO Position (Name, Country, State, City, Street, Number, GPS, Local_Time)
-                                        VALUES (:nom, :country, :state, :city, :street, :number, :gps, :local_time)');
-                    $stmt->execute([
-                        //':id' => null,
-                        ':nom' => $nom,
-                        ':country' => 'Canada',
-                        ':state' => 'Quebec',
-                        ':city' => 'Montreal',
-                        ':street' => 'Centre Ville',
-                        ':number' => 1230,
-                        ':gps' => null,
-                        ':local_time' => 17,
-                    ]);
-
-    
-                    // Insert into database
-                    $stmt = $pdo->prepare('INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
-                                           VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, (SELECT ID FROM Language WHERE ID = :language_id), :creation_date, (SELECT id FROM Position WHERE name = :nom), :description, :age)');
-                    $stmt->execute([
-                        //':id' => null,
-                        ':img' => 'http://localhost:9999/'.$destinationPath,
-                        ':pseudo' => $pseudonym,
-                        ':nom' => $nom,
-                        ':email' => $email,
-                        ':passwordd' => password_hash($password, PASSWORD_DEFAULT),//$password,
-                        ':last_login' => '2025-04-01',
-                        ':language_id' => 1,
-                        ':creation_date' => date('Y-m-d H:i:s'),//null,
-                        ':position_id' => 10,
-                        ':description' => $description,
-                        ':age' => '2025-04-01',//$age
-                    ]);
-    
-                    echo json_encode(['success' => true, 'message' => 'Creation compte reussie !']);*/
                     
                     try {
                         $stmtPosition = $pdo->prepare('INSERT INTO Position (Name) VALUES (:name)');
