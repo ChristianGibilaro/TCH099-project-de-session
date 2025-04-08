@@ -771,6 +771,39 @@
   box-shadow: var(--shadow);
 }
 
+/************************* CSS ONGLET 7 (BARRE DE PAGINATION) *************************/
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
+  gap: 10px;
+  background-color: var(--bg-dark2);
+  padding: 10px 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.pagination a {
+  color: var(--text);
+  padding: 8px 12px;
+  text-decoration: none;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.pagination a:hover {
+  background-color: var(--accent);
+  color: white;
+}
+
+.pagination .active {
+  border: 2px solid var(--accent2);
+  font-weight: bold;
+}
+
+
 
 
 
