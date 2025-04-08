@@ -19,7 +19,7 @@
   creator.GetSteamGameData("1245620");
   creator.GetSteamUserData("76561199131939133");
 
-  // Fourni par l'api (Data provided by the API)
+  // ---------------------------------------------- API DATA ----------------------------------------------
   var elements =
     [["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/553850/header.jpg", "Te3te", "Long texte"],
     ["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1739922037", "T2e", "Long texte"],
@@ -97,16 +97,17 @@
 </script>
 
 <body>
-
+  <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
   <header onclick="toggleMenu()">
     <script>
-      document.write(creator.CreateMenu(["ressources/Final/Main/logo.png", "ressources/Commun/logo_example.png"],
-        [["ressources/Commun/activity_button.png", "Activities", "Activity.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"]],
-        [["ressources/Commun/activity_button.png", "Sign-up", "Sign-up.html"], ["ressources/Commun/activity_button.png", "Sign-In", "Sign-in.html"], ["ressources/Commun/user_profile_image_example.png", "HeRobrain_III", "profileUtilisateur.html"]]));
+      document.write(creator.PrefabMenu);
     </script>
   </header>
   <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <!------------------------------------------------ SECTION 0 - ONGLETS ---------------------------------------------->
   <div id="contenu">
+
     <div id="head">
       <script>
         document.write(creator.CreateHero("ressources/Final/Main/baniere.jpg", "ressources/Commun/logo_example.png"));
@@ -128,24 +129,19 @@
       </div>
     </div>
 
-
-
     <div id="sections-container">
-
+      <!------------------------------------------------ SECTION 4 - TABLES ---------------------------------------------->
       <div id="section1" class="contenu-onglet" style="height: 100%;">
         <script>
-          // Head du tableau
+
           var titleType = [["txt"], ["txt"], ["txt"]];
           var titlesRow = creator.CreateTableTitles(titles, [40, 40, 20], 3, null, null, null);
 
-          // Les ligne du tableau
           var rowType = [["img", "100%", "160px", "image_failed", "FillImage", "object-fit: cover; object-position: 1% 40%;"], ["txt"], ["txt"]];
           var rows = creator.CreateTableRows(elements, rowType, [20, 60, 20], 3, null, null, "text-align: center;");
 
-          // 2 tableu cote a cote scrollable (Two scrollable tables side by side)
           document.write(creator.PutInDiv(creator.CreateScrollableTable("100%", "100%", "", rows, null, null, " margin-top:20px;"), null, "CenterChilds", "height: 100%"));
 
-          // 2 tableu cote a cote scrollable (Another set of two scrollable tables side by side)
           document.write(creator.SideBySide(null, null, null, "CenterChilds", "",
             creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null),
             creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null)));
@@ -153,6 +149,7 @@
         </script>
       </div>
 
+      <!------------------------------------------------ SECTION 2 - IMAGE ---------------------------------------------->
       <div id="section2" class="contenu-onglet" style="display: none;">
         <script>
           // Une image (An image)
@@ -160,21 +157,19 @@
         </script>
       </div>
 
+      <!------------------------------------------------ SECTION 3 - Grid ---------------------------------------------->
       <div id="section3" class="contenu-onglet" style="display: none;">
-
         <script>
-
           document.write(creator.CreateGrid([
             ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
               "#", "ressources/Commun/user_profile_image_example.png",
               "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"]
           ]));
         </script>
-
       </div>
 
+      <!------------------------------------------------ SECTION 4 - FILTERS ---------------------------------------------->
       <div id="section4" class="contenu-onglet" style="display: none;">
-
         <div class="barre-filtres" id="in1">
           <script>
             document.getElementById("in1").append(creator.CreateFilterTextbox(helldiversPlanets, "Find a planet to liberate"));
@@ -199,13 +194,12 @@
         <script>
           document.write(creator.CreateImage("500px", null, "ressources/Commun/baniere_example.webp", "image", null, "FillImage", " object-position: 1% 40%;"));
         </script>
-
-
       </div>
 
+      <!------------------------------------------------ SECTION 5 - FORM ---------------------------------------------->
       <div id="section5" class="contenu-onglet" style="display: none;">
-
         <script>
+          
           const dynamicFormConfig = {
             formTitle: "Créer un compte",
             formId: "form_new_user_id",
@@ -227,6 +221,7 @@
             loginLinkText: "Déjà un compte ? <a href=\"#\">Se connecter</a>."
           };
 
+          
           const generatedDynamicFormHTML = creator.CreateDynamicForm(
             dynamicFormConfig.formTitle,
             dynamicFormConfig.formId,
@@ -240,11 +235,10 @@
 
           document.write(generatedDynamicFormHTML);
         </script>
-
       </div>
 
+      <!------------------------------------------------ SECTION 6 - MEDIA ---------------------------------------------->
       <div id="section6" class="contenu-onglet" style="display: none;">
-
         <h2>
           <div class="media-viewer">
             <div class="media-display" id="media-display">
@@ -274,29 +268,26 @@
 
               <button class="scroll-btn right" onclick="scrollMediaThumbnails(1)">⯈</button>
             </div>
-
-
           </div>
         </h2>
-
       </div>
 
+      <!------------------------------------------------ SECTION 7 - PAGE ---------------------------------------------->
       <div id="section7" class="contenu-onglet" style="display: none;">
-        
-        <div class="page-content" id="page-content-container">
-          <div class="page-item active">This is the content for page 1.</div>
-          <div class="page-item">Content of page number 2.</div>
-          <div class="page-item">Here's the information for the third page.</div>
-          <div class="page-item">This is the content displayed on the fourth page.</div>
-          <div class="page-item">Finally, this is the content for page 5.</div>
+        <div class="page-content" id="page-content-container-section7">
+          <div class="page-item active">This is the content for page 1 of Section 7.</div>
+          <div class="page-item">Content of page number 2 of Section 7.</div>
+          <div class="page-item">Here's the information for the third page of Section 7.</div>
+          <div class="page-item">This is the content displayed on the fourth page of Section 7.</div>
+          <div class="page-item">Finally, this is the content for page 5 of Section 7.</div>
         </div>
-        <div class="pagination" id="pagination-container">
+        <div class="pagination" id="pagination-container-section7">
           <button class="prev-page">&lt; Previous</button>
           <button class="next-page">Next &gt;</button>
         </div>
-        <!-- Add initializePagination("sectionx"); to the AnimationScripts-->
       </div>
 
+      <!------------------------------------------------ SECTION 8 - SEARCH BAR ---------------------------------------------->
       <div id="section8" class="contenu-onglet" style="display: none;">
         <script>
           const searchPageElement = creator.createSearchPage(true);
@@ -307,7 +298,5 @@
     </div>
   </div>
 </body>
-
-
 
 </html>

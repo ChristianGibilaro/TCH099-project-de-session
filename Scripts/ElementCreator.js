@@ -832,4 +832,10 @@ class ElementCreator {
             return searchPageHTML;
         }
     }
+
+
+    PrefabMenu = this.CreateMenu(["ressources/Final/Main/logo.png", "ressources/Commun/logo_example.png"],
+        [["ressources/Commun/activity_button.png", "Activities", "Activity.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"],["ressources/Commun/teams_button.png", "RandomActivity", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"]],
+        [["ressources/Commun/activity_button.png", "Sign-up", "Sign-up.html"], ["ressources/Commun/activity_button.png", "Sign-In", "Sign-in.html"], ["ressources/Commun/user_profile_image_example.png", "HeRobrain_III", "profileUtilisateur.html"]]);
+
 }

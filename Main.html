@@ -1,113 +1,61 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
 
+<head>
   <meta charset="UTF-8">
   <title>Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" >
-  
-  <!-- Inclusion du JS -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <script src="Scripts/animationScript.js" defer></script>
   <script src="Scripts/ElementCreator.js"></script>
 
-  <!-- Inclusion du CSS -->
-  <link rel="stylesheet" href="Styles\normalize.css">
-  <link rel="stylesheet" href="Styles\Demonstrateur.css">
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
 
 </head>
 
-<!------------------------------------------------ Object et vars ----------------------------------------------->
 <script>
   var creator = new ElementCreator("Demonstrateur");
-  creator.GetSteamGameData("1245620");
-  creator.GetSteamUserData("76561199131939133");
-
-  //Fournit par l'api
-  var elements =
-    [["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/553850/header.jpg", "Te3te", "Long texte"],
-    ["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1739922037", "T2e", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/12e1bd007bebc8ffe7e9fad77ea3e6b6.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/a779abf92aeec12331d10524426171fb.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/e214786a5ff033e8ad5d57501bf82a16.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/928f27d1a6ae1828ad77b45f2d424dbf.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/8edc69aa76b7aac408ba3c248aa8d7d4.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/ea3a48c74a9efb9a08635fe7990347cc.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/994d88a370250b303be16fc98bb5cdac.png", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/db3a47863b50389cccce3066cf7f7a53.jpg", "Texte", "Long texte"],];
-  var titles = ['nein', "Texte", "Long texte"];
-  var Description = '<h2><strong> Welcome to the HELLDIVERS II team hub </strong></h2>\
-  Please observe the following <a href="https://www.reddit.com/r/Helldivers/comments/1gsnxsu/some_posts_are_no_longer_allowed_and_a_reminder/" > Patriotic Community guide</a>.<br>\
-  Deviations in attention will be considered treason.<br>\
+  // ---------------------------------------------- LOCAL DATA -------------------------------------------
+  const SiteDesc = '<strong> Welcome to * Lunar Convenant * (PLACEHOLDER) </strong> <br>\
+  Please observe the following <a href="#" > rule (Need to create a page for it) </a>.<br>\
+  For Instruction and Assistance, go to our <a href="#" > F.A.Q (Need to create a page for it) </a><br>\
   <br>\
-  Developed by Arrowhead Game Studios.';
- 
-
+  Your futur Teamate away you!';
+  
+  // ---------------------------------------------- API DATA ----------------------------------------------
+  const SiteStats = '<strong> 12 402</strong> Users<br>\
+  <strong> 66</strong> Activities<br>\
+  <strong> 152 </strong> Teams<br>';
 </script>
- <!------------------------------------------------ fin vars ----------------------------------------------->
-<body>
 
-  <!------------------------------------------------ Menu ----------------------------------------------->
+<body>
+  <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
   <header onclick="toggleMenu()">
     <script>
-      document.write(creator.CreateMenu(["ressources/Commun/Main_logo_example.png", "ressources/Commun/logo_example.png"],
-        [["ressources/Commun/activity_button.png", "Activities", "Activity.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/activity_button.png", "Demonstrateur", "Demonstrateur.html"]],
-        [["ressources/Commun/activity_button.png", "Sign-up", "Sign-up.html"], ["ressources/Commun/activity_button.png", "Sign-In", "Sign-in.html"], ["ressources/Commun/user_profile_image_example.png", "HeRobrain_III", "profileUtilisateur.html"]]));
+      document.write(creator.PrefabMenu);
     </script>
   </header>
   <div id="dimmer" onclick="toggleMenu()"></div>
-  <!------------------------------------------------ fin Menu ----------------------------------------------->
 
-
-  <!------------------------------------------------ Contenu ----------------------------------------------->
+  <!------------------------------------------------ SECTION 0 - ONGLETS ---------------------------------------------->
   <div id="contenu">
+
     <div id="head">
-    <!------------ Baniere ------------>
-    <script>
-      document.write(creator.CreateHero("ressources/Commun/baniere_example.webp", "ressources/Activity/activity_logo_example.png"));
-    </script>
+      <script>
+        document.write(creator.CreateHero("ressources/Final/Main/baniere.jpg", "ressources/Commun/logo_example.png"));
+      </script>
 
-    <!------------ Description ------------>
-    <script>
-      document.write(creator.CreateDesc(Description, "Stats"));
-    </script>
+      <script>
+        document.write(creator.CreateDesc(SiteDesc, SiteStats));
+      </script>
 
-    <!------------ Selecteur d'onglet ------------>
-    <div class="barre-onglets">
-      <button class="onglet actif" onclick="afficherSection('section1', this)">Video Games</button>
-      <button class="onglet" onclick="afficherSection('section2', this)">Sports</button>
-      <button class="onglet last" onclick="afficherSection('section3', this)">Others</button>
-    </div>
-</div>
-    <!------------ Onglet ------------>
-    <div id="sections-container" >
-
-      <!----- Onglet 1 ------->
-      <div id="section1" class="contenu-onglet" style="height: 100%;">
+      <div id="fatherland">
         <script>
-          //Head du tableau
-          var titleType = [["txt"], ["txt"], ["txt"]];
-          var titlesRow = "";// = creator.CreateTableTitles(titles, [20, 60, 20], 3, null, null, null);
-
-          //Les ligne du tableau
-          var rowType = [["img", "100%", "160px", "image_failed", "FillImage", "object-fit: cover; object-position: 1% 40%;"], ["txt"], ["txt"]];
-          var rows = creator.CreateTableRows(elements, rowType, [20, 60, 20], 3, null, null, "text-align: center;");
-
-          //2 tableu cote a cote scrollable
-          document.write(creator.PutInDiv(creator.CreateScrollableTable("100%", "auto", titlesRow, rows, null, null, " margin-top:20px;"),null,"CenterChilds","height: 100%"));
-          
+          const searchPageElement = creator.createSearchPage(true);
+          document.getElementById("fatherland").appendChild(searchPageElement);
         </script>
       </div>
-
-      <!----- Onglet 2 ------->
-      <div id="section2" class="contenu-onglet" style="display: none;">
-        <script>
-          //Une image
-          document.write(creator.CreateImage("500px", null, "ressources/Commun/baniere_example.webp", "image", null, "FillImage", " object-position: 1% 40%;"));
-        </script>
-      </div>
-
-      <!----- Onglet 3 ------->
-      <div id="section3" class="contenu-onglet" style="display: none;">Contenu de l’onglet 3</div>
 
     </div>
   </div>

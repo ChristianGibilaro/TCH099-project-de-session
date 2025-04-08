@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Sign-in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
+
+</head>
+
+<script>
+  var creator = new ElementCreator("Demonstrateur");
+  creator.GetSteamGameData("1245620");
+  creator.GetSteamUserData("76561199131939133");
+
+</script>
+
+<body>
+  <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
+  <header onclick="toggleMenu()">
+    <script>
+      document.write(creator.PrefabMenu);
+    </script>
+  </header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <div id="contenu">
+
+    <div id="head">
+      <script>
+        document.write(creator.CreateHero("ressources/Final/Main/baniere.jpg", "ressources/Commun/logo_example.png"));
+      </script>
+      </div>
+
+      <!------------------------------------------------ SECTION 5 - FORM ---------------------------------------------->
+
+        <script>
+          
+          const dynamicFormConfig = {
+            formTitle: "Login",
+            formId: "form_new_user_id",
+            formMethod: "POST",
+            formEnctype: "multipart/form-data",
+            inputConfig: [
+              { type: 'email', label: 'Email', name: 'email', required: true },
+              { type: 'password', label: 'Mot de passe', name: 'password', required: true },
+            ],
+            submitButtonText: "Connexion",
+            loginLink: "Sign-up.html",
+            loginLinkText: 'No Account, create one! <a href=\"#\">Sign-up</a>.'
+          };
+
+          
+          const generatedDynamicFormHTML = creator.CreateDynamicForm(
+            dynamicFormConfig.formTitle,
+            dynamicFormConfig.formId,
+            dynamicFormConfig.formMethod,
+            dynamicFormConfig.formEnctype,
+            dynamicFormConfig.inputConfig,
+            dynamicFormConfig.submitButtonText,
+            dynamicFormConfig.loginLink,
+            dynamicFormConfig.loginLinkText
+          );
+
+          document.write(generatedDynamicFormHTML);
+        </script>
+  
+  </div>
+</body>
+
+</html>

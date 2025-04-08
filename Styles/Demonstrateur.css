@@ -52,6 +52,7 @@ a:visited {
 }
 
 strong {
+  font-size: x-large;
   color: var(--accent2);
 }
 
@@ -112,8 +113,6 @@ thead .icon img {
   width: 70px;
   height: 70px;
 }
-
-tbody .icon img {}
 
 .icon {
   width: var(--MenuWidthClosed);
@@ -805,6 +804,7 @@ tbody .icon div {
 
 /* Search page specific styles */
 .search-page {
+  margin-top: 50px;
   padding: 20px;
 }
 
