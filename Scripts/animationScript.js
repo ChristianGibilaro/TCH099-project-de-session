@@ -5,7 +5,6 @@ var MenuClosedSize = rs.getPropertyValue('--MenuWidthClosed');
 var MenuOpenedSize = rs.getPropertyValue('--MenuWidthOpened');
 var Opacity = rs.getPropertyValue('--MenuOpacityMax');
 
-
 function toggleMenu() {
 
     if(!isMenuOpen)
@@ -46,47 +45,6 @@ function afficherSection(id, bouton) {
 }
 
 
-
-
-
-const filterSearch = document.getElementById('searchBar');
-const list = document.getElementsByClassName('liste-scrollable');
-const choices = document.getElementsByClassName('choice');
-
-for(var i = 0; i < choices.length; i ++){
-    choices[i].addEventListener('mouseover', function (option) {
-      filterSearch.value = option.target.innerHTML;
-    } );
-}
-
-
-filterSearch.addEventListener('focus', function() {
-  list[0].style.display = 'block';
-});
-
-filterSearch.addEventListener('blur', function() {
-  list[0].style.display = 'none';
-});
-
-
-// Fonction pour filtrer la liste en fonction de ce que l'utilisateur tape
-document.addEventListener("DOMContentLoaded", function () {
-    const champFiltre = document.getElementById('searchBar');
-    const liste = document.querySelectorAll('#liste-pays li');
-  
-    champFiltre.addEventListener('input', function () {
-      const valeur = champFiltre.value.trim().toLowerCase();
-  
-      liste.forEach(item => {
-        const texte = item.textContent.trim().toLowerCase();
-        if (texte.startsWith(valeur) || valeur === "") {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
-        }
-      });
-    });
-  });
   
 //Fonction pour afficher l'image ou la vidéo sélectionnée en grand
 function changerMedia(element) {

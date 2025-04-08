@@ -387,39 +387,154 @@ class ElementCreator {
         return '<div id="' + id + '" style = "' + extraStyle + '" class = "' + classes + '">' + child + '</div>'
     }
 
-    CreateGrid(elements,elementsType,id,classes,extraStyles){
-        var out = 0;
+    CreateGrid(elements,id,classes,extraStyles){
+        var out = '<div id="' + id + '" style = "' + extraStyles + '" class = " grid">';
         for (var i = 0; i < elements.length; i++) {
-            
-            if (elements[i].length != colNumb) {
-                valid = i;
-                break;
-            }//[["img","100px","100px","image_failed","FillImage","object-position: 1% 40%;"],["txt"],["txt"]];
-            for (var j = 0; j < elements[i].length; j++) {
-                switch (elementsType[j][0]) {
-                    case "img":
-                        outRows += '<td style= "width: ' + elementsSize[j] + '%;">' +
-                            this.CreateImage(elementsType[j][1], elementsType[j][2], elements[i][j], elementsType[j][3], null, elementsType[j][4], elementsType[j][5]) + '</td>';
-                        break;
-                    case "txt":
-                        outRows += '<td style= "width: ' + elementsSize[j] + '%;">' + elements[i][j] + '</td>';
-                        break;
+            out += '<div class="box">\
+            <a href="'+ elements[i][0] +'"><img\
+            src="' + elements[i][1] + '"\
+            height="40px" style="border: solid var(--accent);"></a>\
+            <a href="' + elements[i][2] + '"><img src="' + elements[i][3] + '" alt="Image produit"\
+                style="border: solid var(--accent);"></a>\
+            <h3>' + elements[i][4] + '<br><span class="mainStats"> ' + elements[i][5] + '</span></h3>\
+            <p>' + elements[i][6] + '</p>\
+          </div>';
+        }
+        out += '</div>';
+        return out;
+    }
 
+    CreateFilterTextbox(elements,placeholder,id){
+        var filtered = document.createElement("div");
+        filtered.className = "bloc-filtre";
+        var textBox = document.createElement("input");
+        textBox.type = "text";
+        textBox.placeholder = placeholder;
+        filtered.append(textBox);
+        var options = document.createElement("div");
+        options.className = "liste-choices";
+        filtered.append(options);
+        var choices = document.createElement("ul");
+        choices.className = "choiced";
+        options.append(choices);
+        
+        this.PopulateLi(elements,choices,textBox);
+
+        textBox.addEventListener('focus', (option) => {
+            options.style.display = 'block';
+          });
+          
+        textBox.addEventListener('blur', (option) => {
+            setTimeout(() => {
+                options.style.display = 'none';
+           }, 150);
+          });
+        
+        textBox.addEventListener('input', (option) => {
+            choices.innerHTML="";
+            var outElement = this.FilterText(elements,option.target.value);
+            this.PopulateLi(outElement,choices,option.target);
+        });
+
+          return filtered;
+    }
+
+    FilterText(elements,input){
+
+        var out = [];
+        var comp = (input || "").trim().toLowerCase();
+
+        if (comp === "") {
+            return elements;
+        }
+
+        for(var i = 0; i < elements.length; i++){
+            var texte = elements[i].trim().toLowerCase();
+            if (texte.startsWith(comp)) {
+                out.push(elements[i]);
+            }
+        }
+        return out;
+    }
+
+    PopulateLi(elements,parent,textBox){
+        var choice = document.createElement("li");
+        for(var i = 0; i < elements.length; i++){
+            choice = document.createElement("li");
+            choice.innerText = elements[i];
+            choice.className = "choice";
+            parent.append(choice);
+            choice.addEventListener('mouseover', function (option) {
+                textBox.value = option.target.innerHTML;
+            });
+        }
+    }
+
+    CreateCheckList(elements,placeholder,id){
+        var filtered = document.createElement("div");
+        filtered.className = "bloc-filtre";
+        var textBox = document.createElement("input");
+        textBox.type = "text";
+        textBox.placeholder = placeholder;
+        filtered.append(textBox);
+        var options = document.createElement("div");
+        options.className = "liste-choices";
+        filtered.append(options);
+        var choices = document.createElement("ul");
+        choices.className = "choiced";
+        options.style.display = 'none'
+        options.append(choices);
+        
+        this.PopulateCheck(elements,choices,"");
+
+        textBox.addEventListener('click', (option) => {
+            if(options.style.display == 'block'){
+                options.style.display = 'none';
+            }else{
+                options.style.display = 'block';
+            }
+            
+          });
+
+        textBox.addEventListener('input', (option) => {
+            options.style.display = 'block';
+            this.FilterCheck(choices.children,option.target.value);
+        });
+
+          return filtered;
+    }
+
+    PopulateCheck(elements,parent){
+        var choice = document.createElement("li");
+        for(var i = 0; i < elements.length; i++){
+            choice = document.createElement("li");
+            choice.innerHTML = '<input type="checkbox" style = "margin-left:5px;margin-right:5px" />' + elements[i];
+            choice.className = "choice";
+            parent.append(choice);
+        }
+    }
+
+    FilterCheck(elements,input){
+        var comp = (input || "").trim().toLowerCase();
+
+        if(comp !== ""){
+            for(var i = 0; i < elements.length; i++){
+                var texte = elements[i].innerText.trim().toLowerCase();
+                
+                if (texte.startsWith(comp)) {
+                    elements[i].hidden=false;
+                }else{
+                    elements[i].hidden=true;
                 }
             }
-            outRows += '</tr>';
+        }else{
+            for(var i = 0; i < elements.length; i++){
+                elements[i].hidden=false;
+            }
         }
 
     }
+}
 
 /*
-        <div class="marketplace-grid">
-          <div class="produit-card">
-            <a href="Activity.html"><img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037" height="40px" style="border: solid var(--accent);"></a>
-            <a href="#"><img src="ressources/Commun/user_profile_image_example.png" alt="Image produit" style="border: solid var(--accent);"></a>
-            <h3>Creator: HeRobrain_III <br><span class="prix"> 4/6 places</span></h3>
-            <p>Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100</p>
-          </div>
-        </div>
-
-  */
+*/
