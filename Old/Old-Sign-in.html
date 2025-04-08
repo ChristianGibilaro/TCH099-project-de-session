@@ -10,7 +10,7 @@
 
     <!-- ✅ Inclusion des scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="Scripts/animationScript.js" defer></script>
+    <script src="../Scripts/animationScript.js" defer></script>
     <script src="../Scripts/createUser.js" defer></script>
 </head>
 <body>
@@ -95,9 +95,17 @@
         <!-- ✅ Formulaire de connexion -->
         <div class="container">
             <main>
-                <div class="outer-box">
-
-                </div>
+                  <div class="outer-box">
+                    <form id="form_connect_user_id" method="POST">
+                        <label for="email">Nom d'utilisateur:</label>
+                        <input type="text" id="email" name="email" required>
+               
+                        <label for="password">Mot de passe:</label>
+                        <input type="password" id="password" name="password" required>
+               
+                        <button type="button" id="connexion_btn">Connexion</button>
+                    </form>
+               </div>
             </main>
         </div>
     </div>
