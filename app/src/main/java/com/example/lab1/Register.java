@@ -35,7 +35,7 @@ public class Register extends AppCompatActivity {
     private Uri imageUri; // To store the selected image URI
 
     // Replace with your actual register endpoint URL
-    private final String REGISTER_URL = "http://10.0.2.2:9999/api/createUser'";
+    private final String REGISTER_URL = "http://10.0.2.2:9999/api/createUser";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -151,7 +151,7 @@ public class Register extends AppCompatActivity {
                 URL url = new URL(REGISTER_URL);
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+                conn.setRequestProperty("Content-Type", "application/json");
                 conn.setDoOutput(true);
 
                 // Write JSON data to the request body
