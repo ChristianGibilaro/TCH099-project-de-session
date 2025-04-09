@@ -21,6 +21,7 @@ post('/api/creerUser', function() {
 });*/
     //La route pour la connexion de l'utilisateur
 post('/api/connexionUser', function() {
+    
     ActivitiesController::connexionUser();
 });
 
@@ -97,4 +98,9 @@ get('/api/singleUserOnly/${userID}', function($userID){
  post('/api/envoyerMessage', function(){
     AndroidController::createMessage();
  });
+
+ post('/api/verifyRecaptcha', function () {
+    require_once('./src/controllers/RecaptchaController.php');
+    RecaptchaController::verify();
+});
 ?>

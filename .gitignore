@@ -1,2 +1,5 @@
 src/controllers/SteamApiKeyPrivate.php
 
+ressources/images/profile/elden ring wallpaper.jpg
+ressources/images/profile/leda.jpeg
+src/controllers/recaptchaKeyPrivate.php
