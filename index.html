@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Human Verification</title>
+    <!-- Include your main CSS file -->
+    <link rel="stylesheet" href="Styles/Demonstrateur.css">
+    <link rel="stylesheet" href="Styles/Index.css">
+    <!-- Include reCAPTCHA v3 -->
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcANxErAAAAAJG-TrKVTRQXnM6dRM9vOeiGJkpx"></script>
+    <!-- Include reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+</head>
+<body class="verification-page">
+    <div class="verification-container">
+        <h1>Human Verification</h1>
+        <p>Please verify that you are human to continue.</p>
+        
+        <button id="verifyHuman" class="verify-button">Verify Human</button>
+        <button id="simulateBot" class="simulate-button">Simulate Bot</button>
+
+        <div id="errorMessage" class="verification-error"></div>
+        <div id="successMessage" class="verification-success"></div>
+
+        <div id="captchaV2Container" class="captcha-container">
+            <p>Additional verification required:</p>
+            <div 
+                class="g-recaptcha verification-recaptcha" 
+                data-sitekey="6LfCPRErAAAAAODzRm79dbFTUtCiIPmZSn7vs1Jt" 
+                data-callback="onCaptchaV2Success"
+            ></div>
+        </div>
+    </div>
+
+    <script>
+        const errorMessageElement = document.getElementById('errorMessage');
+        const successMessageElement = document.getElementById('successMessage');
+        const verifyButton = document.getElementById('verifyHuman');
+        const captchaV2Container = document.getElementById('captchaV2Container');
+
+        function showMessage(element, message, duration = 5000) {
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, duration);
+        }
+
+        function showError(message) {
+            showMessage(errorMessageElement, message);
+        }
+
+        function showSuccess(message) {
+            showMessage(successMessageElement, message);
+        }
+
+        function setLoading(isLoading) {
+            verifyButton.disabled = isLoading;
+            verifyButton.classList.toggle('loading', isLoading);
+            verifyButton.textContent = isLoading ? 'Verifying...' : 'Verify Human';
+        }
+
+        async function verifyWithServer(token) {
+            try {
+                console.log('Sending verification request to server...');
+                const response = await fetch('http://localhost:9999/api/verifyHuman', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ token })
+                });
+
+                const text = await response.text();
+                console.log('Response body:', text);
+
+                const data = JSON.parse(text);
+                
+                if (!response.ok) {
+                    throw new Error(data.error || `Server error: ${response.status}`);
+                }
+
+                return data;
+            } catch (error) {
+                console.error('Server verification error:', error);
+                throw error;
+            }
+        }
+
+        async function verifyHuman() {
+            setLoading(true);
+            captchaV2Container.style.display = 'none';
+            
+            try {
+                await new Promise(resolve => grecaptcha.ready(resolve));
+                
+                const token = await grecaptcha.execute('6LcANxErAAAAAJG-TrKVTRQXnM6dRM9vOeiGJkpx', {
+                    action: 'verify'
+                });
+
+                const result = await verifyWithServer(token);
+                console.log('Verification result:', result);
+
+                if (result.success) {
+                    if (result.score >= 0.5) {
+                        showSuccess('Verification successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = 'main.html';
+                        }, 1000);
+                    } else {
+                        showError('Additional verification required');
+                        captchaV2Container.style.display = 'block';
+                    }
+                } else if (result.needsCaptchaV2) {
+                    captchaV2Container.style.display = 'block';
+                }
+            } catch (error) {
+                showError(`Verification failed: ${error.message}`);
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        function onCaptchaV2Success(token) {
+            showSuccess('Additional verification successful! Redirecting...');
+            setTimeout(() => {
+                window.location.href = 'main.html';
+            }, 1000);
+        }
+
+        async function simulateBot() {
+            try {
+                const response = await fetch('http://localhost:9999/api/simulateBot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                showError(data.message);
+                captchaV2Container.style.display = 'block';
+            } catch (error) {
+                showError('Error simulating bot behavior');
+            }
+        }
+
+        // Add event listeners
+        document.getElementById('verifyHuman').addEventListener('click', verifyHuman);
+        document.getElementById('simulateBot').addEventListener('click', simulateBot);
+    </script>
+</body>
+</html>
