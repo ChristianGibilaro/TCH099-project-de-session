@@ -333,7 +333,7 @@ class ElementCreator {
         <table>
             <thead id="title">
                 <th class="icon"><img src="${head[0]}"></th>
-                <th class="logo FillImage"><a href="main.html"><img src="${head[1]}"></a></th>
+                <th class="logo FillImage"><a href="Main.html"><img src="${head[1]}"></a></th>
             </thead>
             <tbody>`;
 
