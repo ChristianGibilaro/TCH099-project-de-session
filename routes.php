@@ -2,7 +2,7 @@
 require_once(__DIR__.'/router.php');
 
 require 'config.php';
-require 'ActivitiesController.php';
+require './src/controllers/ActivitiesController.php';
 require './src/controllers/ActiviteController.php';
 require './src/controllers/TeamController.php';
 require './src/controllers/MatchController.php';
