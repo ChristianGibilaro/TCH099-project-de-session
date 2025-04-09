@@ -118,7 +118,7 @@ async function connecterUser(event) {
 
         // Traitement de la reponse
         if (response.ok) {
-            window.location.href = 'Main.html';
+            //window.location.href = 'Main.html';
 
         } else {
             alert("User or Email Invalid");
