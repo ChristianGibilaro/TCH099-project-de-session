@@ -8,18 +8,24 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (currentUrl.includes("Sign-in.html")) {
         document.getElementById('connexion_btn').addEventListener('click', connecterUser);
     }
+    else if (currentUrl.includes("chatPrivate.html")) {
+        document.getElementById('chatBtnId').addEventListener('click', creerChat);
+        document.getElementById('ses').addEventListener('click', fetchUserData);
+    }
 });
 
-/*async function fetchUserData() {
-    const params = new URLSearchParams(window.location.search);
-    const userID = params.get('userID');
+
+
+async function fetchUserData() {
+    //const params = new URLSearchParams(window.location.search);
+    const userID = 8;//params.get('userID');
     
     if (!userID) {
         console.error('userID not found in URL parameters.');
         return null;
     }
     
-    console.log("ID ACTIVITY: " + userID);
+    console.log("ID ACTIVITY: "+userID);
     
     const apiUrl = `http://localhost:9999/api/inconnu/${userID}`;
     
@@ -43,7 +49,35 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error(`Failed to fetch data from ${apiUrl}:`, error.message);
         return null;
     }
-}*/
+}
+
+async function creerChat(event) {
+    event.preventDefault();
+    // Get the form and the submit button
+    const form = document.querySelector('#form_chat');
+
+    // Create a FormData object from the form
+    const formData = new FormData(form);
+    console.log(formData.values);
+
+    try {
+        const response = await fetch('http://localhost:9999/api/creerChat', {
+            method: 'POST',
+            body: formData,
+        });
+
+        // Traitement de la reponse
+        if (response.ok) {
+            //const result = await response.json();
+            //form.reset(); // Reinitialiser le formulaire si la soummission est reussie.
+        } else {
+            console.log('FRONT-END:Echec creation nouveau chat.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        console.log('Une erreur est survenue lors de la soummission.');
+    }
+}
   
 
 document.getElementById('soummission_btn').addEventListener('click', creerUser);
