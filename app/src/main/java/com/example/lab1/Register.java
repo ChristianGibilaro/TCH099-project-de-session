@@ -35,7 +35,7 @@ public class Register extends AppCompatActivity {
     private Uri imageUri; // To store the selected image URI
 
     // Replace with your actual register endpoint URL
-    private final String REGISTER_URL = "http://10.0.2.2:9999/api/createUser";
+    private final String REGISTER_URL = "http://10.0.2.2:9999/api/creerUser";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
