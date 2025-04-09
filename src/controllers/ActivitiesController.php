@@ -3,65 +3,73 @@
 include_once 'config.php';
 class ActivitiesController
 {
-    public static function connexionUser(){
-        
+    public static function connexionUser() {
         global $pdo;
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: *');
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-            // Extraction et verification/validation des informations ou des donnees recues depuis le formulaire(front-end).
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Vérifie que les données sont bien envoyées en POST
             if (isset($_POST['email'], $_POST['password'])) {
                 $email_saisie = htmlspecialchars($_POST['email']);
                 $password_saisie = htmlspecialchars($_POST['password']);
-
-                //Verification si l'utilisateur/email existe dans la basse de donnees.
+    
                 try {
-                    $stmtUser = $pdo->prepare('SELECT * FROM User WHERE Pseudo = :pseudo OR  Email = :email');
-                    //Ici on cree deux variables pour une meme saisie(user ou email) pour verifier si elle un user ou un email. Une seule variable entraine une erreur dans la requete.
-                    $stmtUser->bindParam(':pseudo',$email_saisie);
-                    $stmtUser->bindParam(':email',$email_saisie);
-
+                    $stmtUser = $pdo->prepare('SELECT * FROM User WHERE Pseudo = :pseudo OR Email = :email');
+                    $stmtUser->bindParam(':pseudo', $email_saisie);
+                    $stmtUser->bindParam(':email', $email_saisie);
                     $stmtUser->execute();
-
+    
                     $user_infos = $stmtUser->fetch(PDO::FETCH_ASSOC);
-
-                    //Si un utilisateur existe, on verifie si le hashage du mot de passe saisi correspond au hashage de la BD.
+    
                     if ($user_infos && password_verify($password_saisie, $user_infos['Password'])) {
-                        //On met a jour la date du last_login si l'utilisateur se connecte avec succes
-                        $stmtUser = $pdo->prepare('UPDATE User SET Last_login = :last_login 
-                                                            WHERE Pseudo = :pseudo OR  Email = :email');
-                        
-                        // Stocker des informations dans la session
+                        // Met à jour la date de connexion
+                        $stmtUpdate = $pdo->prepare('UPDATE User SET Last_login = :last_login WHERE Pseudo = :pseudo OR Email = :email');
+                        $stmtUpdate->execute([
+                            ':last_login' => date('Y-m-d H:i:s'),
+                            ':pseudo'     => $email_saisie,
+                            ':email'      => $email_saisie
+                        ]);
+    
+                        // Stockage en session si nécessaire
                         if (session_status() === PHP_SESSION_ACTIVE && !isset($_SESSION["user_id"])) {
-                            //echo json_encode('La session est  ouverte');
                             $_SESSION["user_id"] = $user_infos['ID'];
                             $_SESSION["user_pseudo"] = $user_infos['Pseudo'];
-                            
                         }
-
-                        $stmtUser->execute([':last_login' => date('Y-m-d H:i:s'),':pseudo'=>$email_saisie, ':email'=>$email_saisie]);
-                        echo json_encode('Connexion réussie ! Bienvenue, ' . htmlspecialchars($user_infos['Pseudo']) . '.');
-                        echo json_encode($user_infos);
+    
+                        // Renvoie une réponse JSON unifiée
+                        echo json_encode([
+                            'success' => true,
+                            'message' => 'Connexion réussie ! Bienvenue, ' . htmlspecialchars($user_infos['Pseudo']) . '.',
+                            'user'    => $user_infos
+                        ]);
                     } else {
-                        echo json_encode('Nom d\'utilisateur ou mot de passe incorrect.');
+                        echo json_encode([
+                            'success' => false,
+                            'message' => 'Nom d\'utilisateur ou mot de passe incorrect.'
+                        ]);
                     }
-
                 } catch (PDOException $e) {
-                    echo json_encode(['success' => false, 'message' => 'Erreur est survenue lors du traitement de la requete.']);
+                    echo json_encode([
+                        'success' => false,
+                        'message' => 'Erreur est survenue lors du traitement de la requete.'
+                    ]);
                 }
-                
-
             } else {
-                echo json_encode(['success' => false, 'message' => 'Champs d\'utilisateur ou du mot de passe est vide!']);
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Champs d\'utilisateur ou du mot de passe est vide!'
+                ]);
             }
         } else {
-            //session_destroy();
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'OPERATION ECHOUEE: Base de donnees introuvable.']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'OPERATION ECHOUEE: Base de donnees introuvable.'
+            ]);
         }
     }
+    
     public static function creerUser() {
         global $pdo;
         header('Content-Type: application/json');
