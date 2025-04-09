@@ -3,10 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //fetchUserData();
     const currentUrl = window.location.pathname;
 
-
-
-
-    if (currentUrl.includes("chatPrivate.html")) {
+ if (currentUrl.includes("chatPrivate.html")) {
         document.getElementById('chatBtnId').addEventListener('click', creerChat);
         document.getElementById('ses').addEventListener('click', fetchUserData);
     }
