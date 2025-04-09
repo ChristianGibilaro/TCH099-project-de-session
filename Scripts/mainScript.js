@@ -102,3 +102,37 @@ function fonctionAPI_Multiparametre_Exemple(filters) {
         });
 
 }
+
+
+
+
+
+
+async function creerUser(event) {
+    event.preventDefault();
+    // Get the form and the submit button
+    const form = event.target.form;
+    console.log(form);
+    // Create a FormData object from the form
+    const formData = new FormData(form);
+    console.log(formData.values);
+
+    try {
+        const response = await fetch('http://localhost:9999/api/creerUser', {
+            method: 'POST',
+            body: formData,
+        });
+
+        // Traitement de la reponse
+        if (response.ok) {
+            //const result = await response.json();
+            //form.reset(); // Reinitialiser le formulaire si la soummission est reussie.
+            window.location.href = 'Sign-in.html';
+        } else {
+            console.log('FRONT-END:Echec creation nouveau compte.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        console.log('Une erreur est survenue lors de la soummission.');
+    }
+}

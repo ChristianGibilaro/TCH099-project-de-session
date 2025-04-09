@@ -728,7 +728,7 @@ class ElementCreator {
             html += inputHtml;
         });
 
-        html += `    <button type="button" id="soummission_btn" class="btn-connexion">${submitButtonText}</button>\n`;
+        html += `    <button type="submit" id="soummission_btn" class="btn-connexion">${submitButtonText}</button>\n`;
 
         if (loginLink) {
             html += `    <p class="signup-link">${loginLinkText.replace('#', loginLink)}</p>\n`;

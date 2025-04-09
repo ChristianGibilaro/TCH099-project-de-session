@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
 }*/
   
 
-//document.getElementById('soummission_btn').addEventListener('click', creerUser);
+document.getElementById('soummission_btn').addEventListener('click', creerUser);
 async function creerUser(event) {
     event.preventDefault();
     // Get the form and the submit button

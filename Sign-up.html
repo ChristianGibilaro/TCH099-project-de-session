@@ -8,6 +8,7 @@
 
   <script src="Scripts/animationScript.js" defer></script>
   <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/mainScript.js"></script>
 
   <link rel="stylesheet" href="Styles/normalize.css">
   <link rel="stylesheet" href="Styles/Demonstrateur.css">
@@ -18,7 +19,7 @@
   var creator = new ElementCreator("Demonstrateur");
   creator.GetSteamGameData("1245620");
   creator.GetSteamUserData("76561199131939133");
-
+  
 </script>
 
 <body>
@@ -55,6 +56,7 @@
               { type: 'password', label: 'Confirmez le mot de passe', name: 'password2', required: true },
               { type: 'file', label: 'Image de profil', name: 'image' },
               { type: 'textarea', label: 'Description', name: 'description', required: true },
+              { type: 'number', label: 'language_id', name: 'language_id', required: true },
               { type: 'date', label: 'Date de naissance', name: 'age', required: true },
               { type: 'checkbox', label: "J'accepte les", name: 'agreement', value: 'accepted', required: true, labelLink: '#' }
             ],
@@ -64,6 +66,10 @@
           };
 
           
+          window.addEventListener('unload', () => {
+  navigator.sendBeacon('/log', JSON.stringify({ message: 'Tab/window was closed' }));
+});
+
           const generatedDynamicFormHTML = creator.CreateDynamicForm(
             dynamicFormConfig.formTitle,
             dynamicFormConfig.formId,
@@ -76,6 +82,7 @@
           );
 
           document.write(generatedDynamicFormHTML);
+          document.getElementById('soummission_btn').addEventListener('click', creerUser);
         </script>
   
   </div>
