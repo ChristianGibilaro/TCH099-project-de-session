@@ -956,3 +956,108 @@ Data: Array
 )
 
 --------------------------------------------------------------------------------
+[2025-04-09 23:24:34] Bot simulation request received
+--------------------------------------------------------------------------------
+[2025-04-09 23:24:34] Simulating bot detection
+Data: Array
+(
+    [timestamp] => 2025-04-09 23:24:34
+    [ip] => 172.18.0.1
+    [user_agent] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:16] Bot simulation request received
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:16] Simulating bot detection
+Data: Array
+(
+    [timestamp] => 2025-04-09 23:26:16
+    [ip] => 172.18.0.1
+    [user_agent] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:24] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2010
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 37226
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744241184.013
+    [REQUEST_TIME] => 1744241184
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:24] Received input
+Data: {"token":"03AFcWeA6IlUnNiZhXQOkXAKUvKjr4XxJG409Gk6RK7VP2-WjlhFu9ugUNEct8OAzlIt5hnT2O2oUhkgGHGrDvRBSQNfKh0vho3JvrmA0pwhct4cwx4q6saHRQb8un0jOeXf8CyWqvK2W2y3EIPOdjEhr31OQlWUFby0Xuxj9B2U2rm-389IjDxccXQQBAf8UHrWvfbPMFj05YcKqkLCbgXdWkI6lghlD6BPH2ivrz7eFrcQTvkgjAYvaIzHrKQyIsB4zDo6YalRGUD5WVU8LhrpzLnXxQR5JlqOwhz_Y2jdMe0XXwZTapSeG3Y9SJyHvkIsyuyJ0aPC6IW4xTPYzOP8fwm1uP2-Al-8QHZtddbrC2owpwm2GIjohJ_8kXVMUT9TZ9VGGwuBEM5Gn6Lie1IT1-aedupT0eRpmi6CqAL3upS8uEgTK9d1FCKlVGUJYu9Olw7L-dr3FAJuUDZbUAQmFTqeoPxgAWQmxgaKaTMi2vDLQHBe306DJf_uGUaRI3ybgjAVAawDc46PiLa1vVoG6AhzWtdCVGulSp6EqP4mk0LD9o8TviiwP5IhMQLlVs3R8QNJfvZkpotIe0VF1598E-noDMnotMgtaY5v_OuU9GhmnerVNuLXFBdpY-cy87wRqy3BQEKAxEklFWRatXsH8yB449coznIF4pqRmjLg78wY6le9PFaM5l73_0iyKWvrO2xCSvmCt8P8bD48Do7CF4OaZhkHfwcJ0rVV_iFpo53d9ORt2BUBtVDuv8TXrXJcipcY12IX4v2S-3MYBx1UkbGaepmtF_AqntGtXgzXSPcoDSdihiq4iW36IBlTBj-xO2IaqSU8s68wA2qNdIjFW4zR5P-7pUK29XZLZzjYAzYv73EL6_HgJxCSS9Y9CrTckbqOxNK7-P89nqwWfVPCzhBb2DnoL9wnkx3-EI08_F8AGdwQTLqxFTsPjmP7IaCDB_3_elX-NPRgOO8FgCO44fq6DQ7fWi8yNIUxiE1hLlo6NNsTL_ooNHgKB0QCjnHXZZWLxJ2uLHDSlucO77UZ5K3mSRKXWCfWuRh20eqBCn303pQ2n6huJhK-KQ-w2ap6QTD8WeMwooalZfe_bGAvR_27gaUtyriEGxiemsPaXQJXx1X8ct_RPpF8Bdd1A4dc4yRWepucg2fMDsTznutESpb4rrjpCTmT3SokTxqY0hGckNLHpXswEl0ll2rkiIjMyfCeX0RcuoB09A0RhQ8Zsq3xuMLEGH7v65vJueF70-1nmGwjMBjD3XekzMRSmAEsE6E0vpzAMxG4n3D8eozmRCdyUzMAKM2wykrA2oWxQPLqPiTu5e-wdphItRpLZTn-rnwHPMaGbIvFlc4vJp4znqSKYdE8QKjMTY55lu95lYq6USdbrWf3cIMfuXXsmt8T_ElTzgIO0RMRFzIuWXE2ujSM9Wkzvn3_mJx7gnIlvdXYUXNKX_Ut9UqtWypbDRKRJ9WJvHsEdS4NFZk-g6jakI-6v2iipAoKVE2HdGIvyLjDvfTF6t6ZTSOn5z8GaX202kkX5n6LYck3QxZzGnQ7RZ2T-Bm7-eXzFI1jQpCbLFjyEtuX8tLn2Tx0qxieAhfcw_jP0_oOCjkG0biZqQjRnjQPs_rQ_qn1a20a_N6gN4DDxf1oMPrh3Q7zWIZTSSZluKcHBvhLEwiER6gdWlp5e_S8jk66SW7VEdlCOCurMx0TmvhxrYR8lezo99TQVOwUZ0byBxMRTv9DkWx0mZZuvBdUzQ1N6CP5QGwrFS62GQlZ6205W6UMGR1KvwzVHiUm8VT3Yx_Idc3YZ3Uej8fB4EyjODhIZ_DzE39JLm1iY5jlM8xRP1XH0RpHOYrYR7ZYLd7OZKQNaTkesnvUoTkSSDpr7S_jp8FDD9Wv-f6ocI5r4j7_grC2I7RoA4p8w1OgKJBn5zXie9BE6iGzwqNbD5oTFuHjfp0CAC2atw-2exNiNdgO8kLIEXyUU6maz9JsEk_7efQsvW"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:24] Processing token
+Data: 03AFcWeA6IlUnNiZhXQO...
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:24] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:24] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:24] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:26:20Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:26:24] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
