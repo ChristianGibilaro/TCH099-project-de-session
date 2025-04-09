@@ -107,7 +107,7 @@
                     if (result.score >= 0.5) {
                         showSuccess('Verification successful! Redirecting...');
                         setTimeout(() => {
-                            window.location.href = 'main.html';
+                            window.location.href = 'Main.html';
                         }, 1000);
                     } else {
                         showError('Additional verification required');
@@ -126,7 +126,7 @@
         function onCaptchaV2Success(token) {
             showSuccess('Additional verification successful! Redirecting...');
             setTimeout(() => {
-                window.location.href = 'main.html';
+                window.location.href = 'Main.html';
             }, 1000);
         }
 
