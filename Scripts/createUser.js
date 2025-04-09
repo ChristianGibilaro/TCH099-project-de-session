@@ -3,12 +3,10 @@ document.addEventListener("DOMContentLoaded", function () {
     //fetchUserData();
     const currentUrl = window.location.pathname;
 
-    if (currentUrl.includes("Sign-up.html")) {
-        document.getElementById('soummission_btn').addEventListener('click', creerUser);
-    } else if (currentUrl.includes("Sign-in.html")) {
-        document.getElementById('connexion_btn').addEventListener('click', connecterUser);
-    }
-    else if (currentUrl.includes("chatPrivate.html")) {
+
+
+
+    if (currentUrl.includes("chatPrivate.html")) {
         document.getElementById('chatBtnId').addEventListener('click', creerChat);
         document.getElementById('ses').addEventListener('click', fetchUserData);
     }
