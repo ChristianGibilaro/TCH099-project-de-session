@@ -30,7 +30,7 @@ class RecaptchaController {
             header('Access-Control-Allow-Methods: POST, OPTIONS');
             header('Access-Control-Allow-Headers: Content-Type, Accept');
 
-            self::logMessage("Request started", $_SERVER);
+
 
             // Handle CORS preflight
             if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -40,7 +40,7 @@ class RecaptchaController {
 
             // Get and validate input
             $input = file_get_contents('php://input');
-            self::logMessage("Received input", $input);
+
 
             $data = json_decode($input, true);
             if (!$data || !isset($data['token'])) {
@@ -48,11 +48,11 @@ class RecaptchaController {
             }
 
             $token = $data['token'];
-            self::logMessage("Processing token", substr($token, 0, 20) . '...');
+
 
             // Get reCAPTCHA secret
             $secret = recaptchaKeyPrivate::getRecaptchaKeyV3();
-            self::logMessage("Using secret key", substr($secret, 0, 6) . '...');
+
 
             // Prepare verification request
             $verifyData = http_build_query([
@@ -79,7 +79,8 @@ class RecaptchaController {
             ]);
 
             // Execute request
-            self::logMessage("Sending verification request to Google");
+
+            
             $response = curl_exec($ch);
 
             // Check for cURL errors
@@ -93,10 +94,7 @@ class RecaptchaController {
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
 
-            self::logMessage("Google API response", [
-                'httpCode' => $httpCode,
-                'response' => $response
-            ]);
+
 
             // Parse response
             $result = json_decode($response, true);
@@ -107,7 +105,8 @@ class RecaptchaController {
             // Send response
             if (isset($result['success']) && $result['success']) {
                 $score = $result['score'] ?? 0;
-                self::logMessage("Verification successful", ['score' => $score]);
+
+                
                 
                 echo json_encode([
                     'success' => true,
@@ -120,10 +119,7 @@ class RecaptchaController {
             }
 
         } catch (Exception $e) {
-            self::logMessage("Error occurred", [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            
 
             http_response_code(400);
             echo json_encode([
@@ -148,7 +144,7 @@ class RecaptchaController {
             header('Access-Control-Allow-Methods: POST, OPTIONS');
             header('Access-Control-Allow-Headers: Content-Type, Accept');
 
-            self::logMessage("Bot simulation request received");
+
 
             // Handle CORS preflight
             if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -156,12 +152,7 @@ class RecaptchaController {
                 exit();
             }
 
-            // Log the request
-            self::logMessage("Simulating bot detection", [
-                'timestamp' => date('Y-m-d H:i:s'),
-                'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
-                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
-            ]);
+
 
             // Send response
             http_response_code(200);
@@ -173,10 +164,7 @@ class RecaptchaController {
             ]);
 
         } catch (Exception $e) {
-            self::logMessage("Error in bot simulation", [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+
 
             http_response_code(500);
             echo json_encode([
