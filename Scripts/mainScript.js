@@ -118,9 +118,6 @@ async function connecterUser(event) {
 
         // Traitement de la reponse
         if (response.ok) {
-            
-            const result = await response.json();
-            form.reset();
             window.location.href = 'Main.html';
 
         } else {
@@ -148,9 +145,6 @@ async function creerUser(event) {
 
         // Traitement de la reponse
         if (response.ok) {
-
-            const result = await response.json();
-            form.reset(); 
             alert("User Créer!");
             window.location.href = 'Sign-in.html';
 
