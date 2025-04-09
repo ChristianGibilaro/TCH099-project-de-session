@@ -9,6 +9,7 @@ require './src/controllers/MatchController.php';
 require './src/controllers/AndroidController.php';
 require './src/controllers/UserController.php';
 require './src/controllers/SteamController.php';
+require './src/controllers/RecaptchaController.php';
 
 
 //ROUTES POUR LES USERS
@@ -99,8 +100,13 @@ get('/api/singleUserOnly/${userID}', function($userID){
     AndroidController::createMessage();
  });
 
- post('/api/verifyRecaptcha', function () {
-    require_once('./src/controllers/RecaptchaController.php');
-    RecaptchaController::verify();
+// Route for verifying the reCAPTCHA V3 token
+post('/api/verifyHuman', function() {
+    RecaptchaController::verifyHuman();
+});
+
+// Route for simulating a bot
+post('/api/simulateBot', function() {
+    RecaptchaController::simulateBot();
 });
 ?>

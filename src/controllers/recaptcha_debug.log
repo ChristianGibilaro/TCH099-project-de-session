@@ -1,0 +1,958 @@
+[2025-04-09 22:59:56] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 239
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 56556
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744239595.7671
+    [REQUEST_TIME] => 1744239595
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 22:59:56] Received input
+Data: {"token":"HFdHRnZw1GEAgtV2NSWl5DWxsSawUnfBMEEhENKQBkKRUfeTQNI14FDC15eS5HMgcbKQNWEAcUXUFZQ3wARxoDZgMEaisYdT4FF30_CjQ9cgs5ND10ClFvVGhHfhtOQVhKGwF4BTRvBxIHTU5ISG9aTnMmTVVuSB4afHR4AFdFf3J9FDQUEAdlBRsVHQ","timestamp":"2025-04-09T22:59:55.728Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 22:59:56] Processing token
+Data: HFdHRnZw1GEAgtV2NSWl...
+--------------------------------------------------------------------------------
+[2025-04-09 22:59:56] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 22:59:56] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 22:59:56] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": false,
+  "error-codes": [
+    "browser-error"
+  ]
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 22:59:56] Error occurred
+Data: Array
+(
+    [message] => Verification failed: browser-error
+    [trace] => #0 /var/www/html/routes.php(105): RecaptchaController::verifyHuman()
+#1 /var/www/html/router.php(107): {closure}()
+#2 /var/www/html/router.php(21): route('/api/verifyHuma...', Object(Closure))
+#3 /var/www/html/routes.php(106): post('/api/verifyHuma...', Object(Closure))
+#4 {main}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:49] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 239
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 40446
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240309.4723
+    [REQUEST_TIME] => 1744240309
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:49] Received input
+Data: {"token":"HFZXFhdghAAQ0rRmZUS1tFSh4UegAhbRYCAxQLOAViOBAZaDELMlsDHSh_aCtBIwIdOAZQAQISTERfUnkGVh8FdwYCey4eZDsDBng5GzE7Yw4_JThyG1RpRW1Bbx5IUF1MCgR-FDFpFhcBXEtOWWpcX3YgXFBoWRscbXF-EVJDbnd7BTESAQJjFB4TDA","timestamp":"2025-04-09T23:11:49.369Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:49] Processing token
+Data: HFZXFhdghAAQ0rRmZUS1...
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:49] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:49] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:50] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": false,
+  "error-codes": [
+    "browser-error"
+  ]
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:50] Error occurred
+Data: Array
+(
+    [message] => Verification failed: browser-error
+    [trace] => #0 /var/www/html/routes.php(105): RecaptchaController::verifyHuman()
+#1 /var/www/html/router.php(107): {closure}()
+#2 /var/www/html/router.php(21): route('/api/verifyHuma...', Object(Closure))
+#3 /var/www/html/routes.php(106): post('/api/verifyHuma...', Object(Closure))
+#4 {main}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:56] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 239
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 37984
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240316.661
+    [REQUEST_TIME] => 1744240316
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:56] Received input
+Data: {"token":"HFNmVrJRxKUhkhFXJeGE9PGQoeKRQrPgIIUAABaxFoawQTOyUBYU8JTjx1Oz9LcBYXaxJaUhYYH1BVAW0MBQsPJBIIKDoUNy8JVWwzSCUxMBo1dix4SEBjFnlLPApCA0lGWRB0RyVjRQMLD19ECn5WDGIqD0RiCg8WPmV0QkZJPWNxViUYUhZpRwoZXw","timestamp":"2025-04-09T23:11:56.647Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:56] Processing token
+Data: HFNmVrJRxKUhkhFXJeGE...
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:56] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:56] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:56] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": false,
+  "error-codes": [
+    "browser-error"
+  ]
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:11:56] Error occurred
+Data: Array
+(
+    [message] => Verification failed: browser-error
+    [trace] => #0 /var/www/html/routes.php(105): RecaptchaController::verifyHuman()
+#1 /var/www/html/router.php(107): {closure}()
+#2 /var/www/html/router.php(21): route('/api/verifyHuma...', Object(Closure))
+#3 /var/www/html/routes.php(106): post('/api/verifyHuma...', Object(Closure))
+#4 {main}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:06] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2007
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 36124
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240326.7121
+    [REQUEST_TIME] => 1744240326
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:06] Received input
+Data: {"token":"03AFcWeA66oVA003WJUbOaCJGbRfzRK5H6Yu-y3vL03q4M0aWPwyxPr8Bx5m77snlWX5dTg2gboJ02SkFydB_Ofe9nVvUJ2U-mLNEa80HFWEFbPKvV32XiO2hAMdO0dkGv2SNhxprMOO8HdmsqOhyeAk08TR5YNM0ZYVPZX-VwCzg8Wq2lJpQ_06wMSrkmQJFvwyomp-9Di0eoAN8wmH9R7bwyz8QwRywhp8o-ucAcT6MONu_bUQB9cpmywS5syg6PoHT2vc3fyCLmxEHaUq5km9ZQo53ReN5z7j8wRFJqayERztX50Hwz2uXn4JsZlHTGlpTYBKIrhSVAOR7Lz2QsitUWfO2pH5qrISid-bMc1bOn757eKqxPQI0sk3YlJ63_PSnUNxzVgR0dUKqaVhVdxLedxpjHqzSAWEhvhl-532ZaoWiGteaPFG-0_wfmhkZPrzUD36v7vMGN9EHdX-Yoi1cjB9IkGh3izp_iCznB2rxw1oLtE1VuHOkWfrlw_3BWm91da38a4WXhHrqztO6ZXsyCP8c-6h1IOxbjNz96euvJM5PYDeZ-kGBLxB5-zB7Lo4gt0s5d8HW6DIJGJi3tuaU9w73RuDPVgkhedmyN9MAod2xXof5zxkfrKqfj2KdOPHkb1D-ZrzeM1-RB5jm9oMvidbVZiRNfVhq-2x3u_YWWVd21lVYj9kza9tfMLqpBMXQzjeB7rfDYQGvYvHH3jWuQy6hkrDvZT_2u5sNwwxlZutV6WZSikx2iANF730zDSTn4Zvqp0C06XoqctqohKBIN2eSTmwMTSbuUvC7LUVsyjioVUKzn1hufteSQ-EUORsJc8MdiF_aTGaXp14oDMXTdrhxCo5hbi3IQUPcnRvKAuqzlwHRuGEa7TmnWUO5vbk7es8HwoWuBPrQNcykesFzkExo_FB7MoDKHi4wAcQisPBZlQm0Eoa4guDxmIM_e9KRtrfaBtzdaIJ8fYU8Rqoq7JY4gPRYHC6n9ErhjDsbtcGHpc9oNMmN0ifsOm_eBr1jZHocIDIzupUQtgSlrFKZOjbA-gLHVTkwnoKS89w3PtCHZWQgTiQDh2yC32VDuAIMTpmKwPoIOUheg_n5XtV6mSH1e37wXwBCo_6z3jr6sTJNn9TWzF4njq7Ct6BpRZm6LpHXuOjsdbLAmjRxQgtJNJrsNN49NDW1GiLs8fGg0Hpe0jJO6SOl1Xn4nxfcGHuEjRwlwqv1hD3QlvDC8YSp8sirjxdnDpU94JFKIc26B2dUKhluQ8HhvqJ1HbsRDFhUHR3yHP51_2zFTd9Y_6B6Ta03w-O7Smobx6nL6G5ppiSv0d0_tXbGsZI2azgm8PGs7EgL7SIazgVI0kS2QMQAfg-jVXwUB4KIVoAbs_EcqBvYJbaEvMChZCO3nnEyuxvR8HqVRl7y2AqFb61x7JLD-Go3xL-uG396BPWE3o3FNl4v1ivDft9aO5dFbmYQYmMp7bvKLopIcZv68NqIfAiVqUp66_wE8cPVAJdGj0onUrtQ9xoT9Coz5K4bWY7K00o6TySss4QL7UveokgNmXxaNlS0nPdNW9R4_vTyzU-4k1-fJhi-yil0EnbNQ5T8Y5gV4JhehafdVrTbuiYS2WvUDDke2lL-Hbj653A6GpyifljryRTBSorzoHCDNJO0XjN1o3laEbaofcsbJZiMfbWFVC_jmdlDPBOPYAfzqjkNVNy19wcjhW-QXeIKyWFj61FNArnQ9wam8LmZwQrt2WUB7HlgaujKQ9CPW6CP6MP1cXFTrQuYnE-0oYdNuT41SOIxMphTknwQcaPqTOMKTIQREpX9s7xGRglJq8hA9LQaiDBCFLO2rJSvsTLaTNw2PUspdtIImESeViFp8ko5fIByFiccGUbJAF6ogA_ip9j5Z8o3OcIHQf_nFV9O8wv147Cvxz8FjWiCLBW3Cb_EI6oFZI_WY51KDhA","timestamp":"2025-04-09T23:12:06.696Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:06] Processing token
+Data: 03AFcWeA66oVA003WJUb...
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:06] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:06] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:06] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:11:58Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:06] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:15] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2028
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 51524
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240335.1591
+    [REQUEST_TIME] => 1744240335
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:15] Received input
+Data: {"token":"03AFcWeA6XfabDKqV854squ333rmPWLfu3_7wwcLgwA_YxHnfHZq51QUdsfaknqoart9k75h74KFhaVzOkLYqaxPShFPnIcgRW3JYBIH4-8WFlDo6rzuBVxM5NjORt53VBS58C1zlHoV--e0veO_rYSJN9L1LRNPgRhkFDjcS8ZUGUWlBfpKDVK4LdOV2mi7T_a1DR8nsskvKklYzRAjikVRvcEVHVqLydEGoBrimtWELQBoyHO6NMGgg48QZpJ7rJVhXpy42A3e4P-TKokDlaiMYSYch_IVaaGsKJ1uAWMi7jEG9hchqV86necrylWrHAw4bIX5OfnuJHNPJaCZkD1hH4HhMGD3wFv9tcAb0KHx3XlcgZPHkv_XvSepU6lk8hH8AaVlH-e7D8HRRUL7QLBKMv3Rq8s_mphZpHFZGOfyfSKeqDFV7mJeHnBg5M3Vw9DGCiO5tOiqb9SjT0apg2SYaLS5diiqQuKRLIMrbgoRCVjOifPglyR24ovVPoSwKlTkjp9jNKsWPT3hlB23IYZoM9_fVyFI-WnjvJMkRHb1D_vkDW2jlSnTHCn_ttpc21CPTCsdS2mm63p1gGK7RERsgHOn0DD1zA28Ia9N9pvFF6Sa_beZohhGFbZw_m-gJp80UWLyG75oU-pvtD5fF85jvpVCtY8Ip7Uq2wGTJ1bOUCDUIDjc8HzB4qpKggNUGp7vyXBYBu4xx1O3LpiCQg4WjIRoI5GIJt94GxFofcBcp_mMyLPZ3adN_V8Sah8xW17EnJSGFn9NGoF1jpMF-2jZj9iKP2XpQE-nADuJzcW03r8QOwoXUTzqz0rBWmtbHLMA4POO-tHBHghSJETWvM03_u5VofwLMNKezZSZBaJApOm04Mbs5ScBBWgqXkQIW1K6UolfOu-qY7WdrF-tFbtgQeX1QojWbLVDsk2ukydlL_mfs3zz-fdy4JjVnTGzYbDFlvrGP3z5Zr2bipZwFIxmAyHJ9wQ2VMhyYm9SGQHwgSwECIbtZHgh_Nepo50x2v8_ph-m8uxMFbV6bGhbj9Ts8o1UrfMDZF0cfhbITIJ0cPbPj3bdjn1tD1JIUHPN9LAYNnUN-1NK_76DOhZkM4yP9EAOdZO3FPcLd7TWSDY_s2TLmcKvwwkRlKt35sVzG_sFD2O38xHiA7C2S6vc9vNkobvYYwtAoj5TNk1AWiKqMJr_74XYiq0pIM5tRoQGRedcDN7juNrcwBhMkDyKY3D0EIzUbLVtX3KIPVjXkXZ3wjKgvKpmG_WAb5PHoZSXJyjd4v-Tsn7GGlGsXabqB5o7juESzT4_SdqHvqgFXC_oShEvyRZuFM3dRfSIiFLDdusZoteexvaQ-6dp8AWDxF-_rJc5lalWAOgu1o29TzU15mq4UexKPnD488hNxe9i4RbiXPB3QKi3HS4iy3WMekko0MLVwwdjR2dAmSC0MjmqpDCOws7bUduXhrkFEMq3ub3WzvYNp8m25Uvfxe9xNQEt2tvOL35HwHkh7arVDgHOHo_kVLa_FtFDlrHT2Jxls6WEcvqnyb_HzVzbGXaJHS7cLjT0yfofIO5JsjAinx3og7wDx5fir7dX06ibQF144fSqADYsNg-Gys9Wy69DuyFF0cUd6jLjhKF4PzoZIq-CV00XJf6-zNk2ObAwQa8x4q52xxbTUeQEcA0Vsal9xJR8y_FvRRCIoI3Y9JY58RifMQpg3PrDowSFgwo5jRllSmg6TOHrpigAaLvqYK_RkoreyAswciy0pAUW_OmkQhWDZRYzIaWiMC4k3wqKeXXFdkOy-8UlWRYnhBq4YeN259OJqdnGT3j_Iva9VQgIML_rCG43jAipLX3UGMPof_g18xxHNCTDMe6xpLtxEtndoGbSgJICNRPPmbSfbBCO0a0mVpnVW364Xwezs1dy0rhDR0fQT-IGxxnZjCsM2oDEjupcBeYEDsP4yM-4tAcNqLgy8dTvQoHy7zHYw","timestamp":"2025-04-09T23:12:15.135Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:15] Processing token
+Data: 03AFcWeA6XfabDKqV854...
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:15] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:15] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:15] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:12:11Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:15] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:29] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2007
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 45956
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240349.9098
+    [REQUEST_TIME] => 1744240349
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:29] Received input
+Data: {"token":"03AFcWeA74Xtqx2YXLzwtcG-nb0hpa2b-T4U00B4r4jTIBvXW80hOk9regPxT3r_B9eqAs9RvIzAjS-31tj4XHIi8ugp5LZTJeLJLlXkAFDHq28PmBMf4SLzelBiaPzmugGqJEla_ZIpH8ZZMqAFfDmTvGNTxulKsrr-n9S2EcOARULKbHscI57wR5OVBnPMi0jOxAXBhqmwi9z4Kr9HWypzidbQPkPUljxysYINfNF6BwZzybB124EFx8lhLiKhqwpETGfTFomSmn2LaE4DApWaPyNKlCDWv2tSt5f45C0WzRHMM342cU_goqsyAZeljpvH1QXbkf__29MkCguiFhmO8OTounJeewsIKnwYOF0vV8IBwvnfZHoL6MZsPUHfkzz0UeIl-GUiMa63nlTpGKfAGlRGsgGJ2Kr_wOYWwAa2skDP85wbQkeKFkWbH40-6ToPMEX4dVgqGV1D3SpBV_mplgOu4VjDrLm4QcpFJTwOTBeeWYVvxMjusQ0mc7ydHesUmiG6a_RvJiSPAQiNlCrK2j13qItIZ_gpJpBtmxnjig6YIlDg7y2OSDs92T-g1HIfHGUPnXGdVqgJgj4O1pZmkh7Yo2k3FU8w8cuyqUODI63RwDg3DNITjzibCeHhKAXyrIV9JsuAPpTIwl2quBF6OiVlDm7d5D2xWZIcyD2YiM0dcpwSuSifJCee9d0j28qi1n06pmakjrwX71QAQOUUmaitSQrMBmcLRpI4JV8tpceAY1F73k4EjP4_Y8L2YkR3E89GiWgjzfzVZ1OFyGgCTKIQHO_Z-wHej1cr120zLrF2O8Iow3PiDmL2NkiwkPAtMqZrOkkVztDzK9GAWw3gygRk4BK6QifFCFSWHbk_nneq4jQfu4o77AX03ye52pbAqbtdlItSvhm9JtQZawtQ5dN53c6BgOUTmfHlQzXyiONSMbdvLFWUABv_VfZlRUDjFextIe94Bs-D2Qfirmg2XupT2RB6r_Mf1gK_2XD29qzvr_Y95orYBJuAMd7EMIsItuAwYKxF9Nz8UWd4n5ZwBHvQ0os6f0R4LLh-BsGKNqkXCqxvIB3gBsXECOkPbiqFJEoiWRTgXTWj6vElpA0pIaTy7INFnxK06cUmfIfGnLOSA-upFqM3kF7xwFnTNGK_XoAsO9jnIA-XWeBHvWvyQMCbXApBPsxokkbzivTzvewKOdgWlRd_Cjbhc3Zo8tK1Vet7B_6eRrdYmL9LOzrSJAQ2oKVyR7ygGHk3I8f2-a0pUjsVqz6Sh5twiahESkHq6XwEM522Gfl593x4KauR6to78NQdhhzFXC7ky_D2DSqL4db21IOyzypedMMLhwIdg70EOtZpg_8l1NsiIhOzDG2mJDRf1X7BGP-UWOm7C_Uz4ayKC9bLTbPcimIabSDEWakIkwPvoFcza-HyiyzNpff5mtbVa7EaOWvqx-ta2pNnqg2RYZZ1jaOG3nukzheDVfGUvByLsRO8QAIuONa-9IB-xq7U_MiORIyqNSUlispQk5ixFq0lD9oRrIz2iLDzaWEQ262AMwCX4an68VbHw3V5Rw-H4Ci1x2DrPctMSwYICSi4jm30Iev0M164WF8UExnZ0qfSHfpOC8ne8aXJE_ogqUjamnHAc8Mqvy5UdyQoXb6S3v9VbMKd3Q9Br5r96LcfNer271ibBFlqfxO23SWsGUtkg_8gjw3XVGyt-fGKEQceO0inHQDeHfMAizB6hpXhbIBjoGQKsCioi7buL7igV86hHPwa_1oh6TPKZN_7sRpslHVj4KMJnXYWN2tJn4wjEcmPQE7TVt8IAQDGSxK6bdcJ5fAGhTbhAwVbDHwoNw9E-ySQ0pv0ORk8mndpMa5Uwi4HNAZDcwcIEBHqaucoA-9YCkZZhy8MCl5_-Jhxv_B2jj-A_86SHB4WIaPlWFmadQDq2YTLmwELjU074FuWnFCV-DwQ","timestamp":"2025-04-09T23:12:29.904Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:29] Processing token
+Data: 03AFcWeA74Xtqx2YXLzw...
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:29] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:29] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:30] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:12:17Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:12:30] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:13:00] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2028
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 55914
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240380.0589
+    [REQUEST_TIME] => 1744240380
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:13:00] Received input
+Data: {"token":"03AFcWeA7fFappfPqSIHOL1nfPR2rPqohHORde6mJNyiCKJXHGapp0hSw4VFRWCVND8E5gwoBLiNVXxtzNc-pv4UCIy4FnzbLadg46lYJeXu2IbdLfZ964LVqxf1PmF2h2E1kAaAcG8RSz31qHcbvTBWMrjmrsNbx4qOEhvCYXj-prNcRooD2eSRpVQXUa8j2FkJN7yXsHo_UEhaSbsLyZyIGjZ4QtNywDcjf3zh6eAXVROufC-Sbly_ecUVEQ4cVpWyvq3gUo51Dsv07J053643doXU0hVpEdOH5VZvdV2sXBEwihj_c9YGzXjw2PTOy4PgVsqyavqqkgKjMgOb-BccmQp2m6DccKAls3JZSkG0wkIFhQwcTpqcbc0Lap5YnAPF93lQmcpkhfuJGutNT4GlCg9ccKtVtNRaUVjIuoaK1JMFRPQkzncTbC5gex_8Xg8S6DnQ15l94b6AV8Mv_307unXq6CelI7hs7trgovu2tU240vrdoZMvB7Ti9Uan_1asbSy4n8KNacAQMn1PCUxxDKAB9-zH9Xhz73Uhsyz0HMLouoNpZzcCGdqXUIc3Diq2lsY7KK2udk9yZR1DjBxDSCgT2GNiK_DJK-OK8CNvNGRUt3mRvkH_-_vbQHoRNjUWeTJi9ZULROvmaiNEphJXQB8Aam0ivhzBJHOKDfn8qJ_OQljLB-H3KyIHE5UNt6ZjNj06YhBoEqwz65WDh_swAqVHjD-Q1mndTIyB9tcXyDs13R8etdWr2udjk03XIoLUMWaV70MAaPt1IRScZ9t_dxfoczUeNhlj7sHdjk9hgK-nezf9_qeq6ntPOop2x7AEYzPWl6IhLKr_6wGiySdzpGTyYIkA-3l8WAz159-En2bUJwab-SM0a607C6DyPpA3QpyFyIo6LeWW6X1OEyhjcgnaJv7x90mTCCgCPMEB8REW5pd2TeSLeBqV_SqaXyLTtA-EwZ60v3rnc-F3XWqvBzf7qtM9qpaI5AgblPsW53270RQbbbLyIqopMp0QuCKpTunNptn2nutCDyIi9168MH6X7OTSZqrdJXHXUnlAKv0DRkMAkfKUEW6YU86mLWjShWxNqm1DPKoP8BPnUB-bwkW-tQDG_O85ASRmKgCT9U9ZxkMgq5vgrljK4Ds7ORQ9czd418s2RTnXl3nHkcdSO10xHqhO6dRBaIj2hDICxaQKs-82IJYrPFvxGMYSusEEpz502q4TxMEFBeaKJHXYxZZxPQfvt7hZgrtxwpo0d6U2pOe01nOD8LE8P4Ijawuw7qczOBeYUfmA55kneJSAvgfFW27_zhlUOuvTgdm-aNEzR9RTDSJRegVH_YFJqUkQYaf-RL9SjjEttl5ETyzo7c_r1Rm5OPX_KwhZwyABR9r1Rkt8JMRh91a0S5In6I9UwgjywsE5nDcPaC0DIymYrB1NxvIcKJQoLgJmHC6wmMSXRBuZY1F1w79oOSxkwloMy2bxropndCak2YXc3q6c0MdfizaLw9AsM8jf2bw_NaDf-OIAWprPbk0tsW8EFtuTWVotgVsfXeWoFOKz5U8NzQ3ysisNJupGloKfZWJYNykUvn5VmTCUIlIYzjilH1NhTCTAN2nnF2grbD6SbpJNXNT3-XTKXvRYHhmeT2-tCXd029sYVxUJ4nfeWcvlP4T5uc-bg-e7CH98OfwtOYaCGsJXVeljcqeXKqzeUGORtMduhBvx_DUGW_UPCJjbF5Xz2X4UcyLyVvnuZXP_Ftk1ELGKQg37mrxCI54buAiGxJavPI81oJXcrRIYbsqMSsQ_7O62PPiG0levW9JwDjHExtcsFybPH9DmSHVRyIOIiKr9hwZiSzBvL8DZPpgVSlK1c6aqt1wYgf5kzgXqnybLrYj3fml4vDBBp74lcBJMb-O4jyOlZVz6vD3G_gDfmSz0FKhQ-82KAgvvhfsyAV2uk7BgHXNhKnnUkyKEWpDOSU_vLY3c9tmnU","timestamp":"2025-04-09T23:13:00.047Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:13:00] Processing token
+Data: 03AFcWeA7fFappfPqSIH...
+--------------------------------------------------------------------------------
+[2025-04-09 23:13:00] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:13:00] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:13:00] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:12:30Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:13:00] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:14:27] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2049
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 51994
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240467.3995
+    [REQUEST_TIME] => 1744240467
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:14:27] Received input
+Data: {"token":"03AFcWeA5kFJKaq1Sy_Y6glwBt91fluI2x6Y19omRd5AC1ml1cdFR5DJ1ke-BydD-vai9iPwQl2kgojzD6VErlq9hy4fYLEIxpDqwcA3IRFw-zzIBCqgoeC-bfN0QogEwtc0tPHjJsZxuMmVVRT5nce9bFzh4mhesib_bPFyMUZWOS6PbxnmmcdVmbQyJwjKpg8PHz3OKadm1A_K5qO0Bygr2g5Xvxcud9MDaFco2z7w1HCugVFXsQ_4RRPnwU9xsbdTtouYpn2DHoEVODG4UNkWTgIzGSTT7G8U4byv_hSzfjc0fL80-z4MwtdAy62w0MFVZXm0Y42jnShFrHaqz5LPU0mLKksORI-WlxWdwV6C2rpfRDLwWK2nVwOoKdfmITJ-pnN-6S-L1lZeIiJTz9nlk_4IvlLfdHOqVOPVJsSFp35pI7mt0RNV6o2XsQW-zsRlAb39lQyVHyRfEQJmPiFQzx8QR3uVeEfCF0uz_9GmTM9tavq_eTr7M_2ELByF11UrvZgOQrYzlV1BpKVDIKVoC5MEGCQfTceFM5aLgPwC0S8MmL3K16d8n3_wRL20FsffS3zPtGlsM3WF-cJpDPwQhiIeqUhxL4mBujq7UIsGNyZihljsdfuiB2FJNIHPJ93b2jRCT0RJMstAjqzUMQuYlbwyAtbcmwrq1rgqKEErKUtxmYKAr50ezdMGkYKQOOSaLyQpTeihDPMip1NtmR3_6QfKcEq75rR3QZExQbiHse-TZ9BKGwHsyApIFbxzCWJoH-tIRiSNKAiSWwh3aXHOeM8Ga9Hmfm3PWb2HIWMQjlN4xrTijstJKAWXJeCOAJSkhM3SDBYlFADzx-BKhmj46AT8YdXKiVVdqEq7YrNEsK73mSMyPaNRiKmDBaGWkO0d0FaT2dSZprf-n3-WteuwtxzfKdvep-5YXziGCSyKlFlpqdcx29Gt7oU2nVXRgr6w1ViZmLbDN4Uobw9vRZ7R9bpf5qeETFS4NoItUvDFF8-Y9XZxaIqLh4CtNxD7J1qZUVKawzH8mFOXFvzVqmVpP03i9xuIUfVS3dq6XzXYkTevA-lVlSthu9YyrdEkTPafyNdooyQKNmDdpsLbF-hwYo_jLKwaE8mKTZUX5pBCBMLVAx60UzZG_oheR7MKd6upPAEVPzPrKe6IMgD8f9fBCb54hAyMAydJhqFEjgRfNWuKZqYVsykE4IctHZaVveS5SdyQfRd-ydD_D-tusgrQn5SGGRJ1U2wrnVmtQVdY48kK64QGMFBywgWJvIsxqZjnUAnm2h5jZRUCZF22ZzoB3zbLZWEUBbuCFjd0cd-mC40621jpx5lGS4L-n9tADSmggL_Ng8mflnBMSBgrvSVxls9PKs2q4P9WagTWqgA3tl9MNZB0ch8FtxOqJ02KpCAwH0qXi0Z5wCP__kUah6L1KJexboheeDiZ3uB99kOSIuVHovrgIWdvq_OvrYg4ZeOGP8P8oXXEDlj9NlzFiP6xPqyNLUSl_q3fgkQB-2NSagKJYZekyUAgIoBlOEo3wkGKZRIhsZMeymz1Dycygw31PEDPsnKgXlyfLihtbnKYpI6rLhgeXMnw6BSHa7FWqPSZzbUZ5wj9YZo3JcKG4bZDOZsdmmC49vnq4rAnjQfK_nsPFTGklS_KFJPLS0p0UnzYCy94rQbbMlkQHbYMBXCGBbsnlS-gwjNmcHVRGomVFLPWdBrdrnU9Z8qo-V085UoQXsOcyeGMGCWkTu3Hulxjy1a1ZLVxO3Gi_RWFhGmTriD48kdGMvq1eS0mewVMjkhAM9nXsYbfp5kRggdgilvpL-QnJWTxWydfXT2p1XqIUBYjTdrsBGsA574ObP5VPhtMXfLAtXa6SrKOGVopAsSLhqd5LoM-RI60EqfQyy79QuQ02WCbXE9vAkelPBwyIu9X2NgFlGTiZrSe-vtEamMxjL22JrCdCAQPB5MjCAyiGrCfqHOy7BlVAOeNWLlRKvdO7STeBS7FI7","timestamp":"2025-04-09T23:14:27.328Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:14:27] Processing token
+Data: 03AFcWeA5kFJKaq1Sy_Y...
+--------------------------------------------------------------------------------
+[2025-04-09 23:14:27] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:14:27] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:14:27] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:14:24Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:14:27] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:02] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2028
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 35792
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240562.3777
+    [REQUEST_TIME] => 1744240562
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:02] Received input
+Data: {"token":"03AFcWeA7hBeBZqGJNBr2WY64jEL0uS3nB26aleoLi7yxqZtWkVshV7TTuWe9YUA7se7zcJEiIgxthWQ-E9awEd0-hLSG3Jd1ZQH1fGJpcRDoxWOui6K-ZDSPTca5x_Kfz-sTmI7Rib84zXyMuDXnEJoZ9nOwAlGr9w96lp7cBKreQC8g7-5gYDioSKdebKSB8mFd889DfVYnSlIunwgzIH_8gR8ZxzFHVcMbnb0oiqTETMsJ2tVGZCrxUgZVsLIE6MualzCijDjF6fccsSay3ukYshpkpI5-xZCkpE3zwfHFRXPgUR2dBqItU9IkRMt4UQBksZabtZsTTQCg-HC90_GP2W1MjCdtRxOlulpbw2zxbo5_iQuuPTXfF02hFLBYYf5TVmjIhEtT-GKMaJDHpEyA_G2oKUIaGnBYv-7Y7JTpYMKH1fWIfYii9lDnxYh-4MIoLvU1QMjL0rHsePQfez4o_1N9iISBEo_DnH_gUQol66MkmxIPQAK070eMpGNTxSdtvdCo8SI3acTspOFIpozjWFId9X7ojmpLhofgtK2TeJlBrRgekUnOyHxxmnG1TWBGla04r6UIrA7LBT2_Ltnvy8Gxh0DhH9OvAfWoF2A7G8G2PigtHdCC-6EcolJKc4xyh41HPresyPzap1WU9Vq56YZPxAn6mAmY3P5IGXPJESfn5XEO3B1Bp9-RG3n-JqzLOxsSdPYdQl5DDoHytfC-cl67PhhF7apsnRsgWUSaxfaAd6yJZ8VykhTTNU44bo9q-rFUJzCSSjxLsXRnHZnh2VBcLpD7rUeojmgd7MV5HjP22yU_NYF9YVU8Xm0cC6g6ik3L7j6M8PkAJU5VrXd5N_f6OXDqnjtYwm_h4ZfIhBYhHksMfmQf4DoJZLfFwFz1tVx3nm50E_k65fRGuHyV22A468ZrkHBSKEm8Oc3J8SGXK6XeCERPVCODtkc5Qb9QTqZIDuEWMtuZfFZL0dA0Io6G6EwwElew3zKGMMRhEMBJeAGdmP-F3cMjrGikbJcMgOrLZAdCwGVm5plu63fFZCqlmfZXjuXJw4hoxdNqyXHlNFcRjODfR-dih5TqHWybcQE-sRJglNyq4YH0ZCQYnt2rWBDcuGWn7Dy36C2LIh3WYN-yXUx32sP_ayrmWAReo7YKlWW_InsszU4YwP00kYOPVhaQDXsPEympHi3a2oz2P8Qtc2WFNKztpYdAhrIX5xd3xxD4Ya0wJ-ITXYn2rAxfzLl-5Jf2ZUCTVpenXRVrCetbJvKU023zsSfeuU4oNurQNFlbptVmHRuj9fDckHSX-kiWOiWBC4cN-Dd9_YCmdPo3_KxwUcBLo1w2457Z6mdJ-V8G3dsywgB871tzNxr4e4pDoB02YU-FuxD79pLGaK7QyW4eemIF1S3E0aoty2VP7GMw4CY4kZeFLfYSj6XP4drzRprRczCdSgO2BtFkF8kXCSS7C3-tr8_p6lKelhAl-0yXHWQRXtigsL-r2wHwU_gKFAzUWDLrfRL7dMiflJUP9RvLx6rr_iulPObLa00AUVbvtf2o2c2IdZy0ZxHLZTghqce5Ed25Ljf3raiMQ8QG1wAv3PaDHoRs3pPJvDCqWXhfATstKXrs4KXjDDFziE5whizmM1PWNIByb8drRGVnRCK_my-m6-gFGVcgZMh3IEiYpbfULroTwGZbprWRyY1yyzAN6N5Em1NO5j9B5xxdZs5vcghnHQISudtyMkyq2Fi7NnHOQr9XNQJJVHsVQDJa59mAugpsi4B6Xh3Z9eIeTq6R237pn2xUIZP5bnHs7ANo43Tg43umYm9JgJN3T7vEVRrxY_GzzJV9cI2rfMQwkS6ZTRvdDTrXDicYQjHvZv1IJpF6D-rEbosPSSgsqy4tmVOWxyING7_R3xXMruqzSulbCnDyVJoQ6FPhqdcQuHFr1ipqyvCPZavcnvG8GqVu56Kf-gXNGmhQVnIDVUumoB4c","timestamp":"2025-04-09T23:16:02.228Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:02] Processing token
+Data: 03AFcWeA7hBeBZqGJNBr...
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:02] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:02] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:02] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:15:59Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:02] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:10] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2007
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 35808
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240569.9109
+    [REQUEST_TIME] => 1744240569
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:10] Received input
+Data: {"token":"03AFcWeA5VWox2cY2SblDBicQrai5fn-OFNwzAiW0eLvATOX0YjMMtW4lEmhxOXtG84UoB00wlujKaZa1FWZOi6HwVLy5vxMTCI-3ZHJo3xNOTEfHxMpn5KcLoSmrbWHbmvPCBPpjEjWFaFQOzQeVtgLiq_LFhRPNIVt-LNYyxVGxqO9gi-DWtojBMeHDizRNlxM75b2avkhV5uix1wjSBV9bV2CMs6_w57Nw4jwhGfnnlZHfXj4qsfndF5QHdXwH9OJexE_imrl63bcyKeJw7rYakBg8UeS7BVKEaIzME7hzFsznZKBNvj0OrxDkJLwnJeX2-sEJwTQEIZe7n-0gs7m9yWw-djf1oFFFBGEnXbAGD-RvDGDI6Q5O1xBM3In8dtfDLibvhVl2M4rjN7D2unjpSJFONDuZK7-s5ie-IjYj-UUci-ogsNh5GDSoFRd83_f6pUiezRZQay3iUdmii_MvSl3kVCGbzWk_i4YRcpER75s-8drMQPhoMTXpXMhwFyCGqyhunHWJisnwDgoPDUiSfe2scMPZoMzZQxQxaRhxyAWc_LpUXzKjSad3bRdF5fg5tnjT7yCXrmrjhN_HAlIE9dFIKmhUnwwxe4_YFvlbia4R24gouistaLONfqJXG5GODpSdZRTOQrNVzyWQ_J-N2mpSHAy-x78-ft_ivZGWUqiD50rL9QvKFxF9AH1F89O7XHpFqW8tuHTJ7LN2MiaKkG9b7uhq_d5L_Jv1ExlH6iXafRoPXSEsUprfBQBi1B3kjotIqcuNZtYNqrVAb78BSTtLg6hE_BxHIf4-uWJZXMNjhsntAnJR1JrNQNf0ZUxAHOSJM0Cwc2pwW56j3PEr_dxeu1r4FueTdo9EZHud8nEcZqLX-P4MmFlotvVvo68F14tZYPsyhmiVE72DPgVgAPrzoWQfn_ctjMxd4ZY1j--X8zZfx-_aqGOu-PwQ36Lm5ZqCD1LzSiPdcSSnpmZrNkePhgMydGTh6pBaUS3SZcqr2hMbSNRizvUf9iVo5Yehg9MwG-2AvGnjaLrZoluC1WDJDyLlcFv5TecXs3KeVWM7Lx8R3-hT0uhvPw4zwNVQ4ahLYIzZtkvI_Kq6bxjP1ruZyjM67NaPkm4ptHv0PAhmgV4epZECGDctQ4hxgEUF4Lo63wdjFkmOcIskoVhnUqC1iul63V28Mq2Vwl3xGfRQ2QhMRTONStCsGKS60UP341d5e2_TcRvaUlmLWCPo9R6ABjgY8WyN1NYOLGaeG_zOUGZ7izWS5kNLS9BEO7eHgFQ4WEiARoyrDg8n67xFnFGk_etZtaiRstg1hQlVpw0P8TacHwzY_HwkQpHbWxd5nHk9UtP3wyftfWi2fOKFAkXD7kIkrLdWym6PC4NZXtEVMZDtEbkHJ8pRr86R_V63M2BrlAh2yUoYfioJ5TKNgf9EHy6ybsTRcU2CBBwikC0MsIlKrPTq8DV98SfKNsPi7Z9dzqCLd6uqW2v9yXBbJ-sLpwdZvjv97bR0wqxhTu4TrvvEG5Eo50D_q_sDqsZqdFgOM5Y1dFJHWf_9UZiRUxAGg89dq64hva2-vnjpBd149nEpUKOAxQuq_nVSsoPWYU6ji3KySWOrMmukASm6Br19UK7OY1bxVf2heRFDAX0auQw8zOQb7SOMJpUiXxwG1pEGjCIpA7_yFea4XTDxaNcftNoOSGmYr-JvD3TfKQp10TWi1hQacZlqGtnNS2h974Mbleuy7KNav_EchbuQuimL3DuHfc5HpM-QJsdnuMmSD1k459oLpy_RiEWfiUrM96uSScvbEQuso9l8bVErWBiLcO3jolCHybDjgIbXiHZpf0RiuUpEod6ycDz4W1nujNhFV9zTaiCfCv3Ay-qFVErOFwPWd2zEGaGZfFDQTJMd9qeq75D6SY20CAdJI8GB8gN79Lw5BLiGJB93mwM0fM62QlZ_elw","timestamp":"2025-04-09T23:16:09.894Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:10] Processing token
+Data: 03AFcWeA5VWox2cY2Sbl...
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:10] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:10] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:10] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:16:07Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:16:10] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:18:05] Request started
+Data: Array
+(
+    [REDIRECT_STATUS] => 200
+    [HTTP_HOST] => localhost:9999
+    [HTTP_USER_AGENT] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+    [HTTP_ACCEPT] => application/json
+    [HTTP_ACCEPT_LANGUAGE] => en-US,en;q=0.5
+    [HTTP_ACCEPT_ENCODING] => gzip, deflate, br, zstd
+    [HTTP_REFERER] => http://127.0.0.1:5501/
+    [CONTENT_TYPE] => application/json
+    [CONTENT_LENGTH] => 2007
+    [HTTP_ORIGIN] => http://127.0.0.1:5501
+    [HTTP_CONNECTION] => keep-alive
+    [HTTP_SEC_FETCH_DEST] => empty
+    [HTTP_SEC_FETCH_MODE] => cors
+    [HTTP_SEC_FETCH_SITE] => cross-site
+    [HTTP_PRIORITY] => u=4
+    [PATH] => /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    [SERVER_SIGNATURE] => <address>Apache/2.4.62 (Debian) Server at localhost Port 9999</address>
+
+    [SERVER_SOFTWARE] => Apache/2.4.62 (Debian)
+    [SERVER_NAME] => localhost
+    [SERVER_ADDR] => 172.18.0.4
+    [SERVER_PORT] => 9999
+    [REMOTE_ADDR] => 172.18.0.1
+    [DOCUMENT_ROOT] => /var/www/html
+    [REQUEST_SCHEME] => http
+    [CONTEXT_PREFIX] => 
+    [CONTEXT_DOCUMENT_ROOT] => /var/www/html
+    [SERVER_ADMIN] => webmaster@localhost
+    [SCRIPT_FILENAME] => /var/www/html/routes.php
+    [REMOTE_PORT] => 43238
+    [REDIRECT_URL] => /api/verifyHuman
+    [GATEWAY_INTERFACE] => CGI/1.1
+    [SERVER_PROTOCOL] => HTTP/1.1
+    [REQUEST_METHOD] => POST
+    [QUERY_STRING] => 
+    [REQUEST_URI] => /api/verifyHuman
+    [SCRIPT_NAME] => /routes.php
+    [PHP_SELF] => /routes.php
+    [REQUEST_TIME_FLOAT] => 1744240685.6899
+    [REQUEST_TIME] => 1744240685
+    [argv] => Array
+        (
+        )
+
+    [argc] => 0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:18:05] Received input
+Data: {"token":"03AFcWeA6PZJWujeM9pJTocOBY4iRXOBO_GMk3lmCORPcuNgePUf83TEYKPbpYFIJaxybr1hmE_thyOgakXS1Y5Nln1RL1AH_WbJIbtogkbqHlSUOcGAD7uGIK20smZ1_E9Xe_f9MbZaH2KrFUq-iczQhpzW1spkIcEuI163mwIgQ9Lp65UbA7M9KeXvIEWbB6qhMnNfNasJ9E3qByHaQ0ZkSYrLyc3rXW6xny4_TWAV21cDQRoaLZwf307zvznslnTmHKceUjfhZwdwgzbO0yS0J0QNCo6IjWlUfAG1ltzuQ3j6lgvwsqnlvKk99qKd9q4JPHm3Lq_wJr6TNVmBKYx41AcahhcI59VsFpAynu0YfZEEKitB9orG1fzLLTXqIa1UoPJ6GnM6cFKy0Ce1w-i_RcA2RXsvYM830rgLv8PnImiRBC99vJmu1F1qSlmjfHhbbFOeYtrKg0LgMdev61rCcimkoI5SZRMa0TJvmRwHEecPyNu5CduxpzNWAJ_ew_6cJd4k6rqx1GwBmbKit7-mrZqiqU7IZgcKkUrHDWNVCZuqyDhkwHt3BbuqfXFN_q6dEMpUF2-yEAFYUnanYciYUbHWxK2XEY5oXaOiS-KKEMShUtt-PxlLrg7HrAUVpoPwfVd9xBX6SCxEo5Zj80V0YfkhAShPAODn0Jt3KntE6wIkd3Fu-bk4icAUeM_Q6vhjFsIMF6yr1ATAdx5EZutWkL7NJtt1997VJsu2_sAMq6jdBbKN-V8wDfY7tal0CsH02gP9va6Nk2NZ08R5iLO31QrozAuZ5u2PtKPEoSoMDFxDhagejzYeVcRozW5ItyA54Bs8OSmlNLjxlVWmCEtBVln66P1_cfFGiRV4igJ0vUz9lHWs4CvQ0nhPQV0D-5UC_WMYV8K7lMPkvlU4AdF_SwkCVcWjZNpEZ6xV0glxv6A3_kpwqc22YhxYptNlJdan-EmLLPUDFQN346DusGSZYCBvWBmi9QvVBQjttQ-MIy2CyM936dr0ghQGi8PVycj6wqupqs7iLo9efhVdhrT_aiOaEx-pgmDt7bx32IU5SVUuOxp6dCa_zxurnX6OIH4lcMN_RMX7jBDDDuQOT2m8H60gqxR_B7VuCmkodISeoaJR7smqanyNPJCbyT5ojZ8tQ9Tgg82qzQ4wlhi4e8EYUELvaAHGVtvnwKYn2AUyEMeyLrQJHLXNTg4tNyA2Ie2JxB5sNIjwKuwdbquEFr27XOIu8mQMmx6SQFXbKQHOPTcb5v1AgujvEKvNZRNrwS9QgAjn51TiNA13cDJCjWaHBngXJsToNuEhCC0l6UZAKS9YyrrCs4g-WLPWHLCqIRYsAsjtXx59kYHHBiMQ1hYAJ7PH4JVxFqxf1Yvr9GIiDOqpcL0CZ20PVAoeelLb_oSU0inCB3Pped-EcTuLfwZD1nsj9jePqBdKX_iSJIAy97L7m9ctb7eHBqohhNFHamp6-Wati9dWcpFCN3vSgBHiYs2M2XnORwggGpLWJ2VB9hgXQ2m5r2rVP-YFwAnRsuwyb9AXdltGQw4r3PRA3I8J0b8cdSWp03756i-pGuecFulGcD6NRof4Fz4KjEtd2mDXuSl3A6y9HYcHAa33nHxweD5JAv6_9JpXojdKyZXeBq43wrggmFQWaPk3lYyDkzdAcupY1PTTzLQ3EBUCcK-oGHHFF1vOx9SdlhQQTKF8aBusJlkTz3pP_z2OU0KYoRMSMo8nm380BS50ISE6IIjZm0_wY280SUKcrO8s2nfYCA2Sib-O1zXh7YqiHL6SYDPShW_gbMH_j4LP4GVaf3ru3t6O3kQ-ieEWuB_58x6Xc5W-vjqqAbP6wQ91-J4al4dUXXjwOLW_KaMZCOsr-CNPo8rv7wOPE7NlXav6WgTsqXjZKrRi_1tgmHGVY5IUSHsA3Raa5sPcuUW-JCaBkypx8qIJvI1wlPHQ","timestamp":"2025-04-09T23:18:05.679Z"}
+--------------------------------------------------------------------------------
+[2025-04-09 23:18:05] Processing token
+Data: 03AFcWeA6PZJWujeM9pJ...
+--------------------------------------------------------------------------------
+[2025-04-09 23:18:05] Using secret key
+Data: 6LcANx...
+--------------------------------------------------------------------------------
+[2025-04-09 23:18:05] Sending verification request to Google
+--------------------------------------------------------------------------------
+[2025-04-09 23:18:05] Google API response
+Data: Array
+(
+    [httpCode] => 200
+    [response] => {
+  "success": true,
+  "challenge_ts": "2025-04-09T23:18:02Z",
+  "hostname": "127.0.0.1",
+  "score": 0.9,
+  "action": "verify"
+}
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:18:05] Verification successful
+Data: Array
+(
+    [score] => 0.9
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:22:05] Bot simulation request received
+--------------------------------------------------------------------------------
+[2025-04-09 23:22:05] Simulating bot detection
+Data: Array
+(
+    [timestamp] => 2025-04-09 23:22:05
+    [ip] => 172.18.0.1
+    [user_agent] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:22:11] Bot simulation request received
+--------------------------------------------------------------------------------
+[2025-04-09 23:22:11] Simulating bot detection
+Data: Array
+(
+    [timestamp] => 2025-04-09 23:22:11
+    [ip] => 172.18.0.1
+    [user_agent] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+)
+
+--------------------------------------------------------------------------------
+[2025-04-09 23:22:24] Bot simulation request received
+--------------------------------------------------------------------------------
+[2025-04-09 23:22:24] Simulating bot detection
+Data: Array
+(
+    [timestamp] => 2025-04-09 23:22:24
+    [ip] => 172.18.0.1
+    [user_agent] => Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0
+)
+
+--------------------------------------------------------------------------------
