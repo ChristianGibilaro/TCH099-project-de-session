@@ -329,6 +329,7 @@ class ElementCreator {
      * @returns {string} The HTML string for the menu.
      */
     CreateMenu(head, topOptions, bottomOptions) {
+        //HELLO GITHUB?!?
         let out = `
         <table>
             <thead id="title">
