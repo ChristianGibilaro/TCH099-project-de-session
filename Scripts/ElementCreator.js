@@ -601,137 +601,230 @@ class ElementCreator {
      * @param {string} formMethod - The HTTP method for the form (e.g., "POST", "GET").
      * @param {string} formEnctype - The encoding type for the form (e.g., "multipart/form-data").
      * @param {Array<object>} inputConfig - An array defining the input fields. Each object should have:
-     * - `type`: The type of the input ('text', 'email', 'password', 'file', 'image', 'time', 'options', 'textarea', 'checkbox', 'color', 'date', 'number').
+     * - `type`: The type of the input ('text', 'email', 'password', 'file', 'image', 'time', 'options', 'textarea', 'checkbox', 'color', 'date', 'number', 'url', 'switchable').
      * - `label`: The label for the input.
-     * - `name`: The name attribute of the input.
+     * - `name`: The name attribute of the input (for 'switchable', this acts as a base name).
      * - `placeholder` (optional): The placeholder text (nullable).
      * - `defaultValue` (optional): The default value (nullable).
-     * - `required` (optional): Boolean indicating if the field is required.
+     * - `required` (optional): Boolean indicating if the field is required (applies based on visibility for 'switchable').
      * - For 'options' type: `options` should be an array of strings for the dropdown options.
      * - For 'checkbox' type: `value` for the checkbox, and optionally `labelLink` for a link in the label.
      * - For 'image' type: `src` for the image source.
+     * - For 'switchable' type:
+     * - `type1`: Object defining the first input (e.g., { type: 'url', label: 'Source URL', name: 'source_url', required: true }).
+     * - `type2`: Object defining the second input (e.g., { type: 'file', label: 'Upload File', name: 'source_file', required: true }).
+     * - `defaultType`: String indicating which type is visible initially ('type1' or 'type2').
+     * - `switchButtonText`: (Optional) Template for the switch button text, using '%typeLabel%' as a placeholder for the *other* input's label (e.g., "Switch to %typeLabel%"). Defaults are provided if omitted.
      * @param {string} [submitButtonText="Submit"] - The text for the submit button.
      * @param {string} [loginLink] - An optional link to a login page.
      * @param {string} [loginLinkText="Already have an account? Log in."] - The text for the login link.
-     * @returns {string} The HTML string for the generated form.
+     * @returns {string} The HTML string for the generated form. Does NOT include the required JavaScript for switchable inputs; that must be added separately.
      */
     CreateDynamicForm(formTitle, formId, formMethod, formEnctype, inputConfig, submitButtonText = "Submit", loginLink = null, loginLinkText = "Already have an account? Log in.") {
         let html = `<h3 class="form-title">${formTitle}</h3>\n`;
         html += `<form id="${formId}" method="${formMethod}" enctype="${formEnctype}">\n`;
+
+        // Helper function to generate standard input HTML (simplified version)
+        const generateInputHtml = (def, idSuffix = '', extraClasses = '', extraStyles = '', isDisabled = false) => {
+            const inputId = def.id || (def.name + idSuffix);
+            const requiredAttr = def.required ? 'required' : '';
+            const placeholderAttr = def.placeholder ? `placeholder="${def.placeholder}"` : '';
+            const defaultValueAttr = def.defaultValue !== null && def.defaultValue !== undefined ? `value="${def.defaultValue}"` : '';
+            const disabledAttr = isDisabled ? 'disabled' : '';
+            let inputHtml = '';
+
+            switch (def.type.toLowerCase()) {
+                case 'text':
+                case 'email':
+                case 'password':
+                case 'url':
+                case 'time':
+                case 'color':
+                case 'date':
+                case 'number':
+                    inputHtml = `
+                    <label for="${inputId}">${def.label} ${def.required ? '*' : ''}</label>
+                    <input type="${def.type.toLowerCase()}" id="${inputId}" name="${def.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr} ${disabledAttr}>
+                `;
+                    break;
+                case 'file':
+                    inputHtml = `
+                    <label for="${inputId}">${def.label} ${def.required ? '*' : ''}</label>
+                    <input type="file" id="${inputId}" name="${def.name}" ${requiredAttr} ${disabledAttr}>
+                `;
+                    break;
+                case 'textarea':
+                    inputHtml = `
+                    <label for="${inputId}">${def.label} ${def.required ? '*' : ''}</label>
+                    <textarea id="${inputId}" name="${def.name}" ${placeholderAttr} ${requiredAttr} ${disabledAttr}>${def.defaultValue || ''}</textarea>
+                `;
+                    break;
+                // Add other simple types if needed, adapting from the original function
+                default:
+                    console.warn(`generateInputHtml helper doesn't support type: ${def.type}`);
+                    return ''; // Return empty for unsupported types in helper
+            }
+            return `<div class="input-wrapper ${extraClasses}" style="${extraStyles}">${inputHtml}</div>`;
+        };
+
 
         inputConfig.forEach(inputDef => {
             const inputId = inputDef.id || inputDef.name;
             const requiredAttr = inputDef.required ? 'required' : '';
             const placeholderAttr = inputDef.placeholder ? `placeholder="${inputDef.placeholder}"` : '';
             const defaultValueAttr = inputDef.defaultValue !== null && inputDef.defaultValue !== undefined ? `value="${inputDef.defaultValue}"` : '';
-            let inputHtml = '';
+            let inputGroupHtml = '';
 
             switch (inputDef.type.toLowerCase()) {
+                // --- Cases for existing types (text, email, password, url, file, etc.) ---
+                // (Keep your existing cases here, wrapping the output in <div class="input-group">...</div>)
                 case 'text':
                 case 'email':
                 case 'password':
-                    inputHtml = `
+                case 'url':
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <input type="${inputDef.type.toLowerCase()}" id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <input type="${inputDef.type.toLowerCase()}" id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
     </div>
-`;
+  `;
                     break;
                 case 'file':
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <input type="file" id="${inputId}" name="${inputDef.name}" ${requiredAttr}>
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <input type="file" id="${inputId}" name="${inputDef.name}" ${requiredAttr}>
     </div>
-`;
+  `;
                     break;
                 case 'image':
                     const srcAttr = inputDef.src ? `src="${inputDef.src}"` : '';
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <input type="image" id="${inputId}" name="${inputDef.name}" ${srcAttr} ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <input type="image" id="${inputId}" name="${inputDef.name}" ${srcAttr} ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
     </div>
-`;
+  `;
                     break;
                 case 'time':
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <input type="time" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <input type="time" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
     </div>
-`;
+  `;
                     break;
                 case 'options':
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <select id="${inputId}" name="${inputDef.name}">
-`;
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <select id="${inputId}" name="${inputDef.name}" ${requiredAttr}>
+  `;
                     if (inputDef.options && Array.isArray(inputDef.options)) {
                         inputDef.options.forEach(option => {
                             const selectedAttr = inputDef.defaultValue === option ? 'selected' : '';
-                            inputHtml += `            <option value="${option}" ${selectedAttr}>${option}</option>\n`;
+                            inputGroupHtml += `        <option value="${option}" ${selectedAttr}>${option}</option>\n`;
                         });
                     }
-                    inputHtml += `        </select>
+                    inputGroupHtml += `      </select>
     </div>
-`;
+  `;
                     break;
                 case 'textarea':
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <textarea id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${requiredAttr}>${inputDef.defaultValue || ''}</textarea>
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <textarea id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${requiredAttr}>${inputDef.defaultValue || ''}</textarea>
     </div>
-`;
+  `;
                     break;
                 case 'checkbox':
                     const checkboxId = inputDef.id || inputDef.name + '-' + (inputDef.value || '').replace(/\s+/g, '-').toLowerCase();
                     const checkedAttr = inputDef.defaultValue ? 'checked' : '';
                     const labelContent = inputDef.labelLink ? `${inputDef.label} <a href="${inputDef.labelLink}">conditions générales</a>.` : `${inputDef.label}.`;
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="checkbox-group">
-        <input type="checkbox" id="${checkboxId}" name="${inputDef.name}" value="${inputDef.value || 'on'}" ${checkedAttr} ${requiredAttr}>
-        <label for="${checkboxId}">${labelContent}</label>
+      <input type="checkbox" id="${checkboxId}" name="${inputDef.name}" value="${inputDef.value || 'on'}" ${checkedAttr} ${requiredAttr}>
+      <label for="${checkboxId}">${labelContent}</label>
     </div>
-`;
+  `;
                     break;
                 case 'color':
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <input type="color" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <input type="color" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
     </div>
-`;
+  `;
                     break;
                 case 'date':
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <input type="date" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <input type="date" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
     </div>
-`;
+  `;
                     break;
                 case 'number':
-                    inputHtml = `
+                    inputGroupHtml = `
     <div class="input-group">
-        <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-        <input type="number" id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
+      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+      <input type="number" id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
     </div>
-`;
+  `;
+                    break;
+
+                // --- NEW Switchable Case ---
+                case 'switchable':
+                    // ... (previous checks and variable assignments remain the same) ...
+                    const baseName = inputDef.name;
+                    const type1Def = inputDef.type1;
+                    const type2Def = inputDef.type2;
+                    const input1Id = type1Def.name;
+                    const input2Id = type2Def.name;
+                    const isType1Default = inputDef.defaultType.toLowerCase() === 'type1';
+                    const type1Html = generateInputHtml(type1Def, '', `switchable-content switchable-type1`, isType1Default ? '' : 'display: none;', !isType1Default);
+                    const type2Html = generateInputHtml(type2Def, '', `switchable-content switchable-type2`, !isType1Default ? '' : 'display: none;', isType1Default);
+                    const defaultButtonTemplate = "Switch to %typeLabel%";
+                    const buttonTemplate = inputDef.switchButtonText || defaultButtonTemplate;
+                    const type1ButtonText = buttonTemplate.replace('%typeLabel%', type2Def.label || 'Type 2');
+                    const type2ButtonText = buttonTemplate.replace('%typeLabel%', type1Def.label || 'Type 1');
+                    const initialButtonText = isType1Default ? type1ButtonText : type2ButtonText;
+
+                    inputGroupHtml = `
+                    <div class="input-group switchable-input-group" id="group_${baseName}">
+                        <label class="switchable-group-label">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+                        ${type1Html}
+                        ${type2Html}
+                        <button type="button" class="switchable-input-button"
+                                data-group-id="group_${baseName}"
+                                data-type1-id="${input1Id}"
+                                data-type2-id="${input2Id}"
+                                data-type1-button-text="${encodeURIComponent(type1ButtonText)}"
+                                data-type2-button-text="${encodeURIComponent(type2ButtonText)}">
+                            ${initialButtonText}
+                        </button>
+                    </div>
+                `;
                     break;
                 default:
                     console.warn(`Unknown input type: ${inputDef.type}`);
                     break;
             }
-            html += inputHtml;
+            html += inputGroupHtml; // Append the generated group HTML
         });
 
         html += `    <button type="submit" id="soummission_btn" class="btn-connexion">${submitButtonText}</button>\n`;
 
         if (loginLink) {
-            html += `    <p class="signup-link">${loginLinkText.replace('#', loginLink)}</p>\n`;
+            // Ensure the replacement logic handles URLs correctly if loginLinkText contains placeholders like '#'
+            let linkText = loginLinkText;
+            if (linkText.includes('#')) { // Basic placeholder detection
+                linkText = linkText.replace('#', `<a href="${loginLink}">`) + `</a>`;
+            } else { // Assume it's just text and append the link
+                linkText += ` <a href="${loginLink}">Log in.</a>` // Default fallback if needed
+            }
+            html += `    <p class="signup-link">${linkText}</p>\n`;
         }
 
         html += `</form>\n`;
@@ -835,7 +928,7 @@ class ElementCreator {
 
 
     PrefabMenu = this.CreateMenu(["ressources/Final/Main/logo.png", "ressources/Commun/logo_example.png"],
-        [["ressources/Commun/activity_button.png", "Activities", "Activity.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"],["ressources/Commun/teams_button.png", "RandomActivity", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"]],
+        [["ressources/Commun/activity_button.png", "Activities", "Activity.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "RandomActivity", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"],["ressources/Commun/teams_button.png", "PHP DataBase", "http://localhost:9997/"]],
         [["ressources/Commun/activity_button.png", "Sign-up", "Sign-up.html"], ["ressources/Commun/activity_button.png", "Sign-In", "Sign-in.html"], ["ressources/Commun/user_profile_image_example.png", "HeRobrain_III", "profileUtilisateur.html"]]);
 
 }

@@ -18,14 +18,14 @@
 <script>
   var creator = new ElementCreator("Demonstrateur");
 
-  
+
 </script>
 
 <body>
   <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
   <header onclick="toggleMenu()">
     <script>
-     document.write(creator.PrefabMenu);
+      document.write(creator.PrefabMenu);
     </script>
   </header>
   <div id="dimmer" onclick="toggleMenu()"></div>
@@ -36,49 +36,77 @@
       <script>
         document.write(creator.CreateHero("ressources/Final/Main/baniere.jpg", "ressources/Commun/logo_example.png"));
       </script>
-      </div>
+    </div>
 
-      <!------------------------------------------------ SECTION 5 - FORM ---------------------------------------------->
+    <!------------------------------------------------ SECTION 5 - FORM ---------------------------------------------->
 
-        <script>
-          
-          const dynamicFormConfig = {
-            formTitle: "Créer un compte",
-            formId: "form_new_user_id",
-            formMethod: "POST",
-            formEnctype: "multipart/form-data",
-            inputConfig: [
-              { type: 'text', label: 'Pseudonyme', name: 'pseudonym', required: true },
-              { type: 'text', label: 'Nom', name: 'nom', required: true },
-              { type: 'email', label: 'Email', name: 'email', required: true },
-              { type: 'password', label: 'Mot de passe', name: 'password', required: true },
-              { type: 'password', label: 'Confirmez le mot de passe', name: 'password2', required: true },
-              { type: 'file', label: 'Image de profil', name: 'image' },
-              { type: 'textarea', label: 'Description', name: 'description', required: true },
-              { type: 'number', label: 'language_id', name: 'language_id', required: true },
-              { type: 'date', label: 'Date de naissance', name: 'age', required: true },
-              { type: 'checkbox', label: "J'accepte les", name: 'agreement', value: 'accepted', required: true, labelLink: '#' }
-            ],
-            submitButtonText: "Créer un compte",
-            loginLink: "Sign-in.html",
-            loginLinkText: "Déjà un compte ? <a href=\"#\">Se connecter</a>."
-          };
+    <script>
 
-          const generatedDynamicFormHTML = creator.CreateDynamicForm(
-            dynamicFormConfig.formTitle,
-            dynamicFormConfig.formId,
-            dynamicFormConfig.formMethod,
-            dynamicFormConfig.formEnctype,
-            dynamicFormConfig.inputConfig,
-            dynamicFormConfig.submitButtonText,
-            dynamicFormConfig.loginLink,
-            dynamicFormConfig.loginLinkText
-          );
+      // --- Configuration Object for the Dynamic Form ---
+      const dynamicFormConfig = {
+        formTitle: "Créer un compte",
+        formId: "form_new_user_id",
+        formMethod: "POST",
+        formEnctype: "multipart/form-data", // Essential for file uploads
+        inputConfig: [
+          { type: 'text', label: 'Pseudonyme', name: 'pseudonym', required: true },
+          { type: 'text', label: 'Nom', name: 'nom', required: true },
+          { type: 'email', label: 'Email', name: 'email', required: true },
+          { type: 'password', label: 'Mot de passe', name: 'password', required: true },
+          { type: 'password', label: 'Confirmez le mot de passe', name: 'password2', required: true },
+          { // --- Switchable Image Input (URL or File) ---
+            type: 'switchable',
+            label: 'Image de Profil',         // Translated label for the group
+            name: 'profile_image_input',      // Base name for the group (used for IDs)
 
-          document.write(generatedDynamicFormHTML);
-          document.getElementById('soummission_btn').addEventListener('click', creerUser);
-        </script>
-  
+            type1: { // Configuration for the URL input option
+              type: 'url',
+              label: 'Image depuis URL',        // Translated label specific to this mode
+              name: 'image_source_url',       // Name the backend expects for URL
+              placeholder: 'https://example.com/image.png',
+              required: true                 // Image is required if URL mode is active (set false if optional)
+            },
+            type2: { // Configuration for the File input option
+              type: 'file',
+              label: 'Téléverser une image',    // Translated label specific to this mode
+              name: 'image_source_file',      // Name the backend expects for File
+              required: true                 // Image is required if File mode is active (set false if optional)
+            },
+            defaultType: 'type1', // Show the URL input first by default
+            switchButtonText: "Ou %typeLabel%" // Custom text for the switch button (uses other type's label)
+          },
+          { type: 'textarea', label: 'Description', name: 'description', required: true }, // Assuming description is required
+          { type: 'number', label: 'language_id', name: 'language_id', required: true }, // Assuming language_id is required
+          { type: 'date', label: 'Date de naissance', name: 'age', required: true },
+          { type: 'checkbox', label: "J'accepte les", name: 'agreement', value: 'accepted', required: true, labelLink: '/terms-and-conditions' } // Example link
+        ],
+        submitButtonText: "Créer un compte",
+        loginLink: "Sign-in.html", // URL for the login page link
+        loginLinkText: "Déjà un compte ? Se connecter." // Text for the login link (<a> tag added by CreateDynamicForm)
+      };
+
+      // --- Generate the Form HTML ---
+      // Assuming 'creator.CreateDynamicForm' function exists and is defined as previously discussed
+      const generatedDynamicFormHTML = creator.CreateDynamicForm(
+        dynamicFormConfig.formTitle,
+        dynamicFormConfig.formId,
+        dynamicFormConfig.formMethod,
+        dynamicFormConfig.formEnctype,
+        dynamicFormConfig.inputConfig,
+        dynamicFormConfig.submitButtonText,
+        dynamicFormConfig.loginLink,
+        dynamicFormConfig.loginLinkText
+      );
+
+      document.write(generatedDynamicFormHTML);
+      document.getElementById('soummission_btn').addEventListener('click', creerUser);
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeSwitchableInputs();
+
+      });
+      
+    </script>
+
   </div>
 </body>
 

@@ -742,6 +742,8 @@ tbody .icon div {
 .input-group input[type="password"],
 .input-group input[type="date"],
 .input-group input[type="file"],
+.input-group input[type="number"],
+.input-group input[type="url"],
 .input-group textarea {
   width: calc(100% - 22px); /* Adjust for padding and border */
   padding: 10px;
@@ -885,4 +887,85 @@ tbody .icon div {
   color: var(--text);
   padding: 10px;
   text-align: center;
+}
+
+/* --- Styles for Switchable Inputs --- */
+
+.switchable-input-group .input-wrapper {
+  /* Remove default bottom margin from the individual wrappers inside switchable */
+  margin-bottom: 0;
+}
+
+.switchable-input-group .switchable-content {
+  /* Add some space below the active input before the button */
+  margin-bottom: 10px;
+}
+
+.switchable-input-button {
+  background-color: var(--bg-darkLite); /* Use a distinct background */
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 8px 15px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 5px; /* Space above the button */
+  display: inline-block; /* Or block if you want full width */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.switchable-input-button:hover {
+  background-color: var(--accent);
+  color: var(--bg-dark);
+}
+
+/* Ensure labels within the switched inputs look right */
+.switchable-content label {
+    display: block;
+    color: var(--text);
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 1rem; /* Match your standard label size */
+}
+
+/* Ensure inputs within the switched content take full width */
+.switchable-content input[type="text"],
+.switchable-content input[type="url"],
+.switchable-content input[type="file"],
+.switchable-content textarea { /* Add other types as needed */
+  width: calc(100% - 22px); /* Match your standard input width */
+  /* Inherit other styles or redefine if necessary */
+   padding: 10px;
+   border: 1px solid var(--accent);
+   border-radius: var(--border-radius);
+   background-color: var(--bg-darkLite);
+   color: var(--text);
+   font-size: 1rem;
+}
+
+/* Add this if you haven't already, for better structure */
+.input-group {
+    margin-bottom: 20px; /* Standard spacing between form groups */
+}
+
+/* Style for disabled inputs (optional visual cue) */
+.switchable-content input:disabled,
+.switchable-content textarea:disabled {
+    background-color: #404042; /* Slightly different background */
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.switchable-group-label {
+  text-align: center;
+  display: block; /* Ensure label takes full width to allow centering */
+  margin-bottom: 10px; /* Add some space below the centered label */
+}
+
+/* --- Optional: Adjust label styling if needed --- */
+/* You might already have styles for .input-group label,
+   but you can target this specific one if needed */
+.switchable-group-label {
+    font-weight: bold; /* Example: Make it bold */
+    /* font-size: 1.1rem; */ /* Example: Slightly larger font */
 }
