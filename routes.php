@@ -8,6 +8,7 @@ require './src/controllers/TeamController.php';
 require './src/controllers/MatchController.php';
 require './src/controllers/AndroidController.php';
 require './src/controllers/UserController.php';
+require './src/controllers/SteamController.php';
 
 
 //ROUTES POUR LES USERS

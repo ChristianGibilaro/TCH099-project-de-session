@@ -9,6 +9,7 @@ class SteamController
     {
         $url = 'https://store.steampowered.com/api/appdetails?appids=' . $appid;
         $json = file_get_contents($url);
+        header('Content-Type: application/json');
         echo($json);
     }
 
@@ -16,6 +17,7 @@ class SteamController
     {
         $url = 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=' . SteamApiKeyPrivate::getSteamKey() . '&steamids=' . $userid;
         $json = file_get_contents($url);
+        header('Content-Type: application/json');
         echo($json);
     }
 }
