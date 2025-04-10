@@ -1,7 +1,7 @@
 class mainScript extends globalVars {
     pageName = "";
     //False = localhost , true = server api
-    apiUrl = this.getApiUrl(false);
+    UseLocalAPI = true;
 
     constructor(pageName) {
         super();
@@ -28,11 +28,10 @@ class mainScript extends globalVars {
         event.preventDefault();
         const form = event.target.form;
         const formData = new FormData(form);
-        console.log(form);
-        
-        try {
+        var apiUrl = super.getApiUrl(this.UseLocalAPI);
 
-            var url = this.apiUrl + '/api/connexionUser';
+        try {
+            var url = `${apiUrl}/api/connexionUser`;
             const response = await fetch(url, {
                 method: 'POST',
                 body: formData,
@@ -42,10 +41,9 @@ class mainScript extends globalVars {
             if (response.ok) {
                 const jsonData = await response.json(); // Parse the JSON and store it
                 alert(JSON.stringify(jsonData));
-                //window.location.href = 'Main.html';
-
+                //const result = await response.json();
+                //form.reset(); // Reinitialiser le formulaire si la soummission est reussie.
             } else {
-                alert("User or Email Invalid");
                 console.log('FRONT-END:Echec connexion.');
             }
         } catch (error) {
@@ -59,11 +57,10 @@ class mainScript extends globalVars {
         const form = event.target.form;
         const formData = new FormData(form);
         console.log(form);
+        var apiUrl = super.getApiUrl(this.UseLocalAPI);
 
         try {
-            var url = this.apiUrl + '/api/creerUser';
-            console.log(url);
-            const response = await fetch(url, {
+            const response = await fetch(`${apiUrl}/api/creerUser`, {
                 method: 'POST',
                 body: formData,
             });
@@ -90,8 +87,10 @@ class mainScript extends globalVars {
      */
 
     async GetSteamGameData(appid) {
+        var apiUrl = super.getApiUrl(this.UseLocalAPI);
+
         try {
-            const response = await fetch(`${this.apiUrl}/api/steam/game/${appid}`, {
+            const response = await fetch(`${apiUrl}/api/steam/game/${appid}`, {
                 method: 'GET',
             });
 
@@ -113,8 +112,10 @@ class mainScript extends globalVars {
      * @param {string} userid - The Steam user ID.
      */
     async GetSteamUserData(userId) {
+        var apiUrl = super.getApiUrl(this.UseLocalAPI);
+
         try {
-            const response = await fetch(`${this.apiUrl}/api/steam/user/${userId}`, {
+            const response = await fetch(`${apiUrl}/api/steam/user/${userId}`, {
                 method: 'GET',
             });
 
@@ -131,9 +132,11 @@ class mainScript extends globalVars {
     }
 
     async verifyWithServer(token) {
+        var apiUrl = super.getApiUrl(this.UseLocalAPI);
+
         try {
             console.log('Sending verification request to server...');
-            const response = await fetch(`${this.apiUrl}/api/verifyHuman`, {
+            const response = await fetch(`${apiUrl}/api/verifyHuman`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -159,8 +162,10 @@ class mainScript extends globalVars {
     }
 
     async simulateBot() {
+        var apiUrl = super.getApiUrl(this.UseLocalAPI);
+
         try {
-            const response = await fetch(`${this.apiUrl}/api/simulateBot`, {
+            const response = await fetch(`${apiUrl}/api/simulateBot`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

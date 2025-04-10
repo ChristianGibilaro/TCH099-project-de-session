@@ -101,8 +101,6 @@ class ElementCreator {
         this.scrollableListCounter++;
         const generatedId = this.IdGenerator("ScrollableTable", id, this.scrollableListCounter);
 
-        console.log(`ScrollableTable was successfully created with ${generatedId} !`);
-
         return `
         <div style="${styleWidth}${inlineStyle}" class="listeScrollable ${cssClasses}" ${generatedId}>
             <table>
@@ -144,8 +142,6 @@ class ElementCreator {
         this.imageCounter++;
         const generatedId = this.IdGenerator("Image", id, this.imageCounter);
 
-        console.log(`Image (w: ${width} h: ${height}) was successfully created with ${generatedId} !`);
-
         return `<img src="${src}" style="${styleHeight}${styleWidth}${inlineStyle}" class="${cssClasses}" ${generatedId} alt="${alt}">`;
     }
 
@@ -183,8 +179,6 @@ class ElementCreator {
 
         this.tableRowCounter++;
         const generatedId = this.IdGenerator("TableTitles", id, this.tableRowCounter);
-
-        console.log(`TableTitles (col: ${titles.length}) was successfully created with ${generatedId} !`);
 
         return `
         <tr style="${inlineStyle}" class="${cssClasses}" ${generatedId}>
@@ -247,7 +241,6 @@ class ElementCreator {
             return `The row #${invalidRowIndex} .length != colNumb`;
         }
 
-        console.log(`Table Rows (row: ${elements.length} col: ${elements[0].length}) was successfully created with ${generatedId} !`);
         return outRows;
     }
 
@@ -276,7 +269,6 @@ class ElementCreator {
         }
         outDiv += "</div>";
 
-        console.log(`side by Side was successfully created with ${generatedId} !`);
 
         return outDiv;
     }
@@ -323,8 +315,6 @@ class ElementCreator {
                     </tbody>
                 </table>
         </div>`;
-
-        console.log("Menu was successfully created!");
 
         return out;
     }
