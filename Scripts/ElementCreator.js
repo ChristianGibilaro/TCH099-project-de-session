@@ -49,47 +49,7 @@ class ElementCreator {
         console.log(`Creator js script initialized for page ${pageName}`);
     }
 
-    /**
-     * Fetches Steam game data for a given app ID from a local API.
-     * Logs the data to the console or logs an error if the request fails.
-     * @param {string} appid - The Steam application ID of the game.
-     */
-    GetSteamGameData(appid) {
-        fetch(`http://localhost:9999/api/steam/game/${appid}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error fetching game data');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
 
-    /**
-     * Fetches Steam user data for a given user ID from a local API.
-     * Logs the data to the console or logs an error if the request fails.
-     * @param {string} userid - The Steam user ID.
-     */
-    GetSteamUserData(userid) {
-        fetch(`http://localhost:9999/api/steam/user/${userid}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Error fetching user data');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-    }
 
     /**
      * Generates an HTML ID attribute string.

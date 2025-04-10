@@ -1,3 +1,6 @@
+
+//let apiUrl = "http://162.243.167.200:9999";
+let apiUrl = "http://localhost:9999";
 //CECI EST UN EXEMPLE DU JS QUI CE CONNECTE À L'API, MODIFIER LE LORSQUE VOUS Y SERAIT RENDU.
 let host = null;
 
@@ -14,96 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-//---------------------------Accueil--------------------------------------------//
-// Cette fonction affiche les activités populaire sur la page d'accueil.
-function fonctionGetAPI_Exemple(id) {
-    fetch(`http://localhost:9999/api/route1/${id}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des activités');
-            }
-            return response.json();
-        })
-        .then(data => {
-            fonction_out(data);
-        })
-        .catch(error => {
-            alert("Erreur!");
-            throw new Error("Erreur");
-        });
-}
-
-function fonction_out(activities) {
-    //Utiliser les données fournie par l'api
-}
-
-function fonctionPUTAPI_Exemple(id) {
-
-    fetch(`http://localhost:9999/api/route1/${id}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(Object_A_Envoyer)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Erreur lors de l'ajout");
-            }
-            return response.json();
-        })
-        .then(data => console.log('Succès:', data))
-        .catch(error => {
-            alert("Erreur!");
-            throw new Error("Erreur");
-    });
-        
-    alert("Une alerte");
-    window.location.href = '/page2.html';
-    
-}
-
-function fonctionPOSTAPI_Exemple(){
-
-    fetch(`http://localhost:9999/api/route1`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(Object_A_Creer)
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Erreur lors de la création");
-            }
-            return response.json();
-        })
-        .then(data => console.log('Succès:', data))
-        .catch(error => {
-            alert("Erreur!");
-            throw new Error("Erreur");
-        });
-}
-
-function fonctionAPI_Multiparametre_Exemple(filters) {
-    fetch(`http://localhost:9999/api/activities/filter?param1=${valeur1}&param2=${valeur2}&param3=${valeur3}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erreur lors de la récupération des activités');
-            }
-            return response.json();
-        })
-        .then(data => {
-            //Do something with data;
-        })
-        .catch(error => {
-            alert("Erreur!");
-            throw new Error("Erreur");
-        });
-
-}
-
-
 
 async function connecterUser(event) {
     event.preventDefault();
@@ -111,13 +24,17 @@ async function connecterUser(event) {
     const formData = new FormData(form);
 
     try {
-        const response = await fetch('http://localhost:9999/api/connexionUser', {
+
+        var url  = apiUrl + '/api/connexionUser';
+        const response = await fetch(url, {
             method: 'POST',
             body: formData,
         });
 
         // Traitement de la reponse
         if (response.ok) {
+            const jsonData = await response.json(); // Parse the JSON and store it
+            alert(JSON.stringify(jsonData)); 
             //window.location.href = 'Main.html';
 
         } else {
@@ -138,15 +55,18 @@ async function creerUser(event) {
     const formData = new FormData(form);
 
     try {
-        const response = await fetch('http://localhost:9999/api/creerUser', {
+        var url  = apiUrl + '/api/creerUser';
+        console.log(url);
+        const response = await fetch(url, {
             method: 'POST',
             body: formData,
         });
 
         // Traitement de la reponse
         if (response.ok) {
-            alert("User Créer!");
-            window.location.href = 'Sign-in.html';
+            const jsonData = await response.json(); // Parse the JSON and store it
+            alert(JSON.stringify(jsonData)); 
+            //window.location.href = 'Sign-in.html';
 
         } else {
             console.log('FRONT-END:Echec creation nouveau compte.');
@@ -156,3 +76,47 @@ async function creerUser(event) {
         console.log('Une erreur est survenue lors de la soummission.');
     }
 }
+
+    /**
+     * Fetches Steam game data for a given app ID from a local API.
+     * Logs the data to the console or logs an error if the request fails.
+     * @param {string} appid - The Steam application ID of the game.
+     */
+    function GetSteamGameData(appid) {
+        var url  = apiUrl + `/api/steam/game/${appid}`;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching game data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+    /**
+     * Fetches Steam user data for a given user ID from a local API.
+     * Logs the data to the console or logs an error if the request fails.
+     * @param {string} userid - The Steam user ID.
+     */
+    function GetSteamUserData(userid) {
+        var url  = apiUrl + `/api/steam/user/${userid}`;
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error fetching user data');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }

@@ -34,6 +34,9 @@
     </div>
 
     <script>
+        //let apiUrl = "http://162.243.167.200:9999";
+        let apiUrl = "http://localhost:9999";
+
         const errorMessageElement = document.getElementById('errorMessage');
         const successMessageElement = document.getElementById('successMessage');
         const verifyButton = document.getElementById('verifyHuman');
@@ -64,7 +67,7 @@
         async function verifyWithServer(token) {
             try {
                 console.log('Sending verification request to server...');
-                const response = await fetch('http://localhost:9999/api/verifyHuman', {
+                const response = await fetch(`${apiUrl}/api/verifyHuman;`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -132,7 +135,7 @@
 
         async function simulateBot() {
             try {
-                const response = await fetch('http://localhost:9999/api/simulateBot', {
+                const response = await fetch(`${apiUrl}/api/simulateBot`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
