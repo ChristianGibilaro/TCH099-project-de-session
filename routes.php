@@ -12,6 +12,15 @@ require './src/controllers/SteamController.php';
 require './src/controllers/RecaptchaController.php';
 
 
+get('/api/test', function() {
+    echo('test!');
+    // Add these lines:
+    if (ob_get_level() > 0) { // Check if buffering is active
+         ob_flush(); // Send output buffer content if any
+    }
+    flush(); // Force PHP to send its output to the webserver
+});
+
 //ROUTES POUR LES USERS
 post('/api/creerUser', function() {
     ActivitiesController::creerUser();
@@ -109,4 +118,12 @@ post('/api/verifyHuman', function() {
 post('/api/simulateBot', function() {
     RecaptchaController::simulateBot();
 });
+
+http_response_code(404); // Set HTTP status code to 404 Not Found
+header('Content-Type: application/json'); // Set content type to JSON
+echo json_encode([
+    'success' => false,
+    'message' => 'Error 404: Route not found.'
+]);
+exit(); // Explicitly exit here to be sure nothing else runs
 ?>
