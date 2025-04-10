@@ -1,6 +1,6 @@
 
-//let apiUrl = "http://162.243.167.200:9999";
-let apiUrl = "http://localhost:9999";
+let apiUrl = "http://162.243.167.200:9999";
+//let apiUrl = "http://localhost:9999";
 //CECI EST UN EXEMPLE DU JS QUI CE CONNECTE À L'API, MODIFIER LE LORSQUE VOUS Y SERAIT RENDU.
 let host = null;
 
