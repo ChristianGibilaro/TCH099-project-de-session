@@ -67,7 +67,7 @@
         async function verifyWithServer(token) {
             try {
                 console.log('Sending verification request to server...');
-                const response = await fetch(`${apiUrl}/api/verifyHuman;`, {
+                const response = await fetch(`${apiUrl}/api/verifyHuman`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
