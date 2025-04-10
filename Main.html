@@ -4,10 +4,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Home</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  
   <script src="Scripts/animationScript.js" defer></script>
   <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
+  <script src="Scripts/mainScript.js"></script>
 
   <link rel="stylesheet" href="Styles/normalize.css">
   <link rel="stylesheet" href="Styles/Demonstrateur.css">
@@ -15,7 +18,9 @@
 </head>
 
 <script>
-  var creator = new ElementCreator("Demonstrateur");
+  var creator = new ElementCreator(document.title);
+  var API = new mainScript(document.title);
+  console.log(document.title);
   // ---------------------------------------------- LOCAL DATA -------------------------------------------
   const SiteDesc = '<strong> Welcome to * Lunar Convenant * (PLACEHOLDER) </strong> <br>\
   Please observe the following <a href="#" > rule (Need to create a page for it) </a>.<br>\

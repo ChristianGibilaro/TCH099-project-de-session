@@ -4,14 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Human Verification</title>
-    <!-- Include your main CSS file -->
+    <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
     <link rel="stylesheet" href="Styles/Demonstrateur.css">
     <link rel="stylesheet" href="Styles/Index.css">
-    <!-- Include reCAPTCHA v3 -->
     <script src="https://www.google.com/recaptcha/api.js?render=6LcANxErAAAAAJG-TrKVTRQXnM6dRM9vOeiGJkpx"></script>
-    <!-- Include reCAPTCHA v2 -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="Scripts/globalVars.js"></script>
+    <script src="Scripts/mainScript.js"></script>
 </head>
+
+<script>
+    var API = new mainScript("Index");
+</script>
+
 <body class="verification-page">
     <div class="verification-container">
         <h1>Human Verification</h1>
@@ -34,9 +39,6 @@
     </div>
 
     <script>
-        let apiUrl = "http://162.243.167.200:9999";
-        //let apiUrl = "http://localhost:9999";
-
         const errorMessageElement = document.getElementById('errorMessage');
         const successMessageElement = document.getElementById('successMessage');
         const verifyButton = document.getElementById('verifyHuman');
@@ -64,35 +66,7 @@
             verifyButton.textContent = isLoading ? 'Verifying...' : 'Verify Human';
         }
 
-        async function verifyWithServer(token) {
-            try {
-                console.log('Sending verification request to server...');
-                const response = await fetch(`${apiUrl}/api/verifyHuman`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ token })
-                });
-
-                const text = await response.text();
-                console.log('Response body:', text);
-
-                const data = JSON.parse(text);
-                
-                if (!response.ok) {
-                    throw new Error(data.error || `Server error: ${response.status}`);
-                }
-
-                return data;
-            } catch (error) {
-                console.error('Server verification error:', error);
-                throw error;
-            }
-        }
-
-        async function verifyHuman() {
+        async function verifyHuman(API) {
             setLoading(true);
             captchaV2Container.style.display = 'none';
             
@@ -103,7 +77,7 @@
                     action: 'verify'
                 });
 
-                const result = await verifyWithServer(token);
+                const result = await API.verifyWithServer(token);
                 console.log('Verification result:', result);
 
                 if (result.success) {
@@ -133,27 +107,8 @@
             }, 1000);
         }
 
-        async function simulateBot() {
-            try {
-                const response = await fetch(`${apiUrl}/api/simulateBot`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                });
-
-                const data = await response.json();
-                showError(data.message);
-                captchaV2Container.style.display = 'block';
-            } catch (error) {
-                showError('Error simulating bot behavior');
-            }
-        }
-
-        // Add event listeners
-        document.getElementById('verifyHuman').addEventListener('click', verifyHuman);
-        document.getElementById('simulateBot').addEventListener('click', simulateBot);
+        document.getElementById('verifyHuman').addEventListener('click', verifyHuman(API));
+        document.getElementById('simulateBot').addEventListener('click', API.simulateBot());
     </script>
 </body>
 </html>

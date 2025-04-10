@@ -4,10 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <title>Demonstrateur</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <script src="Scripts/animationScript.js" defer></script>
   <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
   <script src="Scripts/mainScript.js"></script>
 
   <link rel="stylesheet" href="Styles/normalize.css">
@@ -16,9 +18,9 @@
 </head>
 
 <script>
-  var creator = new ElementCreator("Demonstrateur");
-  GetSteamGameData("1245620");
-  GetSteamUserData("76561199131939133");
+  var creator = new ElementCreator(document.title);
+  var API = new mainScript(document.title);
+  console.log(document.title);
 
   // ---------------------------------------------- API DATA ----------------------------------------------
   var elements =
@@ -94,6 +96,10 @@
     "X-45",
     "Zagon Prime"
   ];
+
+  //Test de connection avec l'api:  
+  alert(API.GetSteamGameData("1245620"));
+  //alert(API.GetSteamUserData("76561199131939133"));
 
 </script>
 
