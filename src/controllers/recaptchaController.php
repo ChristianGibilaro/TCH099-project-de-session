@@ -1,5 +1,5 @@
 <?php
-require 'recaptchaKeyPrivate.php';
+require 'RecaptchaKeyPrivate.php';
 
 class RecaptchaController {
     private static $logFile = __DIR__ . '/recaptcha_debug.log';
