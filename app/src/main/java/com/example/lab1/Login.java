@@ -181,12 +181,12 @@ public class Login extends AppCompatActivity {
             Log.d(TAG, "LoginTask: onPostExecute résultat = " + result);
             if (result != null) {
                 try {
-                    // On suppose que le PHP retourne un objet JSON contenant les informations de l'utilisateur
                     JSONObject jsonResponse = new JSONObject(result);
 
-                    // Si l'objet JSON contient "ID", on considère la connexion réussie
-                    if (jsonResponse.has("ID")) {
-                        String userId = jsonResponse.getString("ID");
+                    // Vérifie si la réponse indique un succès
+                    if (jsonResponse.optBoolean("success")) {
+                        JSONObject userObj = jsonResponse.getJSONObject("user");
+                        String userId = userObj.getString("ID");
                         Log.d(TAG, "LoginTask: Connexion réussie, userId = " + userId);
                         // Passage à l'activité Home en transmettant l'userId
                         Intent intent = new Intent(Login.this, Home.class);
@@ -195,7 +195,7 @@ public class Login extends AppCompatActivity {
                         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                         finish();
                     } else {
-                        // Si aucune clé "ID" n'est trouvée, extraire le message d'erreur s'il existe
+                        // Sinon, récupère le message d'erreur
                         String message = jsonResponse.optString("message", "Email ou mot de passe incorrect.");
                         Log.d(TAG, "LoginTask: Message d'erreur reçu = " + message);
                         Toast.makeText(Login.this, message, Toast.LENGTH_LONG).show();
@@ -209,5 +209,6 @@ public class Login extends AppCompatActivity {
                 Log.e(TAG, "LoginTask: Résultat NULL, connexion échouée.");
             }
         }
+
     }
 }
