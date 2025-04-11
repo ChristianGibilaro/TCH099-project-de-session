@@ -1,0 +1,119 @@
+/* Définition des couleurs en variables CSS */
+:root {
+    --dark-blue: #0C1C3D;
+    --medium-blue: #202638;
+    --deep-blue: #4D587F;
+    --light-teal: #39c9d6;
+    --bright-teal: #5CE1E6;
+}
+/* Conteneur de la bannière */
+.banner-container {
+    width: 100%;
+    height: 240px; /* Ajuste la hauteur selon tes besoins */
+    overflow: hidden;
+    position: relative;
+    background-color: #2a2a2c;
+}
+
+/* Image de la bannière */
+.banner-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Permet à l'image de bien remplir l'espace sans être déformée */
+}
+
+
+body {
+    background-color:var(--medium-blue);
+  }
+
+/* Conteneur du switch */
+.mode-switch {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+
+
+/* Texte */
+.toggle-text {
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    width: 100%;
+    text-align: center;
+}
+
+
+/* Structure des deux boards */
+.boards-container {
+    display: flex; /* Permet d'aligner les deux boards côte à côte */
+    justify-content: center; /* Centre les boards dans la page */
+    gap: 15px; /* Réduit l'espacement entre les boards */
+    width: 60%; /* Réduit la largeur globale des boards */
+    margin: 0 auto; /* Centre horizontalement dans la page */
+    padding: 10px;
+}
+
+/* Boards individuels */
+.container {
+    width: 45%; /* Réduction de la taille des boards */
+    background-color: var(--light-teal); /* Fond des boards */
+    padding: 10px; /* Réduction du padding pour limiter l'espace vide */
+    border-radius: 10px; /* Coins arrondis */
+    height: 400px; /* Réduction de la hauteur pour mieux s'adapter */
+    color: rgb(237, 237, 237);
+    border: solid 15px var(--bright-teal)
+}
+
+/* Liste des activités ou annonces */
+.game-list, .preview-market {
+    display: flex;
+    flex-direction: column; /* Empile les cartes verticalement */
+    gap: 5px; /* Réduction de l'espacement entre les cartes */
+    height: 100%; /* Permet aux éléments de prendre toute la hauteur */
+    overflow-y: auto; /* Ajoute un scroll vertical si besoin */
+    max-height: 320px; /* Ajustement pour limiter l'espace occupé */
+    padding-right: 5px; /* Réduction de l'espace de scroll */
+}
+
+/* Cartes des activités */
+.game-card, .announcement-card {
+    display: flex;
+    align-items: center; /* Centre verticalement l’image et le texte */
+    justify-content: space-between; /* Espacement entre les éléments */
+    background-color: rgba(1, 11, 11, 0.671); /* Fond foncé */
+    padding: 8px; /* Réduction du padding pour un design plus compact */
+    border-radius: 5px;
+    color: rgb(237, 237, 237);
+    border : solid 3px var(--bright-teal)
+}
+
+/* Image dans les annonces */
+.announcement-card img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover; /* Pour que l'image ne soit pas déformée */
+    border-radius: 5px;
+}
+
+/* Texte dans les annonces */
+.announcement-card .location, 
+.announcement-card .description {
+    flex-grow: 1; /* Prend l’espace disponible */
+    text-align: left;
+    margin-left: 8px;
+}
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    50% { transform: translateX(2px); }
+    75% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+}
+
+.game-card:hover, .announcement-card:hover {
+    animation: shake 0.3s ease-in-out; /* Déclenchement de l'animation */
+}

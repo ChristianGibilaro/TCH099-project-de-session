@@ -1,0 +1,119 @@
+
+  
+/* Lignes du tableau au survol */
+.activity-table tbody tr:hover {
+    background-color: #3D3D3D;
+    animation: subtleShake 0.4s ease-in-out;
+}
+
+/* Animation légère de tremblement */
+@keyframes subtleShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-1px); }
+    40% { transform: translateX(1px); }
+    60% { transform: translateX(-1px); }
+    80% { transform: translateX(1px); }
+    100% { transform: translateX(0); }
+}
+/* Corps de la page */
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #161616;
+    font-family: Arial, sans-serif;
+    color: #FFFFFF;
+  }
+  
+  .liste-container {
+    display: flex;
+    gap: 20px; /* Espacement entre les listes */
+    flex-wrap: wrap; /* Permet le retour à la ligne si l'espace est insuffisant */
+    justify-content: center;    /* Centre horizontalement */
+    align-items: flex-start;    /* Aligne en haut */       /* Espace entre les boards */
+    padding: 20px;
+    max-width: 1000px;          
+    margin: 0 auto;
+}
+  
+  /* Chaque board */
+  .liste {
+    background-color: #30D6EB;  
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  .banniere img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; object-position: 0 30%;
+  }
+  .banniere {
+    height: 240px;
+  }
+  
+    /* Barre d’onglets (façon onglets Instagram) */
+    .barre-onglets {
+        background-color:  #30D6EB;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 10px 0;
+        margin-bottom: 30px;
+      }
+       /* Structure générale */
+
+/* Conteneur du switch */
+.switch-container {
+  display: flex;
+  justify-content: center; /* Centre horizontalement */
+  margin: 20px auto;       /* Espace au-dessus et au-dessous */
+  gap: 2px;                /* Petit espace entre les deux boutons */
+}
+
+/* Boutons du switch */
+.switch-btn {
+  background-color:  #30D6EB;
+  color: #FFF;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: background-color 0.2s ease;
+}
+
+/* Coins arrondis : gauche pour le premier, droite pour le second */
+.switch-btn:first-child {
+  border-radius: 4px 0 0 4px;
+}
+.switch-btn:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+/* Effet au survol */
+.switch-btn:hover {
+  background-color: #1e98b0;
+}
+
+/* Bouton actif (pour marquer le mode sélectionné) */
+.switch-btn.active {
+  background-color: #1e98b0;
+}
+
+ 
+  .big button {
+    background-color: #004F5F;
+    border: none;
+    color: #FFF;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .big button:hover {
+    background-color: #006D7F;
+  }
+  
+  
