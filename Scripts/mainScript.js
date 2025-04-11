@@ -56,7 +56,7 @@ class mainScript extends globalVars {
         event.preventDefault();
         const form = event.target.form;
         const formData = new FormData(form);
-        console.log(form);
+        console.log(formData);
         var apiUrl = super.getApiUrl(this.UseLocalAPI);
 
         try {

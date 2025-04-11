@@ -12,6 +12,8 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <!--script src="Scripts/animationScript.js" defer></script-->
     <script src="../Scripts/createUser.js" defer></script>
+    <script src="../Scripts/globalVars.js"></script>
+    <script src="../Scripts/mainScript.js"></script>
 </head>
 <body>
 
@@ -57,6 +59,7 @@
             </td>
             <td class="menuOptions sign">
               <a href="Sign-up.html">SIGN-UP</a>
+              
             </td>
           </tr>
         </tbody>
@@ -168,4 +171,8 @@
     
 </div>
 </body>
+<script>
+  var API = new mainScript(document.title);
+  document.getElementById('soummission_btn').addEventListener('click', API.creerUser);
+</script>
 </html>

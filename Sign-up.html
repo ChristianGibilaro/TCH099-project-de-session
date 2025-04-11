@@ -51,40 +51,40 @@
         formMethod: "POST",
         formEnctype: "multipart/form-data", // Essential for file uploads
         inputConfig: [
-          { type: 'text', label: 'Pseudonyme', name: 'pseudonym', required: true },
-          { type: 'text', label: 'Nom', name: 'nom', required: true },
+          { type: 'text', label: 'Pseudonym', name: 'pseudonym', required: true },
+          { type: 'text', label: 'Name', name: 'nom', required: true },
           { type: 'email', label: 'Email', name: 'email', required: true },
-          { type: 'password', label: 'Mot de passe', name: 'password', required: true },
-          { type: 'password', label: 'Confirmez le mot de passe', name: 'password2', required: true },
+          { type: 'password', label: 'Password', name: 'password', required: true },
+          { type: 'password', label: 'Confirm password', name: 'password2', required: true },
           { // --- Switchable Image Input (URL or File) ---
             type: 'switchable',
-            label: 'Image de Profil',         // Translated label for the group
-            name: 'profile_image_input',      // Base name for the group (used for IDs)
+            label: 'Profil image',         // Translated label for the group
+            name: 'image',      // Base name for the group (used for IDs)
 
             type1: { // Configuration for the URL input option
               type: 'url',
-              label: 'Image depuis URL',        // Translated label specific to this mode
-              name: 'image_source_url',       // Name the backend expects for URL
+              label: 'URL',        // Translated label specific to this mode
+              name: 'imageLink',       // Name the backend expects for URL
               placeholder: 'https://example.com/image.png',
               required: true                 // Image is required if URL mode is active (set false if optional)
             },
             type2: { // Configuration for the File input option
               type: 'file',
-              label: 'Téléverser une image',    // Translated label specific to this mode
-              name: 'image_source_file',      // Name the backend expects for File
+              label: 'Upload',    // Translated label specific to this mode
+              name: 'image',      // Name the backend expects for File
               required: true                 // Image is required if File mode is active (set false if optional)
             },
-            defaultType: 'type1', // Show the URL input first by default
-            switchButtonText: "Ou %typeLabel%" // Custom text for the switch button (uses other type's label)
+            defaultType: 'type2', // Show the URL input first by default
+            switchButtonText: "Or %typeLabel%" // Custom text for the switch button (uses other type's label)
           },
           { type: 'textarea', label: 'Description', name: 'description', required: true }, // Assuming description is required
           { type: 'number', label: 'language_id', name: 'language_id', required: true }, // Assuming language_id is required
-          { type: 'date', label: 'Date de naissance', name: 'age', required: true },
-          { type: 'checkbox', label: "J'accepte les", name: 'agreement', value: 'accepted', required: true, labelLink: '/terms-and-conditions' } // Example link
+          { type: 'date', label: 'Birth date', name: 'age', required: true },
+          { type: 'checkbox', label: "I accept the ", name: 'agreement', value: 'accepted', required: true, labelLink: '/terms-and-conditions', text : "terms and conditions" } // Example link
         ],
-        submitButtonText: "Créer un compte",
+        submitButtonText: "Create an account",
         loginLink: "Sign-in.html", // URL for the login page link
-        loginLinkText: "Déjà un compte ? Se connecter." // Text for the login link (<a> tag added by CreateDynamicForm)
+        loginLinkText: "Already have an account ? Connect " // Text for the login link (<a> tag added by CreateDynamicForm)
       };
 
       // --- Generate the Form HTML ---

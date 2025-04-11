@@ -107,8 +107,8 @@
             }, 1000);
         }
 
-        document.getElementById('verifyHuman').addEventListener('click', verifyHuman(API));
-        document.getElementById('simulateBot').addEventListener('click', API.simulateBot());
+        document.getElementById('verifyHuman').addEventListener('click', () => {verifyHuman(API);});
+        document.getElementById('simulateBot').addEventListener('click', () => {API.simulateBot();});
     </script>
 </body>
 </html>
