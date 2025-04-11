@@ -1,4 +1,8 @@
 <?php
+ini_set('display_errors', 1); // Attempt to display errors directly in output
+error_reporting(E_ALL);    // Report all types of errors and warnings
+
+
 include_once 'session_demarrage.php';
 //session_start();
     //configuration et connexion à la base de données
