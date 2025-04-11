@@ -35,6 +35,7 @@ Visit the final site at [LunarCovenant.com](https://lunarcovenant.com).
 
 ## 🛠️ Installation
 
+PLACEHOLDER, NOT WORKING FOR NOW!
 Clone the repository and configure the desired branch for each component.
 
 ### Android Application
@@ -110,9 +111,3 @@ We welcome contributions! Follow these steps:
 ## 📜 License
 
 This project is licensed under the [MIT License](LICENSE).
-
-<style>
-* {
-  font-family: Arial, sans-serif;
-}
-</style>
