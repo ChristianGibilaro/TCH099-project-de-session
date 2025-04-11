@@ -101,8 +101,6 @@ class ElementCreator {
         this.scrollableListCounter++;
         const generatedId = this.IdGenerator("ScrollableTable", id, this.scrollableListCounter);
 
-        console.log(`ScrollableTable was successfully created with ${generatedId} !`);
-
         return `
         <div style="${styleWidth}${inlineStyle}" class="listeScrollable ${cssClasses}" ${generatedId}>
             <table>
@@ -144,8 +142,6 @@ class ElementCreator {
         this.imageCounter++;
         const generatedId = this.IdGenerator("Image", id, this.imageCounter);
 
-        console.log(`Image (w: ${width} h: ${height}) was successfully created with ${generatedId} !`);
-
         return `<img src="${src}" style="${styleHeight}${styleWidth}${inlineStyle}" class="${cssClasses}" ${generatedId} alt="${alt}">`;
     }
 
@@ -183,8 +179,6 @@ class ElementCreator {
 
         this.tableRowCounter++;
         const generatedId = this.IdGenerator("TableTitles", id, this.tableRowCounter);
-
-        console.log(`TableTitles (col: ${titles.length}) was successfully created with ${generatedId} !`);
 
         return `
         <tr style="${inlineStyle}" class="${cssClasses}" ${generatedId}>
@@ -247,7 +241,6 @@ class ElementCreator {
             return `The row #${invalidRowIndex} .length != colNumb`;
         }
 
-        console.log(`Table Rows (row: ${elements.length} col: ${elements[0].length}) was successfully created with ${generatedId} !`);
         return outRows;
     }
 
@@ -276,7 +269,6 @@ class ElementCreator {
         }
         outDiv += "</div>";
 
-        console.log(`side by Side was successfully created with ${generatedId} !`);
 
         return outDiv;
     }
@@ -323,8 +315,6 @@ class ElementCreator {
                     </tbody>
                 </table>
         </div>`;
-
-        console.log("Menu was successfully created!");
 
         return out;
     }
@@ -581,7 +571,7 @@ class ElementCreator {
      * @param {string} [loginLinkText="Already have an account? Log in."] - The text for the login link.
      * @returns {string} The HTML string for the generated form. Does NOT include the required JavaScript for switchable inputs; that must be added separately.
      */
-    CreateDynamicForm(formTitle, formId, formMethod, formEnctype, inputConfig, submitButtonText = "Submit", loginLink = null, loginLinkText = "Already have an account? Log in.") {
+    CreateDynamicForm(formTitle, formId, formMethod, formEnctype, inputConfig, submitButtonText = "Submit", loginLink = null,loginLinkText = "") {
         let html = `<h3 class="form-title">${formTitle}</h3>\n`;
         html += `<form id="${formId}" method="${formMethod}" enctype="${formEnctype}">\n`;
 
@@ -702,7 +692,7 @@ class ElementCreator {
                 case 'checkbox':
                     const checkboxId = inputDef.id || inputDef.name + '-' + (inputDef.value || '').replace(/\s+/g, '-').toLowerCase();
                     const checkedAttr = inputDef.defaultValue ? 'checked' : '';
-                    const labelContent = inputDef.labelLink ? `${inputDef.label} <a href="${inputDef.labelLink}">conditions générales</a>.` : `${inputDef.label}.`;
+                    const labelContent = inputDef.labelLink ? `${inputDef.label} <a href="${inputDef.labelLink}">${inputDef.text}</a>.` : `${inputDef.label}.`;
                     inputGroupHtml = `
     <div class="checkbox-group">
       <input type="checkbox" id="${checkboxId}" name="${inputDef.name}" value="${inputDef.value || 'on'}" ${checkedAttr} ${requiredAttr}>
@@ -778,14 +768,7 @@ class ElementCreator {
         html += `    <button type="submit" id="soummission_btn" class="btn-connexion">${submitButtonText}</button>\n`;
 
         if (loginLink) {
-            // Ensure the replacement logic handles URLs correctly if loginLinkText contains placeholders like '#'
-            let linkText = loginLinkText;
-            if (linkText.includes('#')) { // Basic placeholder detection
-                linkText = linkText.replace('#', `<a href="${loginLink}">`) + `</a>`;
-            } else { // Assume it's just text and append the link
-                linkText += ` <a href="${loginLink}">Log in.</a>` // Default fallback if needed
-            }
-            html += `    <p class="signup-link">${linkText}</p>\n`;
+            html += `    <p class="signup-link">${loginLinkText}<a href="${loginLink}">here!</a></p>`;
         }
 
         html += `</form>\n`;
