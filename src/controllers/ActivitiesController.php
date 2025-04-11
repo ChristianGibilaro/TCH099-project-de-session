@@ -73,97 +73,140 @@ class ActivitiesController
     public static function creerUser() {
         global $pdo;
         header('Content-Type: application/json');
-        
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            //Verification si l'image est vide ou pas. Donc, il est obligatoire de televerser une image ou il va falloir reanger le code
+    
+        $response = ['success' => false, 'message' => '', 'errors' => []];
+    
+        try {
+            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+                http_response_code(405);
+                throw new Exception('Méthode HTTP non autorisée.');
+            }
+    
+            // === Validate fields ===
+            $requiredFields = ['pseudonym', 'nom', 'email', 'password', 'password2', 'description', 'language_id', 'age', 'agreement'];
+            foreach ($requiredFields as $field) {
+                if (empty($_POST[$field])) {
+                    $response['errors'][$field] = "Le champ '$field' est requis.";
+                }
+            }
+    
+            if (!empty($_POST['password']) && $_POST['password'] !== $_POST['password2']) {
+                $response['errors']['password2'] = 'Les mots de passe ne correspondent pas.';
+            }
+    
+            if ($_POST['agreement'] !== 'accepted') {
+                $response['errors']['agreement'] = 'Vous devez accepter les conditions.';
+            }
+    
+            if (!empty($response['errors'])) {
+                throw new Exception('Champs manquants ou invalides.');
+            }
+    
+            // === Prepare data ===
+            $pseudonym = htmlspecialchars($_POST['pseudonym']);
+            $nom = htmlspecialchars($_POST['nom']);
+            $email = htmlspecialchars($_POST['email']);
+            $password = $_POST['password'];
+            $description = htmlspecialchars($_POST['description']);
+            $age = htmlspecialchars($_POST['age']);
+            $languageID = intval($_POST['language_id']);
+            $imagePath = null;
+            $originalFileName = null;
+    
+            // === Insert position first ===
+            $stmtPosition = $pdo->prepare('INSERT INTO Position (Name) VALUES (:name)');
+            $stmtPosition->execute([':name' => $nom]);
+            $positionID = $pdo->lastInsertId();
+    
+            // === Temporary image path (will be renamed after user insert)
+            $tempImagePath = null;
+    
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $fileTmpPath = $_FILES['image']['tmp_name'];
-                $fileName = basename($_FILES['image']['name']);
+                $originalFileName = basename($_FILES['image']['name']);
+                $fileType = mime_content_type($fileTmpPath);
+    
                 $imageFolder = 'ressources/images/profile/';
                 $videoFolder = 'ressources/videos/';
-
-                // Création des dossiers s'ils n'existent pas. On a pas vraiment besoins puisqu'on predefinit les repertoires d,avance
-                if (!file_exists($imageFolder)) {
-                    mkdir($imageFolder, 0755, true);
-                }
-                if (!file_exists($videoFolder)) {
-                    mkdir($videoFolder, 0755, true);
-                }
-
-                // Détection du type MIME(extention:png, jpeg, gif, avi...etc.)
-                $fileType = mime_content_type($fileTmpPath);
-                
-                // Validation et répertoire cible
+    
+                if (!file_exists($imageFolder)) mkdir($imageFolder, 0755, true);
+                if (!file_exists($videoFolder)) mkdir($videoFolder, 0755, true);
+    
                 $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
                 $allowedVideoTypes = ['video/mp4', 'video/x-msvideo', 'video/webm'];
     
-                // Déplacement du fichier dans le bon dossier selon son type(image ou video)
                 if (in_array($fileType, $allowedImageTypes)) {
-                    $destinationPath = $imageFolder . $fileName;
+                    $destinationPath = $imageFolder . uniqid('temp_', true) . '_' . $originalFileName;
                 } elseif (in_array($fileType, $allowedVideoTypes)) {
-                    $destinationPath = $videoFolder . $fileName;
+                    $destinationPath = $videoFolder . uniqid('temp_', true) . '_' . $originalFileName;
                 } else {
-                    echo json_encode(['success' => false, 'message' => 'Type de fichier non pris en charge.']);
-                    return;
-                }
-
-                if (move_uploaded_file($fileTmpPath, $destinationPath)) {
-                    echo json_encode(['success' => true, 'message' => 'Fichier téléchargé avec succès.', 'path' => $destinationPath]);
-                } else {
-                    echo json_encode(['success' => false, 'message' => 'Erreur lors du téléchargement du fichier.']);
+                    throw new Exception("Type de fichier non pris en charge: $fileType");
                 }
     
-                // Extraction et verification/validation des informations ou des donnees recues depuis le formulaire(front-end) pour les inserer dans BD.
-                if (isset($_POST['pseudonym'], $_POST['nom'], $_POST['email'], $_POST['password'], $_POST['description'], $_POST['age'])) {
-                    $pseudonym = htmlspecialchars($_POST['pseudonym']);
-                    $nom = htmlspecialchars($_POST['nom']);
-                    $email = htmlspecialchars($_POST['email']);
-                    $password = htmlspecialchars($_POST['password']);
-                    $description = htmlspecialchars($_POST['description']);
-                    $age = htmlspecialchars($_POST['age']);
-
-                    
-                    try {
-                        $stmtPosition = $pdo->prepare('INSERT INTO Position (Name) VALUES (:name)');
-                        $stmtPosition->execute([':name' => $nom]);
-                        $positionID = $pdo->lastInsertId();
-                    } catch (PDOException $e) {
-                        echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout de la position.']);
-                        return;
-                    }
-
-                    try {
-                        $stmtUser = $pdo->prepare('INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
-                                                VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, :language_id, :creation_date, :position_id, :description, :age)');
-                        $stmtUser->execute([
-                            ':img' => 'http://localhost:9999/'.$destinationPath,
-                            ':pseudo' => $pseudonym,
-                            ':nom' => $nom,
-                            ':email' => $email,
-                            ':passwordd' => password_hash($password, PASSWORD_DEFAULT),
-                            ':last_login' => '2025-04-01',
-                            ':language_id' => 1,
-                            ':creation_date' => date('Y-m-d H:i:s'),
-                            ':position_id' => $positionID,
-                            ':description' => $description,
-                            ':age' => $age
-                        ]);
-                        echo json_encode(['success' => true, 'message' => 'Compte créé avec succès !']);
-                    } catch (PDOException $e) {
-                        echo json_encode(['success' => false, 'message' => 'Erreur lors de la création du compte.']);
-                    }
-
-                } else {
-                    echo json_encode(['success' => false, 'message' => 'La creation du compte a echouee!']);
+                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
+                    throw new Exception('Impossible de déplacer le fichier téléchargé.');
                 }
+    
+                $tempImagePath = $destinationPath;
+    
+            } elseif (!empty($_POST['imageLink'])) {
+                $imagePath = trim($_POST['imageLink']);
             } else {
-                echo json_encode(['success' => false, 'message' => 'Image/Video n\'a pas pu etre telechargee.']);
+                throw new Exception('Aucune image téléchargée ou lien fourni.');
             }
-        } else {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'OPERATION ECHOUEE.']);
+    
+            // === Insert user with placeholder or imageLink ===
+            $stmtUser = $pdo->prepare('INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
+                                       VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, :language_id, :creation_date, :position_id, :description, :age)');
+            $stmtUser->execute([
+                ':img' => $imagePath ?? 'pending',
+                ':pseudo' => $pseudonym,
+                ':nom' => $nom,
+                ':email' => $email,
+                ':passwordd' => password_hash($password, PASSWORD_DEFAULT),
+                ':last_login' => date('Y-m-d'),
+                ':language_id' => $languageID,
+                ':creation_date' => date('Y-m-d H:i:s'),
+                ':position_id' => $positionID,
+                ':description' => $description,
+                ':age' => $age
+            ]);
+    
+            $userID = $pdo->lastInsertId();
+    
+            // === If a file was uploaded, rename it and update user record ===
+            if ($tempImagePath) {
+                $extension = pathinfo($originalFileName, PATHINFO_EXTENSION);
+                $safePseudonym = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $pseudonym);
+                $newFileName = "{$safePseudonym}#{$userID}." . $extension;
+                $newPath = 'ressources/images/profile/' . $newFileName;
+    
+                if (!rename($tempImagePath, $newPath)) {
+                    throw new Exception('Échec du renommage de l\'image.');
+                }
+    
+                $imagePath = 'http://localhost:9999/' . $newPath;
+    
+                $stmtUpdate = $pdo->prepare('UPDATE User SET Img = :img WHERE ID = :id');
+                $stmtUpdate->execute([':img' => $imagePath, ':id' => $userID]);
+            }
+    
+            $response['success'] = true;
+            $response['message'] = 'Compte créé avec succès !';
+            $response['path'] = $imagePath;
+    
+        } catch (Exception $e) {
+            if (empty($response['message'])) {
+                $response['message'] = 'Une erreur est survenue.';
+            }
+            $response['exception'] = $e->getMessage();
         }
+    
+        echo json_encode($response);
     }
+    
+    
+    
 
     /***************Tout le bloc de code en bas vient d'un autre projet***********/
 
