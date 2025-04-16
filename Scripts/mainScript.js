@@ -32,7 +32,7 @@ class mainScript extends globalVars {
         var apiUrl = "http://localhost:9999";
 
         try {
-            var url = `${apiUrl}/api/connexionUser`;
+            var url = `${apiUrl}/api/user/connect`;
             const response = await fetch(url, {
                 method: 'POST',
                 body: formData,
@@ -61,8 +61,7 @@ class mainScript extends globalVars {
         var apiUrl = "http://localhost:9999";
 
         try {
-            console.log(`${apiUrl}/api/creerUser`);
-            const response = await fetch(`${apiUrl}/api/creerUser`, {
+            const response = await fetch(`${apiUrl}/api/user/create`, {
                 method: 'POST',
                 body: formData,
             });

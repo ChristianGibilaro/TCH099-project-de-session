@@ -780,14 +780,68 @@ class ElementCreator {
      * @param {string} query - The search query.
      * @returns {object} An object containing arrays of results for Activities, Teams, and Players.
      */
-    fetchSearchResults(query) {
-        // In a real application, this function would fetch data based on the query.
-        // For now, it returns placeholder results.
-        return {
-            activities: query ? [`<a href="#">Activity result for "${query}"</a>`, `<a href="#">Another activity for "${query}"</a>`] : [],
-            teams: query ? [`<a href="#">Team result for "${query}"</a>`] : [],
-            players: query ? [`<a href="#">Player result for "${query}"</a>`, `<a href="#">Another player for "${query}"</a>`, `<a href="#">Yet another player for "${query}"</a>`] : [],
-        };
+    async fetchSearchResults(query) {
+        if (!query) {
+            return {
+                activities: [],
+                teams: [],
+                players: [],
+            };
+        }
+        try {
+            // Fetch players
+            const playerPromise = fetch(`http://localhost:9999/api/user/search/${encodeURIComponent(query)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    fields: ["Pseudo", "Email", "Img", "Id"],
+                    limit: 10
+                })
+            }).then(res => res.json());
+    
+            // Fetch activities
+            const activityPromise = fetch(`http://localhost:9999/api/activity/search/${encodeURIComponent(query)}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    limit: 5,
+                    fields: ["ID", "Title"],
+                    levelFields: ["Name"],
+                    filterFields: ["TypeFilterName"]
+                })
+            }).then(res => res.json());
+    
+            const [playerResult, activityResult] = await Promise.all([playerPromise, activityPromise]);
+    
+            // Players
+            let players = [];
+            if (playerResult.success && Array.isArray(playerResult.data)) {
+                players = playerResult.data.slice(0, 3).map(
+                    user => `<a href="Profile.html?${user.Id}">${user.Pseudo}</a>`
+                );
+            }
+    
+            // Activities
+            let activities = [];
+            if (activityResult.success && Array.isArray(activityResult.data)) {
+                activities = activityResult.data.slice(0, 3).map(
+                    item => `<a href="Activity.html/${item.activity.ID}">${item.activity.Title}</a>`
+                );
+            }
+    
+            return {
+                activities,
+                teams: [],
+                players
+            };
+        } catch (e) {
+            console.error("Search API error:", e);
+            return {
+                activities: [],
+                teams: [],
+                players: []
+            };
+        }
     }
 
     /**
@@ -812,14 +866,14 @@ class ElementCreator {
             const searchInputBox = searchPageDiv.querySelector('.search-input');
             const resultsDropdown = searchPageDiv.querySelector('#search-results-dropdown');
 
-            searchInputBox.addEventListener('input', () => {
+            searchInputBox.addEventListener('input', async () => {
                 const query = searchInputBox.value.trim();
                 resultsDropdown.innerHTML = ''; // Clear previous results
-
+            
                 if (query) {
-                    const results = this.fetchSearchResults(query);
+                    const results = await this.fetchSearchResults(query); // <-- await here!
                     let hasResults = false;
-
+            
                     const addCategory = (categoryName, categoryResults) => {
                         if (categoryResults && categoryResults.length > 0) {
                             hasResults = true;
@@ -838,11 +892,11 @@ class ElementCreator {
                             resultsDropdown.appendChild(categoryDiv);
                         }
                     };
-
+            
                     addCategory('Activities', results.activities);
                     addCategory('Teams', results.teams);
                     addCategory('Players', results.players);
-
+            
                     if (hasResults) {
                         resultsDropdown.style.display = 'block';
                     } else {
@@ -870,6 +924,55 @@ class ElementCreator {
         }
     }
 
+    generateMediaViewer(mediaArray) {
+        if (!Array.isArray(mediaArray) || mediaArray.length === 0) return "";
+    
+        // Main display uses the first media
+        const [mainType, mainUrl] = mediaArray[0];
+        let mainMediaHtml = "";
+        if (mainType === "img") {
+            mainMediaHtml = `<img src="${mainUrl}" alt="media principal" id="media-principal" />`;
+        } else if (mainType === "video") {
+            mainMediaHtml = `<video src="${mainUrl}" id="media-principal" controls muted></video>`;
+        }
+    
+        // Thumbnails for all media
+        const thumbnailsHtml = mediaArray.map(([type, url]) => {
+            if (type === "img") {
+                return `<img src="${url}" onclick="changerMedia(this)" />`;
+            } else if (type === "video") {
+                return `<video src="${url}" onclick="changerMedia(this)" muted></video>`;
+            }
+            return "";
+        }).join("\n");
+    
+        return `
+    <h2>
+      <div class="media-viewer">
+        <div class="media-display" id="media-display">
+          ${mainMediaHtml}
+        </div>
+        <div class="media-thumbnails-container">
+          <button class="scroll-btn left" onclick="scrollMediaThumbnails(-1)">⯇</button>
+          <div class="media-thumbnails" id="media-thumbnails">
+            ${thumbnailsHtml}
+          </div>
+          <button class="scroll-btn right" onclick="scrollMediaThumbnails(1)">⯈</button>
+        </div>
+      </div>
+    </h2>
+        `;
+    }
+
+    CreateProfile(hero, profile) {
+        return `
+        <div id="banniere" class="CenterChilds">
+            <div id="profile">
+                <img src="${profile}" alt="logo">
+            </div>
+        <img src="${hero}" alt="banniere">
+        </div>`;
+    }
 
     PrefabMenu = this.CreateMenu(["ressources/Final/Main/logo.png", "ressources/Commun/logo_example.png"],
         [["ressources/Commun/activity_button.png", "Activities", "Activity.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "RandomActivity", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"],["ressources/Commun/teams_button.png", "PHP DataBase", "http://localhost:9997/"]],
