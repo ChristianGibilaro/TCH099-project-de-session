@@ -5,40 +5,37 @@ include_once(__DIR__ . '/../../config.php');
 class ActivityController
 {
 
-    public static function creerActivite()
+    public static function createActivite()
     {
         global $pdo;
         header('Content-Type: application/json');
-
+    
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'message' => 'Utilisez POST pour créer une activité.']);
             return;
         }
-
-        $inputJSON = file_get_contents('php://input');
-        $data = json_decode($inputJSON, true);
-
+    
+        // Support both JSON and form-data
+        $data = [];
+        if (isset($_POST) && !empty($_POST)) {
+            $data = $_POST;
+        } else {
+            $inputJSON = file_get_contents('php://input');
+            $data = json_decode($inputJSON, true);
+        }
+    
         if (!is_array($data)) {
-            echo json_encode(['success' => false, 'message' => 'Corps de requête invalide (JSON attendu).']);
+            echo json_encode(['success' => false, 'message' => 'Corps de requête invalide (JSON ou formulaire attendu).']);
             return;
         }
-
+    
         $title        = $data['title']        ?? null;
-        $isSport      = $data['isSport']      ?? null;  
+        $isSport      = $data['isSport']      ?? null;
         $mainImg      = $data['main_img']     ?? null;
+        $mainImgUrl   = $data['main_img_url'] ?? null;
+        $logoImg      = $data['logo_img']     ?? null;
+        $logoImgUrl   = $data['logo_img_url'] ?? null;
         $description  = $data['description']  ?? null;
-
-        if (!$title || $isSport === null || !$mainImg || !$description) {
-            echo json_encode([
-                'success' => false,
-                'message' => "Champs 'title', 'isSport', 'main_img', 'description' obligatoires."
-            ]);
-            return;
-        }
-
-        $bitValue = ($isSport) ? "b'1'" : "b'0'";
-
-        $logoImg        = $data['logo_img']        ?? null;
         $pointValue     = $data['point_value']     ?? null;
         $word4player    = $data['word_4_player']   ?? null;
         $word4teammate  = $data['word_4_teammate'] ?? null;
@@ -49,9 +46,72 @@ class ActivityController
         $secondColor    = $data['second_color']    ?? null;
         $friendMain     = $data['friend_main_color']   ?? null;
         $friendSecond   = $data['friend_second_color'] ?? null;
-
+    
+        // Accept either file upload, URL, or value in body for main_img
+        $hasMainImg = (isset($_FILES['main_img']) && $_FILES['main_img']['error'] === UPLOAD_ERR_OK) || $mainImg || $mainImgUrl;
+        $hasLogoImg = (isset($_FILES['logo_img']) && $_FILES['logo_img']['error'] === UPLOAD_ERR_OK) || $logoImg || $logoImgUrl;
+    
+        if (!$title || $isSport === null || !$hasMainImg || !$description) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Champs 'title', 'isSport', 'main_img' (fichier, URL ou valeur), 'description' obligatoires."
+            ]);
+            return;
+        }
+    
+        // Handle main_img: file upload, URL, or value
+        if (isset($_FILES['main_img']) && $_FILES['main_img']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['main_img']['tmp_name'];
+            $originalFileName = basename($_FILES['main_img']['name']);
+            $fileType = mime_content_type($fileTmpPath);
+    
+            $imageFolder = 'ressources/images/activity/';
+            if (!file_exists($imageFolder)) mkdir($imageFolder, 0755, true);
+    
+            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (in_array($fileType, $allowedImageTypes)) {
+                $destinationPath = $imageFolder . uniqid('activity_', true) . '_' . $originalFileName;
+                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
+                    echo json_encode(['success' => false, 'message' => 'Impossible de déplacer le fichier téléchargé.']);
+                    return;
+                }
+                $mainImg = $destinationPath;
+            } else {
+                echo json_encode(['success' => false, 'message' => "Type de fichier non pris en charge: $fileType"]);
+                return;
+            }
+        } elseif ($mainImgUrl) {
+            $mainImg = trim($mainImgUrl);
+        } // else keep $mainImg as is (from body)
+    
+        // Handle logo_img: file upload, URL, or value
+        if (isset($_FILES['logo_img']) && $_FILES['logo_img']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['logo_img']['tmp_name'];
+            $originalFileName = basename($_FILES['logo_img']['name']);
+            $fileType = mime_content_type($fileTmpPath);
+    
+            $imageFolder = 'ressources/images/activity/';
+            if (!file_exists($imageFolder)) mkdir($imageFolder, 0755, true);
+    
+            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (in_array($fileType, $allowedImageTypes)) {
+                $destinationPath = $imageFolder . uniqid('activity_logo_', true) . '_' . $originalFileName;
+                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
+                    echo json_encode(['success' => false, 'message' => 'Impossible de déplacer le fichier logo téléchargé.']);
+                    return;
+                }
+                $logoImg = $destinationPath;
+            } else {
+                echo json_encode(['success' => false, 'message' => "Type de fichier logo non pris en charge: $fileType"]);
+                return;
+            }
+        } elseif ($logoImgUrl) {
+            $logoImg = trim($logoImgUrl);
+        } // else keep $logoImg as is (from body)
+    
+        $bitValue = ($isSport) ? "b'1'" : "b'0'";
+    
         try {
-            // Préparer la requête INSERT
             $sql = "
                 INSERT INTO Activity
                   (Title, IsSport, Main_Img, Description,
@@ -65,7 +125,7 @@ class ActivityController
                    :sColor, :fMain, :fSecond)
             ";
             $stmt = $pdo->prepare($sql);
-
+    
             $stmt->bindValue(':title',    $title);
             $stmt->bindValue(':mainImg',  $mainImg);
             $stmt->bindValue(':descr',    $description);
@@ -80,16 +140,16 @@ class ActivityController
             $stmt->bindValue(':sColor',   $secondColor);
             $stmt->bindValue(':fMain',    $friendMain);
             $stmt->bindValue(':fSecond',  $friendSecond);
-
+    
             $stmt->execute();
             $newId = $pdo->lastInsertId();
-
+    
             echo json_encode([
                 'success' => true,
                 'message' => "Activité créée avec succès.",
                 'activity_id' => $newId
             ]);
-
+    
         } catch (PDOException $e) {
             echo json_encode([
                 'success' => false,
@@ -97,7 +157,6 @@ class ActivityController
             ]);
         }
     }
-
 
     public static function getActivite($id)
     {

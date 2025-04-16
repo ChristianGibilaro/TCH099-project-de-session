@@ -100,15 +100,15 @@ delete('/api/user/${userID}', function($userID) {
 //----------------------------ACTIVITIES CONTROLLER----------------------------//
 
 post('/api/activity/create', function() {
-    ActivityController::creerActivite();
+    ActivityController::createActivite();
 });
 
 post('/api/activity/invite/${userID}', function($userID) {
-    //need admin apikey
+    //need Activityadmin apikey
 });
     
 post('/api/activity/join/${userID}', function($userID) {
-    //need admin apikey
+    //need Activityadmin apikey
 });
 
 //post('/api/activity/ban/${userID}', function($userID) {
@@ -118,6 +118,7 @@ post('/api/activity/join/${userID}', function($userID) {
 post('/api/activity/quit/${userID}', function($userID) {
     //need admin apikey
 });
+
 post('/api/activity/connect', function() {
     //need admin apikey
 });
@@ -140,14 +141,14 @@ put('/api/activity/$id', function($id){
 });
 
 delete('/api/activity/${id}', function($id){
-    //need admin apikey
+    //need admin apikey & admin paswsword
 });
    
 
 //----------------------------TEAM CONTROLLER----------------------------//
 
 post('/api/team/create', function() {
-    TeamController::creerTeam();
+    // TeamController::creerTeam(); Need re-work, I will do it later
 });
 
 post('/api/team/invite/${userID}', function($userID) {
@@ -171,7 +172,7 @@ post('/api/team/connect', function() {
 });
 
 get('/api/team/$id', function($id){
-    TeamController::getTeam($id);
+    // TeamController::getTeam($id); Need re-work, I will do it later
     //have params in body to say what to get
 });
 
@@ -180,7 +181,7 @@ get('/api/team/search', function(){
     //have params in body to say what to get
 });
 
-get('/api/team/search/${title}', function($title){
+get('/api/team/${title}', function($title){
     //search parameter in body
     //have params in body to say what to get
 });
@@ -197,7 +198,7 @@ delete('/api/team/${id}', function($id){
 //----------------------------MATCH CONTROLLER----------------------------//
 
 post('/api/match/create', function() {
-    MatchController::creerMatch();
+    //MatchController::creerMatch(); need re-work, I will do it later
 });
 
 post('/api/match/invite/${userID}', function($userID) {
