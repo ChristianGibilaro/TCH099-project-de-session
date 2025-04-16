@@ -75,7 +75,7 @@ get('/api/user/apikey', function() {
     UserController::getUserByApiKey($input['apiKey'], $input);
 });
 
-get('/api/user/search/${username}', function($username) {
+post('/api/user/search/${username}', function($username) {
     $input = json_decode(file_get_contents('php://input'), true);
     UserController::searchUsersByUsername($username, $input);
 });
@@ -131,8 +131,8 @@ get('/api/activity/title', function() {
     ActivityController::getActiviteByTitle();
 });
 
-get('/api/activity/search', function(){
-    ActivityController::searchActivities();
+post('/api/activity/search/${title}', function($title){
+    ActivityController::searchActivities($title);
 });
 
 

@@ -170,7 +170,7 @@ class UserController{
             if ($tempImagePath) {
                 $extension = pathinfo($originalFileName, PATHINFO_EXTENSION);
                 $safePseudonym = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $pseudonym);
-                $newFileName = "{$safePseudonym}#{$userID}." . $extension;
+                $newFileName = "{$safePseudonym}_{$userID}." . $extension;
                 $newPath = 'ressources/images/profile/' . $newFileName;
     
                 if (!rename($tempImagePath, $newPath)) {

@@ -389,7 +389,7 @@ class ActivityController
     self::getActivite($activity['ID']);
 }
 
-public static function searchActivities()
+public static function searchActivities($title)
 {
     global $pdo;
 
@@ -398,7 +398,7 @@ public static function searchActivities()
 
     $input = json_decode(file_get_contents('php://input'), true);
 
-    $query = isset($input['query']) ? $input['query'] : '';
+    $query = $title;
     $limit = isset($input['limit']) ? intval($input['limit']) : 10;
     $fields = isset($input['fields']) ? $input['fields'] : '*';
     $activityDataFields = isset($input['activityDataFields']) ? $input['activityDataFields'] : '*';
