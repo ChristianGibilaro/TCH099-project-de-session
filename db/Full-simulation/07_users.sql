@@ -1,7 +1,7 @@
 -- Helldivers-themed users
 INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date) VALUES
-('http://localhost:9999/ressources/images/profile/User9101112_15.png', 'SuperTrooper', 'Alex Johnson', 'alex@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 1, '2024-01-15'),
-('http://localhost:9999/ressources/images/profile/defaultaccount.png', 'StratagmMaster', 'Maria Garcia', 'maria@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 2, '2024-01-20'),
-('http://localhost:9999/ressources/images/profile/User1234_13.jpg', 'LibertyDefender', 'James Wilson', 'james@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 1, '2024-02-01'),
-('http://localhost:9999/ressources/images/profile/defaultaccount.png', 'DemocracySpread', 'Sarah Chen', 'sarah@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 9, '2024-02-15'),
-('http://localhost:9999/ressources/images/profile/User5678_14.png', 'BugHunter', 'Carlos Rodriguez', 'carlos@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 2, '2024-03-01');
+('https://api.lunarcovenant.com/ressources/images/profile/User9101112_15.png', 'SuperTrooper', 'Alex Johnson', 'alex@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 1, '2024-01-15'),
+('https://api.lunarcovenant.com/ressources/images/profile/defaultaccount.png', 'StratagmMaster', 'Maria Garcia', 'maria@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 2, '2024-01-20'),
+('https://api.lunarcovenant.com/ressources/images/profile/User1234_13.jpg', 'LibertyDefender', 'James Wilson', 'james@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 1, '2024-02-01'),
+('https://api.lunarcovenant.com/ressources/images/profile/defaultaccount.png', 'DemocracySpread', 'Sarah Chen', 'sarah@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 9, '2024-02-15'),
+('https://api.lunarcovenant.com/ressources/images/profile/User5678_14.png', 'BugHunter', 'Carlos Rodriguez', 'carlos@super.earth', '$2y$10$MXY.5g67iTjqn4vXLfIawegB37s.7mwgxZF16fkd8vOU0sB0ZtRWG', '2025-04-11', 2, '2024-03-01');
