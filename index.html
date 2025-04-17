@@ -15,6 +15,18 @@
 
 <script>
     var API = new mainScript("Index");
+    // Utility function to get URL parameter by name
+    function getUrlParam(name) {
+        const url = new URL(window.location.href);
+        return url.searchParams.get(name);
+    }
+    // Determine autoRedirect based on "redirect" URL parameter
+    // autoRedirect = true by default, unless "?redirect=false"
+    var autoRedirect = true;
+    const redirectParam = getUrlParam('redirect');
+    if (redirectParam && redirectParam.toLowerCase() === 'false') {
+        autoRedirect = false;
+    }
 </script>
 
 <body class="verification-page">
@@ -82,10 +94,9 @@
 
                 if (result.success) {
                     if (result.score >= 0.5) {
-                        showSuccess('Verification successful! Redirecting...');
-                        setTimeout(() => {
-                            window.location.href = 'Main.html';
-                        }, 1000);
+                        // Redirect immediately if verification is good
+                        window.location.href = 'Main.html';
+                        return;
                     } else {
                         showError('Additional verification required');
                         captchaV2Container.style.display = 'block';
@@ -101,11 +112,35 @@
         }
 
         function onCaptchaV2Success(token) {
-            showSuccess('Additional verification successful! Redirecting...');
-            setTimeout(() => {
-                window.location.href = 'Main.html';
-            }, 1000);
+            // Redirect immediately after additional verification
+            window.location.href = 'Main.html';
         }
+
+        // Automatically verify and redirect if verification is good (no need for button click)
+        document.addEventListener("DOMContentLoaded", async () => {
+            if (typeof autoRedirect !== "undefined" && autoRedirect) {
+                setLoading(true);
+                captchaV2Container.style.display = 'none';
+                try {
+                    await new Promise(resolve => grecaptcha.ready(resolve));
+                    const token = await grecaptcha.execute('6LcANxErAAAAAJG-TrKVTRQXnM6dRM9vOeiGJkpx', {
+                        action: 'verify'
+                    });
+                    const result = await API.verifyWithServer(token);
+                    console.log('Auto-verification result:', result);
+
+                    if (result.success && result.score >= 0.5) {
+                        window.location.href = 'Main.html';
+                        return;
+                    }
+                    // If verification fails, show interface as fallback
+                    setLoading(false);
+                } catch (error) {
+                    // If auto-verification fails, show interface as fallback
+                    setLoading(false);
+                }
+            }
+        });
 
         document.getElementById('verifyHuman').addEventListener('click', () => {verifyHuman(API);});
         document.getElementById('simulateBot').addEventListener('click', () => {API.simulateBot();});
