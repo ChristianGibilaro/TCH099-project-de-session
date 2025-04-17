@@ -137,7 +137,7 @@ class mainScript extends globalVars {
 
         try {
             console.log('Sending verification request to server...');
-            const response = await fetch(`${apiUrl}/api/verifyHuman`, {
+            const response = await fetch(`${apiUrl}/api/recaptcha/verifyHuman`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -164,7 +164,7 @@ class mainScript extends globalVars {
 
     async simulateBot() {
         var apiUrl = "https://api.lunarcovenant.com";
-
+        console.log(`${apiUrl}/api/recaptcha/simulateBot`);
         try {
             const response = await fetch(`${apiUrl}/api/simulateBot`, {
                 method: 'POST',
