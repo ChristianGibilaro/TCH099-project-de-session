@@ -43,32 +43,6 @@ function any($route, $path_to_include)
 {
         route($route, $path_to_include);
 }
-
-/**
- * Redirects to a specific page if the request matches the given parameters.
- *
- * @param array $conditions Key-value pairs to check in the request.
- * @param string $redirect_page The page to redirect to if conditions are met.
- */
-function redirect_if_match(array $conditions, string $redirect_page)
-{
-    $request_url = filter_var($_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL);
-    $request_url = rtrim($request_url, '/');
-    $request_url = strtok($request_url, '?');
-    $request_url_parts = explode('/', $request_url);
-
-    foreach ($conditions as $key => $value) {
-        // Check if the key exists in the request URL and matches the value
-        if (!in_array($value, $request_url_parts)) {
-            return; // If any condition is not met, exit the function
-        }
-    }
-
-    // If all conditions are met, redirect to the specified page
-    include_once __DIR__ . "/$redirect_page";
-    exit();
-}
-
 function route($route, $path_to_include)
 {
         $callback = $path_to_include;
@@ -77,9 +51,6 @@ function route($route, $path_to_include)
                         $path_to_include .= '.php';
                 }
         }
-
-        
-        
         if ($route == "/404") {
                 include_once __DIR__ . "/$path_to_include";
                 exit();
@@ -103,6 +74,12 @@ function route($route, $path_to_include)
                 include_once __DIR__ . "/$path_to_include";
                 exit();
         }
+        // if($route=="/api/ateliers"){
+        //      print_r($route_parts);
+        //      echo "\n";
+        //      print_r($request_url_parts);
+        //      echo "\n";
+        // }
 
         if (count($route_parts) != count($request_url_parts)) {
                 return;
@@ -118,6 +95,9 @@ function route($route, $path_to_include)
                         return;
                 }
         }
+
+        // ADDED DEBUG LINE:
+
 
         if (is_callable($callback)) {
                 // Si c'est une fonction anonyme (Closure), l'exécuter directement

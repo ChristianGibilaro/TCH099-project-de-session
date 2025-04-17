@@ -1,9 +1,23 @@
 version: '3.8'
 services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx_reverse_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/letsencrypt
+    depends_on:
+      - web
+    networks:
+      - webnet
+
   web:
     build: .
-    ports:
-      - "9999:80"
+    networks:
+      - webnet
     volumes:
       - .:/var/www/html
       - ./php.ini:/usr/local/etc/php/php.ini
@@ -14,8 +28,8 @@ services:
     image: mariadb:latest
     command: --default-authentication-plugin=mysql_native_password
     restart: always
-    ports:
-      - "9998:3306"
+    networks:
+      - webnet
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
       MYSQL_DATABASE: mydatabase
@@ -34,6 +48,12 @@ services:
       MYSQL_ROOT_PASSWORD: rootpassword
     depends_on:
       - db
+    networks:
+      - webnet
 
 volumes:
   dbdata:
+
+networks:
+  webnet:
+    driver: bridge

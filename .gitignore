@@ -4,3 +4,9 @@ ressources/images/profile/elden ring wallpaper.jpg
 ressources/images/profile/leda.jpeg
 src/controllers/recaptchaKeyPrivate.php
 src/controllers/recaptcha_debug.log
+nginx/ssl/accounts/acme-v02.api.letsencrypt.org/directory/8d143774978d2d2d4bb53f5c3a521591/meta.json
+nginx/ssl/accounts/acme-v02.api.letsencrypt.org/directory/8d143774978d2d2d4bb53f5c3a521591/private_key.json
+nginx/ssl/accounts/acme-v02.api.letsencrypt.org/directory/8d143774978d2d2d4bb53f5c3a521591/regr.json
+nginx/ssl/live/api.lunarcovenant.com/fullchain.pem
+nginx/ssl/live/api.lunarcovenant.com/privkey.pem
+nginx/conf.d/api.lunarcovenant.com.conf

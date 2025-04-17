@@ -123,11 +123,11 @@ post('/api/activity/connect', function() {
     //need admin apikey
 });
 
-get('/api/activity/id/$id', function($id) {
+post('/api/activity/id/$id', function($id) {
     ActivityController::getActivite($id);
 });
 
-get('/api/activity/title', function() {
+post('/api/activity/title', function() {
     ActivityController::getActiviteByTitle();
 });
 
