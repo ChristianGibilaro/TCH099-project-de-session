@@ -137,7 +137,7 @@ class mainScript extends globalVars {
 
         try {
             console.log('Sending verification request to server...');
-            const response = await fetch(`${apiUrl}/api/verifyHuman`, {
+            const response = await fetch(`${apiUrl}/api/recaptcha/verifyHuman`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -166,7 +166,7 @@ class mainScript extends globalVars {
         var apiUrl = "http://localhost:9999";
 
         try {
-            const response = await fetch(`${apiUrl}/api/simulateBot`, {
+            const response = await fetch(`${apiUrl}/api/recaptcha/simulateBot`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
