@@ -22,7 +22,7 @@ async function fetchUserData() {
     
     console.log("ID ACTIVITY: "+userID);
     
-    const apiUrl = `http://localhost:9999/api/inconnu/${userID}`;
+    const apiUrl = `https://api.lunarcovenant.com/api/inconnu/${userID}`;
     
     try {
         const response = await fetch(apiUrl, {
@@ -56,7 +56,7 @@ async function creerChat(event) {
     console.log(formData.values);
 
     try {
-        const response = await fetch('http://localhost:9999/api/creerChat', {
+        const response = await fetch('https://api.lunarcovenant.com/api/creerChat', {
             method: 'POST',
             body: formData,
         });
@@ -86,7 +86,7 @@ async function creerUser(event) {
     console.log(formData.values);
 
     try {
-        const response = await fetch('http://localhost:9999/api/creerUser', {
+        const response = await fetch('https://api.lunarcovenant.com/api/creerUser', {
             method: 'POST',
             body: formData,
         });
@@ -115,7 +115,7 @@ async function connecterUser(event) {
     console.log(formData.values);
 
     try {
-        const response = await fetch('http://localhost:9999/api/connexionUser', {
+        const response = await fetch('https://api.lunarcovenant.com/api/connexionUser', {
             method: 'POST',
             body: formData,
         });

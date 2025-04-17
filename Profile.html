@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Demonstrateur</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
+  <script src="Scripts/mainScript.js"></script>
+
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
+  <link rel="stylesheet" href="Styles/Profile.css">
+</head>
+
+<script>
+  var creator = new ElementCreator(document.title);
+  var API = new mainScript(document.title);
+
+  async function fetchAndRenderProfile() {
+    // Extract ID from URL (?10 or ?id=10)
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.keys().next().value || urlParams.get('id');
+    if (!userId) return;
+
+    const response = await fetch(`https://api.lunarcovenant.com/api/user/id/${userId}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fields: ["Pseudo", "Last_Login", "Img", "Creation_Date", "Description"]
+      })
+    });
+    const result = await response.json();
+    if (result.success && result.data) {
+      const username = result.data.Pseudo;
+      const profileImgLink = result.data.Img;
+      const userDescription = result.data.Description;
+      const last_Login = result.data.Last_Login;
+      const userCreationDate = result.data.Creation_Date;
+      document.title = username;
+      document.getElementById('head').innerHTML =
+        creator.CreateProfile("ressources/Final/Main/logo.png", profileImgLink) +
+        creator.CreateDesc("<strong>" + username + " </strong><br>" + userDescription,
+          "Created: " + userCreationDate + "<br>Last login: " + last_Login);
+
+      // Example media viewer, replace with dynamic data if needed
+      const html = creator.generateMediaViewer([
+        ["img", "ressources/Media/got_2.png"],
+        ["img", "ressources/Media/photo_manette.jpg"],
+        ["video", "ressources/Media/video_routes.mp4"]
+      ]);
+      document.getElementById('contenu').insertAdjacentHTML('beforeend', html);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', fetchAndRenderProfile);
+</script>
+
+<body>
+  <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
+  <header onclick="toggleMenu()">
+    <script>
+      document.write(creator.PrefabMenu);
+    </script>
+  </header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <!------------------------------------------------ SECTION 0 - ONGLETS ---------------------------------------------->
+  <div id="contenu">
+    <div id="head"></div>
+    <!-- The media viewer will be injected here by JS -->
+  </div>
+</body>
+
+</html>

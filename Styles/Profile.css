@@ -1,0 +1,6 @@
+#profile {
+    position: absolute;
+    top: calc(var(--baniereHeight) - var(--logoHeight) *3/2);
+    height: calc(var(--baniereHeight)/2);
+    width: calc(var(--baniereHeight)/2)
+  }
