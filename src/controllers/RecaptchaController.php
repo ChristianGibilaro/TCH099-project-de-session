@@ -1,5 +1,5 @@
 <?php
-require 'RecaptchaKeyPrivate.php';
+require 'recaptchaKeyPrivate.php';
 
 class RecaptchaController {
     private static $logFile = __DIR__ . '/recaptcha_debug.log';
@@ -23,50 +23,73 @@ class RecaptchaController {
             ini_set('log_errors', 1);
             ini_set('error_log', self::$logFile);
             error_reporting(E_ALL);
-
+    
             // Set headers
             header('Content-Type: application/json');
             header('Access-Control-Allow-Origin: http://127.0.0.1:5501');
             header('Access-Control-Allow-Methods: POST, OPTIONS');
             header('Access-Control-Allow-Headers: Content-Type, Accept');
-
-
-
+    
             // Handle CORS preflight
             if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
                 http_response_code(200);
                 exit();
             }
-
+    
+            // --- BOT BYPASS LOGIC ---
+            $allowedBots = [
+                'Googlebot',
+                'Bingbot',
+                'DuckDuckBot',
+                'Baiduspider',
+                'Yandex',
+                'sitemapgenerator', // For xml-sitemaps.com
+                'WebsiteSitemapGenerator' // Alternative for xml-sitemaps.com
+            ];
+            $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            foreach ($allowedBots as $bot) {
+                if (stripos($userAgent, $bot) !== false) {
+                    // Log bot bypass
+                    self::logMessage("Bypassing reCAPTCHA for allowed bot: $bot", [
+                        'user_agent' => $userAgent,
+                        'remote_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+                    ]);
+                    echo json_encode([
+                        'success' => true,
+                        'score' => 1.0,
+                        'needsCaptchaV2' => false,
+                        'botBypass' => true
+                    ]);
+                    return;
+                }
+            }
+            // --- END BOT BYPASS LOGIC ---
+    
             // Get and validate input
             $input = file_get_contents('php://input');
-
-
             $data = json_decode($input, true);
             if (!$data || !isset($data['token'])) {
                 throw new Exception('Invalid or missing token in request');
             }
-
+    
             $token = $data['token'];
-
-
+    
             // Get reCAPTCHA secret
             $secret = recaptchaKeyPrivate::getRecaptchaKeyV3();
-
-
+    
             // Prepare verification request
             $verifyData = http_build_query([
                 'secret' => $secret,
                 'response' => $token,
                 'remoteip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
             ]);
-
+    
             // Initialize cURL
             $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
             if (!$ch) {
                 throw new Exception('Failed to initialize cURL');
             }
-
+    
             // Set cURL options
             curl_setopt_array($ch, [
                 CURLOPT_POST => true,
@@ -77,12 +100,10 @@ class RecaptchaController {
                 CURLOPT_TIMEOUT => 30,
                 CURLOPT_VERBOSE => true
             ]);
-
+    
             // Execute request
-
-            
             $response = curl_exec($ch);
-
+    
             // Check for cURL errors
             if ($response === false) {
                 $error = curl_error($ch);
@@ -90,24 +111,19 @@ class RecaptchaController {
                 curl_close($ch);
                 throw new Exception("cURL error ($errno): $error");
             }
-
+    
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             curl_close($ch);
-
-
-
+    
             // Parse response
             $result = json_decode($response, true);
             if (!$result) {
                 throw new Exception('Failed to parse Google response: ' . json_last_error_msg());
             }
-
+    
             // Send response
             if (isset($result['success']) && $result['success']) {
                 $score = $result['score'] ?? 0;
-
-                
-                
                 echo json_encode([
                     'success' => true,
                     'score' => $score,
@@ -117,10 +133,8 @@ class RecaptchaController {
                 $errors = isset($result['error-codes']) ? implode(', ', $result['error-codes']) : 'unknown';
                 throw new Exception("Verification failed: $errors");
             }
-
+    
         } catch (Exception $e) {
-            
-
             http_response_code(400);
             echo json_encode([
                 'success' => false,
