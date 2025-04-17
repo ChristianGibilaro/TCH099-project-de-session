@@ -181,7 +181,7 @@ tbody .icon div {
 #banniere {
   --baniereHeight: 420px;
   --decalageHorizontalBaniere: 40%;
-  --logoHeight: calc(var(--baniereHeight)/3);
+  --logoHeight: calc(var(--baniereHeight)/2);
   border-bottom: 4px solid var(--accent);
   height: var(--baniereHeight);
 }
@@ -195,9 +195,14 @@ tbody .icon div {
 
 #logo {
   position: absolute;
-  top: calc(var(--baniereHeight) - var(--logoHeight) - 20px );
+  top: calc(var(--baniereHeight) - var(--logoHeight));
   left: 20px;
   height: var(--logoHeight);
+  width: 500px;
+}
+
+#logo img {
+  object-fit: contain;
 }
 
 /* Description styles */

@@ -825,7 +825,7 @@ class ElementCreator {
             let activities = [];
             if (activityResult.success && Array.isArray(activityResult.data)) {
                 activities = activityResult.data.slice(0, 3).map(
-                    item => `<a href="Activity.html/${item.activity.ID}">${item.activity.Title}</a>`
+                    item => `<a href="Activity.html?${item.activity.ID}">${item.activity.Title}</a>`
                 );
             }
     
@@ -975,7 +975,7 @@ class ElementCreator {
     }
 
     PrefabMenu = this.CreateMenu(["ressources/Final/Main/logo.png", "ressources/Commun/logo_example.png"],
-        [["ressources/Commun/activity_button.png", "Activities", "Activity.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "RandomActivity", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"],["ressources/Commun/teams_button.png", "PHP DataBase", "http://localhost:9997/"]],
+        [["ressources/Commun/activity_button.png", "Activities", "ActivitiesList.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "RandomActivity", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"],["ressources/Commun/teams_button.png", "PHP DataBase", "http://localhost:9997/"]],
         [["ressources/Commun/activity_button.png", "Sign-up", "Sign-up.html"], ["ressources/Commun/activity_button.png", "Sign-In", "Sign-in.html"], ["ressources/Commun/user_profile_image_example.png", "HeRobrain_III", "profileUtilisateur.html"]]);
 
 }
