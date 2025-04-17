@@ -164,7 +164,7 @@ class mainScript extends globalVars {
 
     async simulateBot() {
         var apiUrl = "https://api.lunarcovenant.com";
-        console.log(`${apiUrl}/api/recaptcha/simulateBot`);
+
         try {
             const response = await fetch(`${apiUrl}/api/recaptcha/simulateBot`, {
                 method: 'POST',
