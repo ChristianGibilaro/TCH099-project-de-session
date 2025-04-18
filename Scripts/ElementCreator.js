@@ -775,154 +775,166 @@ class ElementCreator {
         return html;
     }
 
-    /**
-     * Simulates fetching search results. This function should be replaced with actual data fetching logic.
-     * @param {string} query - The search query.
-     * @returns {object} An object containing arrays of results for Activities, Teams, and Players.
-     */
-    async fetchSearchResults(query) {
-        if (!query) {
-            return {
-                activities: [],
-                teams: [],
-                players: [],
-            };
-        }
-        try {
-            // Fetch players
-            const playerPromise = fetch(`https://api.lunarcovenant.com/api/user/search/${encodeURIComponent(query)}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    fields: ["Pseudo", "Email", "Img", "Id"],
-                    limit: 10
-                })
-            }).then(res => res.json());
-    
-            // Fetch activities
-            const activityPromise = fetch(`https://api.lunarcovenant.com/api/activity/search/${encodeURIComponent(query)}`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    limit: 5,
-                    fields: ["ID", "Title"],
-                    levelFields: ["Name"],
-                    filterFields: ["TypeFilterName"]
-                })
-            }).then(res => res.json());
-    
-            const [playerResult, activityResult] = await Promise.all([playerPromise, activityPromise]);
-    
-            // Players
-            let players = [];
-            if (playerResult.success && Array.isArray(playerResult.data)) {
-                players = playerResult.data.slice(0, 3).map(
-                    user => `<a href="Profile.html?${user.Id}">${user.Pseudo}</a>`
-                );
-            }
-    
-            // Activities
-            let activities = [];
-            if (activityResult.success && Array.isArray(activityResult.data)) {
-                activities = activityResult.data.slice(0, 3).map(
-                    item => `<a href="Activity.html?${item.activity.ID}">${item.activity.Title}</a>`
-                );
-            }
-    
-            return {
-                activities,
-                teams: [],
-                players
-            };
-        } catch (e) {
-            console.error("Search API error:", e);
-            return {
-                activities: [],
-                teams: [],
-                players: []
-            };
-        }
+// Add a property to track the latest search token
+_searchToken = 0;
+
+/**
+ * Fetches search results and discards outdated responses if a new search is started.
+ * @param {string} query - The search query.
+ * @returns {object} An object containing arrays of results for Activities, Teams, and Players.
+ */
+async fetchSearchResults(query) {
+    // Increment the search token for each new call
+    const currentToken = ++this._searchToken;
+
+    if (!query) {
+        return {
+            activities: [],
+            teams: [],
+            players: [],
+        };
     }
+    try {
+        // Fetch players
+        const playerPromise = fetch(`https://api.lunarcovenant.com/api/user/search/${encodeURIComponent(query)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                fields: ["Pseudo", "Email", "Img", "Id"],
+                limit: 10
+            })
+        }).then(res => res.json());
 
-    /**
-     * Generates the HTML for a search page with a dropdown menu for results.
-     * @param {boolean} returnElement - If true, returns a DOM element; otherwise, returns an HTML string.
-     * @returns {HTMLElement|string} The HTML for the search page as either a DOM element or a string.
-     */
-    createSearchPage(returnElement = false) {
-        const searchContainer = `<div class="search-container">
-            <input type="text" class="search-input" placeholder="Search...">
-            <div id="search-results-dropdown" class="search-results-dropdown">
-                </div>
-        </div>`;
+        // Fetch activities
+        const activityPromise = fetch(`https://api.lunarcovenant.com/api/activity/search/${encodeURIComponent(query)}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                limit: 5,
+                fields: ["ID", "Title"],
+                levelFields: ["Name"],
+                filterFields: ["TypeFilterName"]
+            })
+        }).then(res => res.json());
 
-        const searchPageHTML = `<div class="search-page">
-            ${searchContainer}
-        </div>`;
+        const [playerResult, activityResult] = await Promise.all([playerPromise, activityPromise]);
 
-        if (returnElement) {
-            const searchPageDiv = document.createElement('div');
-            searchPageDiv.innerHTML = searchPageHTML;
-            const searchInputBox = searchPageDiv.querySelector('.search-input');
-            const resultsDropdown = searchPageDiv.querySelector('#search-results-dropdown');
+        // If a new search started, discard this result
+        if (currentToken !== this._searchToken) return null;
 
-            searchInputBox.addEventListener('input', async () => {
-                const query = searchInputBox.value.trim();
-                resultsDropdown.innerHTML = ''; // Clear previous results
-            
-                if (query) {
-                    const results = await this.fetchSearchResults(query); // <-- await here!
-                    let hasResults = false;
-            
-                    const addCategory = (categoryName, categoryResults) => {
-                        if (categoryResults && categoryResults.length > 0) {
-                            hasResults = true;
-                            const categoryDiv = document.createElement('div');
-                            categoryDiv.classList.add('dropdown-category');
-                            const categoryTitle = document.createElement('h3');
-                            categoryTitle.textContent = categoryName;
-                            categoryDiv.appendChild(categoryTitle);
-                            const ul = document.createElement('ul');
-                            categoryResults.forEach(resultHTML => {
-                                const li = document.createElement('li');
-                                li.innerHTML = resultHTML;
-                                ul.appendChild(li);
-                            });
-                            categoryDiv.appendChild(ul);
-                            resultsDropdown.appendChild(categoryDiv);
-                        }
-                    };
-            
-                    addCategory('Activities', results.activities);
-                    addCategory('Teams', results.teams);
-                    addCategory('Players', results.players);
-            
-                    if (hasResults) {
-                        resultsDropdown.style.display = 'block';
-                    } else {
-                        const noResults = document.createElement('div');
-                        noResults.classList.add('dropdown-no-results');
-                        noResults.textContent = `No results found for "${query}".`;
-                        resultsDropdown.appendChild(noResults);
-                        resultsDropdown.style.display = 'block';
+        // Players
+        let players = [];
+        if (playerResult.success && Array.isArray(playerResult.data)) {
+            players = playerResult.data.slice(0, 3).map(
+                user => `<a href="Profile.html?${user.Id}">${user.Pseudo}</a>`
+            );
+        }
+
+        // Activities
+        let activities = [];
+        if (activityResult.success && Array.isArray(activityResult.data)) {
+            activities = activityResult.data.slice(0, 3).map(
+                item => `<a href="Activity.html?${item.activity.ID}">${item.activity.Title}</a>`
+            );
+        }
+
+        return {
+            activities,
+            teams: [],
+            players
+        };
+    } catch (e) {
+        console.error("Search API error:", e);
+        return {
+            activities: [],
+            teams: [],
+            players: []
+        };
+    }
+}
+
+/**
+ * Generates the HTML for a search page with a dropdown menu for results.
+ * @param {boolean} returnElement - If true, returns a DOM element; otherwise, returns an HTML string.
+ * @returns {HTMLElement|string} The HTML for the search page as either a DOM element or a string.
+ */
+createSearchPage(returnElement = false) {
+    const searchContainer = `<div class="search-container">
+        <input type="text" class="search-input" placeholder="Search...">
+        <div id="search-results-dropdown" class="search-results-dropdown">
+            </div>
+    </div>`;
+
+    const searchPageHTML = `<div class="search-page">
+        ${searchContainer}
+    </div>`;
+
+    if (returnElement) {
+        const searchPageDiv = document.createElement('div');
+        searchPageDiv.innerHTML = searchPageHTML;
+        const searchInputBox = searchPageDiv.querySelector('.search-input');
+        const resultsDropdown = searchPageDiv.querySelector('#search-results-dropdown');
+
+        searchInputBox.addEventListener('input', async () => {
+            const query = searchInputBox.value.trim();
+            resultsDropdown.innerHTML = ''; // Clear previous results
+
+            if (query) {
+                const results = await this.fetchSearchResults(query);
+                // If results is null, this response is outdated
+                if (!results) return;
+                let hasResults = false;
+
+                const addCategory = (categoryName, categoryResults) => {
+                    if (categoryResults && categoryResults.length > 0) {
+                        hasResults = true;
+                        const categoryDiv = document.createElement('div');
+                        categoryDiv.classList.add('dropdown-category');
+                        const categoryTitle = document.createElement('h3');
+                        categoryTitle.textContent = categoryName;
+                        categoryDiv.appendChild(categoryTitle);
+                        const ul = document.createElement('ul');
+                        categoryResults.forEach(resultHTML => {
+                            const li = document.createElement('li');
+                            li.innerHTML = resultHTML;
+                            ul.appendChild(li);
+                        });
+                        categoryDiv.appendChild(ul);
+                        resultsDropdown.appendChild(categoryDiv);
                     }
+                };
+
+                addCategory('Activities', results.activities);
+                addCategory('Teams', results.teams);
+                addCategory('Players', results.players);
+
+                if (hasResults) {
+                    resultsDropdown.style.display = 'block';
                 } else {
-                    resultsDropdown.style.display = 'none';
+                    const noResults = document.createElement('div');
+                    noResults.classList.add('dropdown-no-results');
+                    noResults.textContent = `No results found for "${query}".`;
+                    resultsDropdown.appendChild(noResults);
+                    resultsDropdown.style.display = 'block';
                 }
-            });
+            } else {
+                resultsDropdown.style.display = 'none';
+            }
+        });
 
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (event) => {
-                if (!searchContainer.contains(event.target)) {
-                    resultsDropdown.style.display = 'none';
-                }
-            });
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (event) => {
+            if (!searchContainer.contains(event.target)) {
+                resultsDropdown.style.display = 'none';
+            }
+        });
 
-            return searchPageDiv.firstChild; // Return the main div element
-        } else {
-            return searchPageHTML;
-        }
+        return searchPageDiv.firstChild; // Return the main div element
+    } else {
+        return searchPageHTML;
     }
+}
+    
 
     generateMediaViewer(mediaArray) {
         if (!Array.isArray(mediaArray) || mediaArray.length === 0) return "";
