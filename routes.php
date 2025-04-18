@@ -123,6 +123,10 @@ post('/api/activity/connect', function() {
     //need admin apikey
 });
 
+post('/api/activity/all', function() {
+    ActivityController::getAllActivity();
+});
+
 post('/api/activity/id/$id', function($id) {
     ActivityController::getActivite($id);
 });
