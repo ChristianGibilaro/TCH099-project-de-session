@@ -79,36 +79,6 @@
   const detailsBox = searchPageDiv.querySelector('#search-details-box');
 
   // Helper to render user details
-  async function showUserDetails(userId) {
-    detailsBox.innerHTML = '<div class="loading">Loading user...</div>';
-    try {
-      const res = await fetch(`http://localhost:9999/api/user/id/${userId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fields: ["Pseudo", "Last_Login", "Img", "Creation_Date", "Description"]
-        })
-      });
-      const result = await res.json();
-      if (result.success && result.data) {
-        const u = result.data;
-        detailsBox.innerHTML = `
-          <div class="details-content">
-            <img src="${u.Img}" alt="Profile" class="profile-img">
-            <div class="title">${u.Pseudo}</div>
-            <div class="desc">${u.Description || ""}</div>
-            <div class="info-row"><strong>Created:</strong> ${u.Creation_Date || ""}</div>
-            <div class="info-row"><strong>Last login:</strong> ${u.Last_Login || ""}</div>
-          </div>
-        `;
-      } else {
-        detailsBox.innerHTML = '<div class="error">User not found.</div>';
-      }
-    } catch {
-      detailsBox.innerHTML = '<div class="error">Error loading user.</div>';
-    }
-  }
-
   async function showActivityDetails(activityId) {
     detailsBox.innerHTML = '<div class="loading">Loading activity...</div>';
     try {
@@ -133,18 +103,20 @@
         const a = result.data.activity;
         const d = result.data.activityData || {};
         detailsBox.innerHTML = `
-          <div class="details-content">
-            <div style="position:relative;">
-              <img src="${a.Main_Img}" alt="Main" class="main-img">
-              ${a.Logo_Img ? `<img src="${a.Logo_Img}" alt="Logo" class="logo-img" style="position:absolute;top:0;left:50%;transform:translate(-50%,-50%);">` : ""}
+          <div class="details-content activity-details">
+            <div class="activity-image-wrapper">
+              <img src="${a.Main_Img}" alt="Main" class="main-img-activity">
+              ${a.Logo_Img ? `<img src="${a.Logo_Img}" alt="Logo" class="logo-img-activity">` : ""}
             </div>
-            <div class="title">${a.Title}</div>
-            <div class="desc">${a.Description || ""}</div>
-            <div class="info-row"><strong>Players:</strong> ${d.Player_Count || 0}</div>
-            <div class="info-row"><strong>Active Players:</strong> ${d.Active_Player_Count || 0}</div>
-            <div class="info-row"><strong>Teams:</strong> ${d.Team_Count || 0}</div>
-            <div class="info-row"><strong>Word for Player:</strong> ${a.Word_4_Player || ""}</div>
-            <div class="info-row"><strong>Word for Playing:</strong> ${a.Word_4_Playing || ""}</div>
+            <div class="activity-info-section">
+              <div class="title">${a.Title}</div>
+              <div class="desc">${a.Description || ""}</div>
+            </div>
+            <div class="activity-stats-section">
+              <div class="activity-stat-row"><strong>${d.Player_Count || 0}</strong> ${a.Word_4_Player || ""}</div>
+              <div class="activity-stat-row"><strong>${d.Active_Player_Count || 0}</strong> ${a.Word_4_Playing || ""}</div>
+              <div class="activity-stat-row"><strong>${d.Team_Count || 0}</strong> Teams</div>
+            </div>
           </div>
         `;
       } else {
@@ -277,10 +249,10 @@
     max-width: 520px;
     background: var(--bg-dark2);
     color: var(--text);
-    border-radius: 18px;
+  
     box-shadow: 0 6px 32px 0 rgba(0,0,0,0.25);
     margin-left: 32px;
-    padding: 32px 24px 32px 24px;
+
     height: 100%;
     min-height: 400px;
     display: flex;
@@ -350,6 +322,64 @@
     text-align: center;
     font-size: 1.2rem;
   }
+
+  .details-content.activity-details {
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+.activity-image-wrapper {
+  position: relative;
+  width: 100%;
+  margin-bottom: 0;
+}
+.main-img-activity {
+  width: 100%;
+  max-width: 100%;
+  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.18);
+  object-fit: cover;
+  display: block;
+}
+.logo-img-activity {
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  width: 80%;
+  height: 80%;
+  object-fit: contain;
+  background: transparent;
+  z-index: 2;
+  pointer-events: none;
+}
+.activity-info-section {
+  border-top: 2px solid var(--accent2);
+  border-bottom: 2px solid var(--accent2);
+  padding: 18px 0 18px 0;
+  margin-bottom: 0;
+  margin-top: 0;
+}
+.activity-info-section .title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.activity-info-section .desc {
+  color: var(--text);
+  margin-bottom: 0;
+}
+.activity-stats-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 18px 0 0 0;
+}
+.activity-stat-row {
+  font-size: 1.2rem;
+  color: var(--bold);
+  letter-spacing: 0.5px;
+}
   </style>
       </script>
     </div>
