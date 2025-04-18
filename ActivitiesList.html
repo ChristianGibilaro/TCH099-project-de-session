@@ -149,9 +149,109 @@
     <div id="fatherland" class="contenu-onglet">
       <div class="page-content" id="page-content-container " style="height: 100%;">
         <div class="page-item active">
+          
           <script>
-            document.write(creator.PutInDiv(creator.CreateScrollableTable("100%", "auto", "", rows, null, null, " margin-top:20px;"), null, "CenterChilds", "height: 100%"));
-          </script>
+async function fetchActivities() {
+  const response = await fetch('http://localhost:9999/api/activity/all', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      limit: 40,
+      fields: [
+        "ID", "Title", "Main_Img", "Description", "Logo_Img", "Point_Value",
+        "Word_4_Player", "Word_4_Teammate", "Word_4_Playing",
+        "Main_Color", "Second_Color", "Friend_Main_Color", "Friend_Second_Color"
+      ],
+      activityDataFields: [
+        "Team_Count", "QuickTeam_Count", "Player_Count", "Active_Player_Count"
+      ]
+    })
+  });
+  const data = await response.json();
+  // Extract array of {activity, activityData, ...}
+  const activities =
+    Array.isArray(data.activities) ? data.activities
+    : Array.isArray(data.data) ? data.data
+    : Array.isArray(data) ? data
+    : [];
+
+  // Merge activity and activityData for each item
+  const merged = activities.map(item => ({
+    ...(item.activity || {}),
+    ...(item.activityData && typeof item.activityData === "object" ? item.activityData : {})
+  }));
+
+  const activityList = creator.superScrollableList({
+    mode: "masonry",
+    items: merged,
+    width: "100%",
+    height: "100%",
+    renderItem: (activity, idx) => {
+      const playerCount = activity.Player_Count ?? activity.player_count ?? 0;
+      const word4player = activity.Word_4_Player || "player";
+      const teamCount = activity.Team_Count ?? activity.team_count ?? "";
+      const activePlayerCount = activity.Active_Player_Count ?? activity.active_player_count ?? "";
+      const activityId = activity.ID || activity.Id || activity.id || "";
+
+      let statBlock = `
+        <div style="padding:4px 0 12px 0;text-align:left;min-width:90px;font-size:0.95em;">
+          <div><b>${playerCount}</b> ${word4player}</div>
+          <div><b>${teamCount||"-"}</b> Teams</div>
+          <div><b>${activePlayerCount||"-"}</b> active</div>
+          <div style="color:var(--accent2);font-size:0.9em;">${activity.Point_Value ? `Points: ${activity.Point_Value}` : ""}</div>
+        </div>
+      `;
+
+      let mainImg = `
+        <div style="position:relative;width:100%;overflow:hidden;border-radius:12px;">
+          <img src="${activity.Main_Img || ""}" style="width:100%;display:block;object-fit:cover;max-height:180px;filter:brightness(0.92);">
+          ${activity.Logo_Img ? `
+            <img src="${activity.Logo_Img}" style="position:absolute;top:12px;left:12px;width:48px;height:48px;object-fit:contain;background:white;border-radius:8px;box-shadow:0 2px 8px #0002;">
+          ` : ""}
+        </div>
+      `;
+
+      let title = `
+        <div style="text-align:center;font-weight:bold;font-size:1.2em;margin:12px 0 6px 0;color:var(--accent2);">
+          ${activity.Title || ""}
+        </div>
+      `;
+
+      let desc = `
+        <div style="padding:4px 0 0 0;white-space:pre-line;font-size:1em;">${activity.Description || ""}</div>
+      `;
+
+      // The whole tile is clickable and redirects to Activity.html?id=...
+      return `
+        <div class="activity-card" 
+             style="background:var(--bg-dark2);border-radius:14px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;cursor:pointer;transition:box-shadow 0.15s;"
+             onclick="window.location.href='Activity.html?id=${encodeURIComponent(activityId)}'">
+          ${mainImg}
+          <div style="display:flex;gap:18px;padding:14px 14px 10px 14px;">
+            <div style="flex:0 0 90px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;">
+              ${statBlock}
+            </div>
+            <div style="flex:1;min-width:0;">
+              ${title}
+              ${desc}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  });
+
+  const target = document.querySelector('#fatherland .page-item.active');
+  if (target) {
+    target.innerHTML = "";
+    target.append(activityList);
+  }
+}
+fetchActivities();
+          </script>>
+
+
+
         </div>
         <div class="page-item">
           <script>

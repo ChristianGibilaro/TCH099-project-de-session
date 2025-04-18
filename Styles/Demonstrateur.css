@@ -296,8 +296,68 @@ tbody .icon div {
 .listeScrollable {
   background-color: var(--bg-dark2);
   border-radius: 2px;
-  overflow-y: scroll;
+  overflow-y: auto;
   box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.scrollable-header {
+  display: flex;
+  width: 100%;
+  background-color: var(--accent2);
+  border-radius: 2px 2px 0 0;
+  font-weight: bold;
+  color: var(--bold);
+}
+
+.scrollable-title-row {
+  display: flex;
+  width: 100%;
+}
+
+.scrollable-title-cell {
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 1rem;
+  border-right: 1px solid var(--bg-darkLite);
+}
+
+.scrollable-title-cell:last-child {
+  border-right: none;
+}
+
+.scrollable-body {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.scrollable-row {
+  display: flex;
+  width: 100%;
+  background-color: var(--bg-darkLite);
+  border-bottom: 1px solid var(--accent2);
+  transition:  0.2s;
+}
+
+.scrollable-row:hover {
+  background-color: rgba(255,255,255,0.05);
+}
+
+.scrollable-cell {
+  padding: 10px 8px;
+  text-align: center;
+  font-size: 1rem;
+  border-right: 1px solid var(--bg-dark2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scrollable-cell:last-child {
+  border-right: none;
 }
 
 .listeScrollable thead,
@@ -975,3 +1035,8 @@ tbody .icon div {
     /* font-size: 1.1rem; */ /* Example: Slightly larger font */
 }
 
+.activity-card {
+  background-color: var(--bg-dark2);
+  border: 1px solid var(--accent);
+  box-shadow: var(--shadow);
+}

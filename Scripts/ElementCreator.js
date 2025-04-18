@@ -49,8 +49,6 @@ class ElementCreator {
         console.log(`Creator js script initialized for page ${pageName}`);
     }
 
-
-
     /**
      * Generates an HTML ID attribute string.
      * If an ID is provided, it uses that; otherwise, it generates a unique ID based on the base ID and a counter.
@@ -62,52 +60,10 @@ class ElementCreator {
      */
     IdGenerator(baseId, id, index) {
         if (id != null) {
-            return `id="${id}"`;
+            return id;
         } else {
-            return `id="${baseId}#${index}"`;
+            return `${baseId}#${index}`;
         }
-    }
-
-    /**
-     * Creates an HTML structure for a scrollable table.
-     * @param {string|null} width - The width of the table container in px or %, or null for 100%.
-     * @param {string|null} height - The height of the table body (tbody) in px. This is required for scrollability.
-     * @param {string|null} titles - The HTML string for the table header (thead), typically created using CreateTableTitles.
-     * @param {string|null} elements - The HTML string for the table rows (tbody), typically created using CreateTableRows.
-     * @param {string|null} id - An optional ID to apply to the main div container. If null, an ID will be generated.
-     * @param {string|null} classes - Optional additional CSS classes to apply to the main div container. Defaults to "generatedScrollableTable".
-     * @param {string|null} extraStyle - Optional additional inline styles to apply to the main div container.
-     * @returns {string} The HTML string for the scrollable table.
-     */
-    CreateScrollableTable(width, height, titles, elements, id, classes, extraStyle) {
-        let styleWidth = "";
-        if (width != null) {
-            styleWidth = `width: ${width};`;
-        } else {
-            styleWidth = "width: 100%;";
-        }
-
-        let styleHeight = "";
-        if (height != null) {
-            styleHeight = `height: ${height};`;
-        } else {
-            console.warn("height must be defined for CreateScrollableTable");
-            return "height must be defined";
-        }
-
-        const cssClasses = classes || "generatedScrollableTable";
-        const inlineStyle = extraStyle || "";
-
-        this.scrollableListCounter++;
-        const generatedId = this.IdGenerator("ScrollableTable", id, this.scrollableListCounter);
-
-        return `
-        <div style="${styleWidth}${inlineStyle}" class="listeScrollable ${cssClasses}" ${generatedId}>
-            <table>
-                <thead>${titles || ''}</thead>
-                <tbody style="${styleHeight}">${elements || ''}</tbody>
-            </table>
-        </div>`;
     }
 
     /**
@@ -145,104 +101,182 @@ class ElementCreator {
         return `<img src="${src}" style="${styleHeight}${styleWidth}${inlineStyle}" class="${cssClasses}" ${generatedId} alt="${alt}">`;
     }
 
-    /**
-     * Creates the HTML for the header row of a table (thead > tr > th).
-     * @param {string[]} titles - An array of strings representing the text content of each table header cell.
-     * @param {number[]} titleSize - An array of numbers representing the width percentage for each header cell. The sum of these values should be 100.
-     * @param {number} colNumb - The expected number of columns, which should match the length of the titles array.
-     * @param {string|null} id - An optional ID to apply to the table row (tr) element. If null, an ID will be generated.
-     * @param {string|null} classes - Optional additional CSS classes to apply to the table row (tr) element. Defaults to "generatedTableTitles".
-     * @param {string|null} extraStyle - Optional additional inline styles to apply to the table row (tr) element.
-     * @returns {string} The HTML string for the table header row.
+ /**
+     * Creates a scrollable list using divs instead of tables.
+     * @param {string|null} width - The width of the container.
+     * @param {string|null} height - The height of the scrollable area.
+     * @param {string|null} titles - The HTML string for the header row (can be divs).
+     * @param {string|null} elements - The HTML string for the rows (can be divs).
+     * @param {string|null} id - Optional ID for the main container.
+     * @param {string|null} classes - Additional CSS classes.
+     * @param {string|null} extraStyle - Inline styles.
+     * @returns {string} The HTML string for the scrollable list.
      */
-    CreateTableTitles(titles, titleSize, colNumb, id, classes, extraStyle) {
-        if (titleSize != null) {
-            const checkWidth = titleSize.reduce((sum, size) => sum + size, 0);
-            if (checkWidth !== 100) {
-                console.warn("titleSize sum of all values must be == 100");
-                return "titleSize sum of all values must be == 100";
+ CreateScrollableTable(width, height, titles, elements, id, classes, extraStyle) {
+    let styleWidth = width ? `width: ${width};` : "width: 100%;";
+    let styleHeight = height ? `height: ${height};` : "height: 100%;";
+    const cssClasses = classes || "generatedScrollableTable";
+    const inlineStyle = extraStyle || "";
+
+    this.scrollableListCounter++;
+    const generatedId = this.IdGenerator("ScrollableTable", id, this.scrollableListCounter);
+
+    return `
+    <div style="${styleWidth}${inlineStyle}" class="listeScrollable ${cssClasses}" id="${generatedId}">
+        ${titles ? `<div class="scrollable-header">${titles}</div>` : ""}
+        <div class="scrollable-body" style="${styleHeight}">${elements || ''}</div>
+    </div>`;
+}
+
+/**
+ * Creates the header row using divs.
+ * @param {string[]} titles - Array of header titles.
+ * @param {number[]} titleSize - Array of width percentages.
+ * @param {number} colNumb - Number of columns.
+ * @param {string|null} id - Optional ID.
+ * @param {string|null} classes - Additional CSS classes.
+ * @param {string|null} extraStyle - Inline styles.
+ * @returns {string} The HTML string for the header row.
+ */
+CreateTableTitles(titles, titleSize, colNumb, id, classes, extraStyle) {
+    if (titleSize && titleSize.reduce((sum, size) => sum + size, 0) !== 100) {
+        console.warn("titleSize sum of all values must be == 100");
+        return "titleSize sum of all values must be == 100";
+    }
+    if (titles.length !== colNumb) {
+        console.warn("titles.length must be equal to colNumb");
+        return "titles.length must be equal to colNumb";
+    }
+    const cssClasses = classes || "generatedTableTitles";
+    const inlineStyle = extraStyle || "";
+
+    this.tableRowCounter++;
+    const generatedId = this.IdGenerator("TableTitles", id, this.tableRowCounter);
+
+    let outTitles = "";
+    for (let i = 0; i < titles.length; i++) {
+        outTitles += `<div class="scrollable-title-cell" style="width: ${titleSize[i]}%;">${titles[i]}</div>`;
+    }
+    return `<div class="scrollable-title-row ${cssClasses}" id="${generatedId}" style="${inlineStyle}">${outTitles}</div>`;
+}
+
+ /**
+     * Generates an HTML ID attribute string.
+     * If an ID is provided, it uses that; otherwise, it generates a unique ID based on the base ID and a counter.
+     * @private
+     * @param {string} baseId - The base string for generating an ID (e.g., "scrollableTable").
+     * @param {string|null} id - The specific ID to use, or null to generate one.
+     * @param {number} index - The index to append to the base ID if no specific ID is provided.
+     * @returns {string} The HTML ID attribute string (e.g., 'id="scrollableTable#1"').
+     */
+ IdGenerator(baseId, id, index) {
+    if (id != null) {
+        return id;
+    } else {
+        return `${baseId}#${index}`;
+    }
+}
+
+/**
+ * Creates a scrollable list using divs instead of tables.
+ * @param {string|null} width - The width of the container.
+ * @param {string|null} height - The height of the scrollable area.
+ * @param {string|null} titles - The HTML string for the header row (can be divs).
+ * @param {string|null} elements - The HTML string for the rows (can be divs).
+ * @param {string|null} id - Optional ID for the main container.
+ * @param {string|null} classes - Additional CSS classes.
+ * @param {string|null} extraStyle - Inline styles.
+ * @returns {string} The HTML string for the scrollable list.
+ */
+CreateScrollableTable(width, height, titles, elements, id, classes, extraStyle) {
+    let styleWidth = width ? `width: ${width};` : "width: 100%;";
+    let styleHeight = height ? `height: ${height};` : "height: 100%;";
+    const cssClasses = classes || "generatedScrollableTable";
+    const inlineStyle = extraStyle || "";
+
+    this.scrollableListCounter++;
+    const generatedId = this.IdGenerator("ScrollableTable", id, this.scrollableListCounter);
+
+    return `
+    <div style="${styleWidth}${inlineStyle}" class="listeScrollable ${cssClasses}" id="${generatedId}">
+        ${titles ? `<div class="scrollable-header">${titles}</div>` : ""}
+        <div class="scrollable-body" style="${styleHeight}">${elements || ''}</div>
+    </div>`;
+}
+
+/**
+ * Creates the header row using divs.
+ * @param {string[]} titles - Array of header titles.
+ * @param {number[]} titleSize - Array of width percentages.
+ * @param {number} colNumb - Number of columns.
+ * @param {string|null} id - Optional ID.
+ * @param {string|null} classes - Additional CSS classes.
+ * @param {string|null} extraStyle - Inline styles.
+ * @returns {string} The HTML string for the header row.
+ */
+CreateTableTitles(titles, titleSize, colNumb, id, classes, extraStyle) {
+
+    const cssClasses = classes || "generatedTableTitles";
+    const inlineStyle = extraStyle || "";
+
+    this.tableRowCounter++;
+    const generatedId = this.IdGenerator("TableTitles", id, this.tableRowCounter);
+
+    let outTitles = "";
+    for (let i = 0; i < titles.length; i++) {
+        outTitles += `<div class="scrollable-title-cell" style="width: ${titleSize[i]}%;">${titles[i]}</div>`;
+    }
+    return `<div class="scrollable-title-row ${cssClasses}" id="${generatedId}" style="${inlineStyle}">${outTitles}</div>`;
+}
+
+/**
+ * Creates the data rows using divs.
+ * @param {string[][]} elements - 2D array of row data.
+ * @param {Array<string[]>} elementsType - Type of each cell.
+ * @param {number[]} elementsSize - Width percentages for each cell.
+ * @param {number} colNumb - Number of columns.
+ * @param {string|null} id - Optional ID.
+ * @param {string|null} classes - Additional CSS classes.
+ * @param {string|null} extraStyle - Inline styles.
+ * @returns {string} The HTML string for the data rows.
+ */
+CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extraStyle) {
+
+    const cssClasses = classes || "generatedTableRows";
+    const inlineStyle = extraStyle || "";
+
+    this.tableTitlesCounter++;
+    const generatedId = this.IdGenerator("TableRow", id, this.tableTitlesCounter);
+
+    let outRows = "";
+    let invalidRowIndex = -1;
+
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].length !== colNumb) {
+            invalidRowIndex = i;
+            break;
+        }
+        let row = "";
+        for (let j = 0; j < elements[i].length; j++) {
+            switch (elementsType[j][0]) {
+                case "img":
+                    row += `<div class="scrollable-cell" style="width: ${elementsSize[j]}%;">${this.CreateImage(elementsType[j][1], elementsType[j][2], elements[i][j], elementsType[j][3], null, elementsType[j][4], elementsType[j][5])}</div>`;
+                    break;
+                case "txt":
+                    row += `<div class="scrollable-cell" style="width: ${elementsSize[j]}%;">${elements[i][j]}</div>`;
+                    break;
             }
         }
-
-        if (titles.length !== colNumb) {
-            console.warn("titles.length must be equal to colNumb");
-            return "titles.length must be equal to colNumb";
-        }
-
-        let outTitles = "";
-        for (let i = 0; i < titles.length; i++) {
-            outTitles += `<th style="width: ${titleSize[i]}%;">${titles[i]}</th>`;
-        }
-
-        const cssClasses = classes || "generatedTableTitles";
-        const inlineStyle = extraStyle || "";
-
-        this.tableRowCounter++;
-        const generatedId = this.IdGenerator("TableTitles", id, this.tableRowCounter);
-
-        return `
-        <tr style="${inlineStyle}" class="${cssClasses}" ${generatedId}>
-            ${outTitles}
-        </tr>`;
+        outRows += `<div class="scrollable-row ${cssClasses}" id="${generatedId}" style="${inlineStyle}">${row}</div>`;
     }
 
-    /**
-     * Creates the HTML for the data rows of a table (tbody > tr > td), handling different element types within cells.
-     * @param {string[][]} elements - A 2D array where each inner array represents a table row, and each element in the inner array is the content for a cell.
-     * @param {Array<string[]>} elementsType - A 2D array defining the type of content for each cell. Each inner array should have at least one element:
-     * - ["txt"] for plain text.
-     * - ["img", width, height, alt, class, style] for an image.
-     * @param {number[]} elementsSize - An array of numbers representing the width percentage for each cell in a row. The sum should be 100.
-     * @param {number} colNumb - The expected number of columns, which should match the length of the inner arrays in the elements array.
-     * @param {string|null} id - An optional ID to apply to each table row (tr) element. If null, an ID will be generated.
-     * @param {string|null} classes - Optional additional CSS classes to apply to each table row (tr) element. Defaults to "generatedTableRows".
-     * @param {string|null} extraStyle - Optional additional inline styles to apply to each table row (tr) element.
-     * @returns {string} The HTML string for the table data rows.
-     */
-    CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extraStyle) {
-        if (elementsSize != null) {
-            const checkWidth = elementsSize.reduce((sum, size) => sum + size, 0);
-            if (checkWidth !== 100) {
-                console.warn("elementsSize sum of all values must be == 100");
-                return "elementsSize sum of all values must be == 100";
-            }
-        }
-
-        const cssClasses = classes || "generatedTableRows";
-        const inlineStyle = extraStyle || "";
-
-        this.tableTitlesCounter++; // Corrected variable name to match its purpose
-        const generatedId = this.IdGenerator("TableRow", id, this.tableTitlesCounter);
-
-        let outRows = "";
-        let invalidRowIndex = -1;
-
-        for (let i = 0; i < elements.length; i++) {
-            outRows += `<tr style="${inlineStyle}" class="${cssClasses}" ${generatedId}>`;
-            if (elements[i].length !== colNumb) {
-                invalidRowIndex = i;
-                break;
-            }
-            for (let j = 0; j < elements[i].length; j++) {
-                switch (elementsType[j][0]) {
-                    case "img":
-                        outRows += `<td style="width: ${elementsSize[j]}%;">${this.CreateImage(elementsType[j][1], elementsType[j][2], elements[i][j], elementsType[j][3], null, elementsType[j][4], elementsType[j][5])}</td>`;
-                        break;
-                    case "txt":
-                        outRows += `<td style="width: ${elementsSize[j]}%;">${elements[i][j]}</td>`;
-                        break;
-                }
-            }
-            outRows += '</tr>';
-        }
-
-        if (invalidRowIndex !== -1) {
-            console.warn(`The row #${invalidRowIndex} .length != colNumb`);
-            return `The row #${invalidRowIndex} .length != colNumb`;
-        }
-
-        return outRows;
+    if (invalidRowIndex !== -1) {
+        console.warn(`The row #${invalidRowIndex} .length != colNumb`);
+        return `The row #${invalidRowIndex} .length != colNumb`;
     }
+
+    return outRows;
+}
 
     /**
      * Creates an HTML div containing elements displayed side by side using flexbox.
@@ -985,6 +1019,304 @@ createSearchPage(returnElement = false) {
         <img src="${hero}" alt="banniere">
         </div>`;
     }
+
+
+
+    superScrollableList(options) {
+        options = options || {};
+        const {
+          items = [],
+          renderItem = item => `<div>${String(item)}</div>`,
+          mode = "list", // others: "grid", "masonry", "horizontal", "carousel", "timeline", "accordion", "table", "chat", "kanban"
+          width = "100%",
+          height = "600px",
+          containerClass = "",
+          listClass = "listeScrollable generatedScrollableTable",
+          bodyClass = "scrollable-body",
+          gridTemplate = "repeat(auto-fill, minmax(220px, 1fr))",
+          columns = [],
+          kanbanColumns = [],
+          virtualize = false,
+          infiniteScroll = false,
+          pageSize = 30,
+          onLoadMore = null, // function(page) for infinite scroll
+          tableHeader = [],
+          timelineLineColor = "#58acec",
+          carouselOptions = { show: 1, arrows: true, dots: true, auto: false, interval: 4000 }
+        } = options;
+      
+        function escape(str) {
+          return String(str).replace(/[&<>"']/g, function (m) {
+            return ({
+              '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+            })[m];
+          });
+        }
+      
+        // --- Mode Implementations ---
+        function makeMasonryGrid() {
+          return `
+            <div class="${containerClass}" style="width:100%;">
+              <div class="${listClass}" style="width:${width};padding:6px 0;">
+                <div style="column-count:3;column-gap:20px;height:${height};overflow-y:auto;">
+                  ${items.map(item =>
+                    `<div style="break-inside:avoid;margin-bottom:20px;">${renderItem(item)}</div>`
+                  ).join("")}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      
+        function makeHorizontal() {
+          return `
+            <div class="${containerClass}" style="width:100%;">
+              <div class="${listClass}" style="width:${width};overflow-x:auto;">
+                <div style="display:flex;flex-direction:row;gap:18px;height:${height};overflow-x:auto;overflow-y:hidden;">
+                  ${items.map(renderItem).join("")}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      
+        // --- Carousel: returns {html, initializer}
+        function makeCarousel() {
+          const carouselId = "carousel_" + Math.random().toString(36).slice(2);
+          const { show = 1, arrows = true, dots = true, auto = false, interval = 4000 } = carouselOptions || {};
+          const n = items.length;
+          let slides = "";
+          for (let i = 0; i < n; ++i) {
+            slides += `<div class="carousel-slide" style="flex:0 0 ${100 / show}%;box-sizing:border-box;">
+              ${renderItem(items[i], i)}
+            </div>`;
+          }
+          const dotsHtml = dots ? `<div class="carousel-dots" style="text-align:center;margin-top:8px;"></div>` : "";
+          let html = `
+            <div class="${containerClass}" style="width:100%;">
+              <div id="${carouselId}" class="${listClass}" style="width:${width};height:${height};overflow:hidden;position:relative;">
+                <div class="carousel-track" style="display:flex;transition:transform 0.4s;width:100%;height:100%;">${slides}</div>
+                ${arrows
+                  ? `<button class="carousel-prev" style="position:absolute;left:8px;top:50%;transform:translateY(-50%);z-index:2;">&#8592;</button>
+                     <button class="carousel-next" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:2;">&#8594;</button>`
+                  : ""}
+              </div>
+              ${dotsHtml}
+            </div>
+          `;
+          // Return HTML and initializer function
+          return {
+            html,
+            initializer: function() {
+              const root = document.getElementById(carouselId);
+              if (!root) return;
+              const track = root.querySelector(".carousel-track");
+              const prev = root.querySelector(".carousel-prev");
+              const next = root.querySelector(".carousel-next");
+              const dotsDiv = root.parentElement.querySelector(".carousel-dots");
+              let idx = 0;
+              function update() {
+                track.style.transform = 'translateX(' + (-idx * 100 / show) + '%)';
+                if (dotsDiv) {
+                  Array.from(dotsDiv.children).forEach((d, i) => d.classList.toggle('active', i === idx));
+                }
+              }
+              if (prev) prev.onclick = function() { idx = (idx - 1 + n) % n; update(); };
+              if (next) next.onclick = function() { idx = (idx + 1) % n; update(); };
+              if (dotsDiv) {
+                for (let i = 0; i < n; ++i) {
+                  const d = document.createElement("span");
+                  d.textContent = "•";
+                  d.style.cursor = "pointer";
+                  d.style.fontSize = "2em";
+                  d.style.margin = "0 4px";
+                  d.onclick = function () { idx = i; update(); };
+                  dotsDiv.appendChild(d);
+                }
+              }
+              update();
+              if (auto) setInterval(function () { idx = (idx + 1) % n; update(); }, interval);
+            }
+          };
+        }
+      
+        function makeTimeline() {
+          return `
+            <div class="${containerClass}" style="width:100%;justify-content:flex-start;">
+              <div class="${listClass}" style="width:${width};padding:24px 0;">
+                <div style="position:relative;height:${height};overflow-y:auto;">
+                  <div style="position:absolute;left:30px;top:0;bottom:0;width:4px;background:${timelineLineColor};border-radius:2px;"></div>
+                  <div style="position:relative;">
+                    ${items.map((item, idx) => `
+                      <div style="position:relative;min-height:60px;margin-bottom:28px;">
+                        <div style="position:absolute;left:22px;top:16px;width:20px;height:20px;background:${timelineLineColor};border-radius:50%;z-index:1;"></div>
+                        <div style="margin-left:56px;">${renderItem(item, idx)}</div>
+                      </div>
+                    `).join("")}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      
+        function makeAccordion() {
+          const id = "accordion_" + Math.random().toString(36).slice(2);
+          let html = `
+            <div class="${containerClass}" style="width:100%;">
+              <div class="${listClass}" style="width:${width};">
+                <div class="${bodyClass}" style="height:${height};overflow-y:auto;">
+                  ${items.map((item, idx) => `
+                    <div class="accordion-item" style="border-bottom:1px solid var(--accent2);">
+                      <div class="accordion-header" style="cursor:pointer;padding:12px 8px;font-weight:bold;background:var(--bg-darkLite);" onclick="var n=document.getElementById('${id}_body_${idx}');n.style.display=n.style.display==='block'?'none':'block';">
+                        ${escape(item.title||("Item "+(idx+1)))}
+                      </div>
+                      <div class="accordion-body" id="${id}_body_${idx}" style="display:none;padding:12px 8px;">${renderItem(item, idx)}</div>
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            </div>
+          `;
+          return html;
+        }
+      
+        function makeTable() {
+          let thead = tableHeader.length
+            ? `<div class="scrollable-header"><div class="scrollable-title-row">${tableHeader.map(col =>
+                `<div class="scrollable-title-cell" style="width:${col.width||"auto"}">${escape(col.title||"")}</div>`
+              ).join("")}</div></div>`
+            : "";
+          return `
+            <div class="${containerClass}" style="width:100%;">
+              <div class="${listClass}" style="width:${width};">
+                ${thead}
+                <div class="${bodyClass}" style="height:${height};overflow-y:auto;">
+                  ${items.map((row, idx) => `
+                    <div class="scrollable-row" style="display:flex;">
+                      ${row.map((cell, cidx) => `<div class="scrollable-cell" style="width:${tableHeader[cidx]?.width||"auto"}">${cell}</div>`).join("")}
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      
+        function makeChat() {
+          return `
+            <div class="${containerClass}" style="width:100%;">
+              <div class="${listClass}" style="width:${width};background:none;">
+                <div class="${bodyClass}" style="height:${height};overflow-y:auto;display:flex;flex-direction:column;">
+                  ${items.map((msg, idx) => `
+                    <div style="display:flex;justify-content:${idx%2===0?"flex-start":"flex-end"};">
+                      <div style="max-width:60%;margin:8px;padding:12px 16px;border-radius:18px;background:${idx%2===0?"var(--accent)":"var(--bg-dark2)"};color:${idx%2===0?"var(--bg-dark)":"var(--text)"};">
+                        ${renderItem(msg, idx)}
+                      </div>
+                    </div>
+                  `).join("")}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      
+        function makeKanban() {
+          return `
+            <div class="${containerClass}" style="width:100%;">
+              <div class="SideBySide" style="width:${width};gap:18px;">
+                ${kanbanColumns.map(col => `
+                  <div class="${listClass}" style="width:260px;min-width:200px;max-width:320px;">
+                    <div class="scrollable-header"><div class="scrollable-title-row"><div class="scrollable-title-cell">${escape(col.title)}</div></div></div>
+                    <div class="${bodyClass}" style="height:${height};overflow-y:auto;">
+                      ${items.filter(i=>i.columnId===col.id).map(renderItem).join("")}
+                    </div>
+                  </div>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        }
+      
+        function makeVirtualized() {
+          const id = "virt_" + Math.random().toString(36).slice(2);
+          let html = `
+            <div class="${containerClass}" style="width:100%;">
+              <div class="${listClass}" style="width:${width};">
+                <div class="${bodyClass}" id="${id}_body" style="height:${height};overflow-y:auto;">
+                  ${items.slice(0, pageSize).map(renderItem).join("")}
+                </div>
+                <button id="${id}_load" style="margin:12px auto;display:block;">Load More</button>
+              </div>
+            </div>
+          `;
+          setTimeout(() => {
+            const body = document.getElementById(`${id}_body`);
+            const btn = document.getElementById(`${id}_load`);
+            if (!body || !btn) return;
+            let page = 1;
+            btn.onclick = function() {
+              page++;
+              let start = (page-1)*pageSize, end = page*pageSize;
+              if (end > items.length) end = items.length;
+              body.innerHTML += items.slice(start, end).map((i,idx) => renderItem(i, start+idx)).join("");
+              if (end === items.length) btn.style.display = 'none';
+              if (onLoadMore) onLoadMore(page);
+            };
+            if (items.length <= pageSize) btn.style.display = 'none';
+          }, 0);
+          return html;
+        }
+      
+        function makeListOrGrid() {
+          let bodyStyle = `height:${height};width:100%;`;
+          let bodyExtraCls = '';
+          if (mode === "grid") {
+            bodyStyle += `display:grid;grid-template-columns:${gridTemplate};gap:20px;align-items:start;`;
+            bodyExtraCls = ' grid';
+          }
+          return `
+            <div class="${containerClass}" style="width:100%;">
+              <div class="${listClass}" style="width:${width};">
+                <div class="${bodyClass}${bodyExtraCls}" style="${bodyStyle}">
+                  ${items.map(renderItem).join("")}
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      
+        // ---- Dispatch Mode ----
+        let html, initializer = null;
+        if (mode === "masonry") html = makeMasonryGrid();
+        else if (mode === "horizontal") html = makeHorizontal();
+        else if (mode === "carousel") {
+          const result = makeCarousel();
+          html = result.html;
+          initializer = result.initializer;
+        }
+        else if (mode === "timeline") html = makeTimeline();
+        else if (mode === "accordion") html = makeAccordion();
+        else if (mode === "table") html = makeTable();
+        else if (mode === "chat") html = makeChat();
+        else if (mode === "kanban") html = makeKanban();
+        else if (virtualize || infiniteScroll) html = makeVirtualized();
+        else html = makeListOrGrid();
+      
+        // --- DOM insertion (not document.write!) ---
+        const temp = document.createElement("div");
+        temp.innerHTML = html;
+        document.body.appendChild(temp);
+      
+        // Carousel: attach interactivity
+        if (initializer) setTimeout(initializer, 0);
+      
+        return temp;
+      }
+      
+
+
+    
 
     PrefabMenu = this.CreateMenu(["ressources/Final/Main/logo.png", "ressources/Commun/logo_example.png"],
         [["ressources/Commun/activity_button.png", "Activities", "ActivitiesList.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "RandomActivity", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"],["ressources/Commun/teams_button.png", "PHP DataBase", "http://localhost:9997/"]],

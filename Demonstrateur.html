@@ -23,18 +23,7 @@
   console.log(document.title);
 
   // ---------------------------------------------- API DATA ----------------------------------------------
-  var elements =
-    [["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/553850/header.jpg", "Te3te", "Long texte"],
-    ["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1739922037", "T2e", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/12e1bd007bebc8ffe7e9fad77ea3e6b6.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/a779abf92aeec12331d10524426171fb.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/e214786a5ff033e8ad5d57501bf82a16.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/928f27d1a6ae1828ad77b45f2d424dbf.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/8edc69aa76b7aac408ba3c248aa8d7d4.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/ea3a48c74a9efb9a08635fe7990347cc.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/994d88a370250b303be16fc98bb5cdac.png", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/db3a47863b50389cccce3066cf7f7a53.jpg", "Texte", "Long texte"],];
-  var titles = ['nein', "Texte", "Long texte"];
+
 
   const helldiversPlanets = [
     "Acamar IV",
@@ -139,21 +128,253 @@
     <div id="sections-container">
       <!------------------------------------------------ SECTION 4 - TABLES ---------------------------------------------->
       <div id="section1" class="contenu-onglet" style="height: 100%;">
+
+        <div id ="lol">
+
+        </div>
         <script>
 
-          var titleType = [["txt"], ["txt"], ["txt"]];
-          var titlesRow = creator.CreateTableTitles(titles, [40, 40, 20], 3, null, null, null);
 
-          var rowType = [["img", "100%", "160px", "image_failed", "FillImage", "object-fit: cover; object-position: 1% 40%;"], ["txt"], ["txt"]];
-          var rows = creator.CreateTableRows(elements, rowType, [20, 60, 20], 3, null, null, "text-align: center;");
 
-          document.write(creator.PutInDiv(creator.CreateScrollableTable("100%", "100%", "", rows, null, null, " margin-top:20px;"), null, "CenterChilds", "height: 100%"));
 
-          document.write(creator.SideBySide(null, null, null, "CenterChilds", "",
-            creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null),
-            creator.CreateScrollableTable("500px", "700px", titlesRow, rows, null, null, null)));
 
-        </script>
+
+
+const target = document.getElementById("lol");
+
+// 1. Reddit-style posts
+const posts = [
+  { title: "First post", body: "Hello, this is my first post!", author: "Alice" },
+  { title: "A picture", body: `<img src="https://cdn2.steamgriddb.com/thumb/994d88a370250b303be16fc98bb5cdac.png" style="max-width:180px;border-radius:8px;">`, author: "Bob" },
+  { title: "Video!", body: `<video src="https://www.w3schools.com/html/mov_bbb.mp4" controls style="max-width:220px"></video>`, author: "Carol" }
+];
+target.append(
+  creator.superScrollableList({
+    items: posts,
+    height: "400px",
+    width: "400px",
+    renderItem: (post, idx) =>
+      `<div class="scrollable-row" style="flex-direction:column;align-items:flex-start;text-align:left;padding:16px;">
+        <strong style="font-size:1.1em">${post.title}</strong>
+        <div style="margin:6px 0;">${post.body}</div>
+        <div style="font-size:0.8em;color:#8a8a8a;">by ${post.author}</div>
+      </div>`
+  })
+);
+
+// 2. Google-style search results
+const results = [
+  { title: "OpenAI", url: "https://openai.com", snippet: "OpenAI develops artificial intelligence..." },
+  { title: "GitHub", url: "https://github.com", snippet: "GitHub is the world's leading software..." }
+];
+target.append(
+  creator.superScrollableList({
+    items: results,
+    height: "300px",
+    width: "600px",
+    renderItem: (res, idx) =>
+      `<div class="scrollable-row" style="flex-direction:column;text-align:left;padding:14px 8px;">
+        <a href="${res.url}" style="color:var(--accent);font-size:1.1em">${res.title}</a>
+        <div style="font-size:0.95em;">${res.snippet}</div>
+        <div style="font-size:0.8em;color:#8a8a8a;">${res.url}</div>
+      </div>`
+  })
+);
+
+// 3. Grid of videos (YouTube style)
+const videos = [
+  { url: "https://www.w3schools.com/html/mov_bbb.mp4", thumb: "https://peach.blender.org/wp-content/uploads/title_anouncement.jpg?x11217", title: "Big Buck Bunny" },
+  { url: "https://www.w3schools.com/html/movie.mp4", thumb: "https://i.ytimg.com/vi_webp/YE7VzlLtp-4/maxresdefault.webp", title: "Bear Video" }
+];
+target.append(
+  creator.superScrollableList({
+    items: videos,
+    mode: "grid",
+    gridTemplate: "repeat(auto-fill,minmax(220px,1fr))",
+    height: "350px",
+    width: "800px",
+    renderItem: (v, idx) =>
+      `<div class="box" style="padding:8px;">
+        <video src="${v.url}" controls poster="${v.thumb}" style="width:100%;border-radius:8px"></video>
+        <div style="margin-top:8px;font-weight:bold">${v.title}</div>
+      </div>`
+  })
+);
+
+target.append(
+  creator.superScrollableList({
+    mode: "masonry",
+    items: Array.from({length:15}, (_,i) => {
+      // random height between 180 and 340px
+      const h = 180 + Math.floor(Math.random()*160);
+      return {
+        img: `https://picsum.photos/300/${h}?random=${i}`,
+        text: "Card " + (i+1) + ": " + (Math.random()+"").slice(2, 10) + "<br>" +
+          ("Lorem ipsum dolor sit amet consectetur adipisicing elit. ".repeat(Math.floor(Math.random()*3)+1))
+      };
+    }),
+    width: "800px",
+    height: "420px",
+    renderItem: (item, idx) =>
+      `<div style="background:var(--bg-dark2);border-radius:6px;padding:10px;box-shadow:var(--shadow);margin-bottom:16px;">
+        <img src="${item.img}" style="width:100%;border-radius:6px;display:block;">
+        <div style="margin-top:8px;">${item.text}</div>
+      </div>`
+  })
+);
+
+// 5. HORIZONTAL
+target.append(
+  creator.superScrollableList({
+    mode: "horizontal",
+    items: Array.from({length:10}, (_,i) => ({
+      img: "https://picsum.photos/200/12"+i,
+      title: "Image "+(i+1)
+    })),
+    width: "700px",
+    height: "160px",
+    renderItem: (item, idx) =>
+      `<div style="min-width:180px;max-width:200px;background:var(--bg-darkLite);margin:8px 0;border-radius:8px;overflow:hidden;">
+        <img src="${item.img}" style="width:100%;height:120px;object-fit:cover;">
+        <div style="text-align:center;">${item.title}</div>
+      </div>`
+  })
+);
+
+// 6. CAROUSEL
+target.append(
+  creator.superScrollableList({
+    mode: "carousel",
+    items: Array.from({length:5}, (_,i) => ({
+      img: "https://picsum.photos/360/14"+i,
+      title: "Slide "+(i+1)
+    })),
+    width: "360px",
+    height: "220px",
+    carouselOptions: { show: 1, arrows: true, dots: true, auto: true, interval: 2000 },
+    renderItem: (item, idx) =>
+      `<div style="width:100%;height:200px;display:flex;align-items:center;justify-content:center;position:relative;">
+        <img src="${item.img}" style="max-width:100%;max-height:100%;border-radius:8px;">
+        <div style="position:absolute;bottom:8px;left:0;width:100%;text-align:center;color:white;background:rgba(0,0,0,0.5);">${item.title}</div>
+      </div>`
+  })
+);
+
+// 7. TIMELINE
+target.append(
+  creator.superScrollableList({
+    mode: "timeline",
+    items: [
+      { title: "Started project", date: "2021-01-01", who: "Alice" },
+      { title: "First commit", date: "2021-01-02", who: "Bob" },
+      { title: "Launch", date: "2021-02-01", who: "Carol" }
+    ],
+    width: "520px",
+    height: "300px",
+    timelineLineColor: "#58acec",
+    renderItem: (item, idx) =>
+      `<div><b>${item.title}</b><br><span style="font-size:0.9em;">${item.date} — ${item.who}</span></div>`
+  })
+);
+
+// 8. ACCORDION
+target.append(
+  creator.superScrollableList({
+    mode: "accordion",
+    items: [
+      { title: "Section 1", content: "This is detail 1" },
+      { title: "Section 2", content: "This is detail 2" },
+      { title: "Section 3", content: "This is detail 3" }
+    ],
+    width: "480px",
+    height: "260px",
+    renderItem: (item, idx) => `<div>${item.content}</div>`
+  })
+);
+
+// 9. TABLE
+target.append(
+  creator.superScrollableList({
+    mode: "table",
+    items: [
+      ["Alice", "Engineer", "NY"],
+      ["Bob", "Designer", "SF"],
+      ["Carol", "CEO", "LA"]
+    ],
+    width: "420px",
+    height: "160px",
+    tableHeader: [
+      { title: "Name", width: "33%" },
+      { title: "Role", width: "33%" },
+      { title: "Location", width: "34%" }
+    ],
+    renderItem: (row, idx) => row // Not used, direct mapping in makeTable
+  })
+);
+
+// 10. CHAT
+target.append(
+  creator.superScrollableList({
+    mode: "chat",
+    items: [
+      { text: "Hey!", who: "me" },
+      { text: "Hello :)", who: "them" },
+      { text: "How are you?", who: "me" },
+      { text: "Good thanks!", who: "them" },
+      { text: "Hey!", who: "me" },
+      { text: "Hello :)", who: "them" },
+      { text: "How are you?", who: "me" },
+      { text: "Good thanks!", who: "them" },
+      { text: "Hey!", who: "me" },
+      { text: "Hello :)", who: "them" },
+      { text: "How are you?", who: "me" },
+      { text: "Good thanks!", who: "them" },
+      { text: "Hey!", who: "me" },
+      { text: "Hello :)", who: "them" },
+      { text: "How are you?", who: "me" },
+      { text: "Good thanks!", who: "them" }
+    ],
+    width: "400px",
+    height: "260px",
+    renderItem: (msg, idx) => msg.text // escaping not needed, text only
+  })
+);
+
+// 11. KANBAN
+target.append(
+  creator.superScrollableList({
+    mode: "kanban",
+    kanbanColumns: [
+      { id: "todo", title: "To Do" },
+      { id: "doing", title: "In Progress" },
+      { id: "done", title: "Done" }
+    ],
+    items: [
+      { columnId: "todo", text: "Task 1" },
+      { columnId: "doing", text: "Task 2" },
+      { columnId: "done", text: "Task 3" }
+    ],
+    width: "900px",
+    height: "300px",
+    renderItem: (item, idx) =>
+      `<div style="background:var(--bg-darkLite);margin:8px;border-radius:6px;padding:8px 10px;">${item.text}</div>`
+  })
+);
+
+// 12. VIRTUALIZED / INFINITE SCROLL
+target.append(
+  creator.superScrollableList({
+    virtualize: true,
+    items: Array.from({length:150}, (_,i)=>"Item #"+(i+1)),
+    width: "350px",
+    height: "260px",
+    pageSize: 35,
+    renderItem: (item, idx) =>
+      `<div class="scrollable-row" style="padding:8px 12px;">${item}</div>`
+  })
+);
+
+      </script>
       </div>
 
       <!------------------------------------------------ SECTION 2 - IMAGE ---------------------------------------------->
