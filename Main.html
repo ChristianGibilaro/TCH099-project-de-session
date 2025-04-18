@@ -22,7 +22,7 @@
   var API = new mainScript(document.title);
   console.log(document.title);
   // ---------------------------------------------- LOCAL DATA -------------------------------------------
-  const SiteDesc = '<strong> Welcome to * Lunar Convenant * (PLACEHOLDER) </strong> <br>\
+  const SiteDesc = '<strong> Welcome to Lunar Convenant </strong> <br>\
   Please observe the following <a href="#" > rule (Need to create a page for it) </a>.<br>\
   For Instruction and Assistance, go to our <a href="#" > F.A.Q (Need to create a page for it) </a><br>\
   <br>\
@@ -54,14 +54,304 @@
       <script>
         document.write(creator.CreateDesc(SiteDesc, SiteStats));
       </script>
+    </div>
+    <div id="fatherland">
+      <script>
 
-      <div id="fatherland">
-        <script>
-          const searchPageElement = creator.createSearchPage(true);
-          document.getElementById("fatherland").appendChild(searchPageElement);
-        </script>
+  let _searchToken = 0;
+  const searchContainer = `<div class="search-bar-details-wrapper">
+      <div class="search-container">
+          <input type="text" class="search-input" placeholder="Search...">
+          <div id="search-results-dropdown" class="search-results-dropdown"></div>
       </div>
+      <div id="search-details-box" class="search-details-box"></div>
+  </div>`;
 
+  const searchPageHTML = `<div class="search-page">
+      ${searchContainer}
+  </div>`;
+
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = searchPageHTML;
+  const searchPageDiv = tempDiv.firstChild;
+  const searchInputBox = searchPageDiv.querySelector('.search-input');
+  const resultsDropdown = searchPageDiv.querySelector('#search-results-dropdown');
+  const detailsBox = searchPageDiv.querySelector('#search-details-box');
+
+  // Helper to render user details
+  async function showUserDetails(userId) {
+    detailsBox.innerHTML = '<div class="loading">Loading user...</div>';
+    try {
+      const res = await fetch(`http://localhost:9999/api/user/id/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: ["Pseudo", "Last_Login", "Img", "Creation_Date", "Description"]
+        })
+      });
+      const result = await res.json();
+      if (result.success && result.data) {
+        const u = result.data;
+        detailsBox.innerHTML = `
+          <div class="details-content">
+            <img src="${u.Img}" alt="Profile" class="profile-img">
+            <div class="title">${u.Pseudo}</div>
+            <div class="desc">${u.Description || ""}</div>
+            <div class="info-row"><strong>Created:</strong> ${u.Creation_Date || ""}</div>
+            <div class="info-row"><strong>Last login:</strong> ${u.Last_Login || ""}</div>
+          </div>
+        `;
+      } else {
+        detailsBox.innerHTML = '<div class="error">User not found.</div>';
+      }
+    } catch {
+      detailsBox.innerHTML = '<div class="error">Error loading user.</div>';
+    }
+  }
+
+  async function showActivityDetails(activityId) {
+    detailsBox.innerHTML = '<div class="loading">Loading activity...</div>';
+    try {
+      const res = await fetch(`http://localhost:9999/api/activity/id/${activityId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: [
+            "Title", "Main_Img", "Description", "Logo_Img", "Point_Value",
+            "Word_4_Player", "Word_4_Teammate", "Word_4_Playing",
+            "Main_Color", "Second_Color", "Friend_Main_Color", "Friend_Second_Color"
+          ],
+          activityDataFields: [
+            "Team_Count", "QuickTeam_Count", "Player_Count", "Active_Player_Count"
+          ],
+          levelFields: ["Name"],
+          filterFields: ["PositionFilterID"]
+        })
+      });
+      const result = await res.json();
+      if (result.success && result.data && result.data.activity) {
+        const a = result.data.activity;
+        const d = result.data.activityData || {};
+        detailsBox.innerHTML = `
+          <div class="details-content">
+            <div style="position:relative;">
+              <img src="${a.Main_Img}" alt="Main" class="main-img">
+              ${a.Logo_Img ? `<img src="${a.Logo_Img}" alt="Logo" class="logo-img" style="position:absolute;top:0;left:50%;transform:translate(-50%,-50%);">` : ""}
+            </div>
+            <div class="title">${a.Title}</div>
+            <div class="desc">${a.Description || ""}</div>
+            <div class="info-row"><strong>Players:</strong> ${d.Player_Count || 0}</div>
+            <div class="info-row"><strong>Active Players:</strong> ${d.Active_Player_Count || 0}</div>
+            <div class="info-row"><strong>Teams:</strong> ${d.Team_Count || 0}</div>
+            <div class="info-row"><strong>Word for Player:</strong> ${a.Word_4_Player || ""}</div>
+            <div class="info-row"><strong>Word for Playing:</strong> ${a.Word_4_Playing || ""}</div>
+          </div>
+        `;
+      } else {
+        detailsBox.innerHTML = '<div class="error">Activity not found.</div>';
+      }
+    } catch {
+      detailsBox.innerHTML = '<div class="error">Error loading activity.</div>';
+    }
+  }
+
+  searchInputBox.addEventListener('input', async () => {
+    const query = searchInputBox.value.trim();
+    resultsDropdown.innerHTML = '';
+    detailsBox.innerHTML = '';
+    const currentToken = ++_searchToken;
+
+    if (query) {
+      // Fetch players
+      const playerPromise = fetch(`http://localhost:9999/api/user/search/${encodeURIComponent(query)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: ["Pseudo", "Email", "Img", "Id"],
+          limit: 10
+        })
+      }).then(res => res.json());
+
+      // Fetch activities
+      const activityPromise = fetch(`http://localhost:9999/api/activity/search/${encodeURIComponent(query)}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          limit: 5,
+          fields: ["ID", "Title"],
+          levelFields: ["Name"],
+          filterFields: ["TypeFilterName"]
+        })
+      }).then(res => res.json());
+
+      const [playerResult, activityResult] = await Promise.all([playerPromise, activityPromise]);
+      if (currentToken !== _searchToken) return;
+
+      // Players
+      let players = [];
+      if (playerResult.success && Array.isArray(playerResult.data)) {
+        players = playerResult.data.slice(0, 3).map(
+          user => `<a href="Profile.html?${user.Id}" data-type="user" data-id="${user.Id}">${user.Pseudo}</a>`
+        );
+      }
+
+      // Activities
+      let activities = [];
+      if (activityResult.success && Array.isArray(activityResult.data)) {
+        activities = activityResult.data.slice(0, 3).map(
+          item => `<a href="Activity.html?${item.activity.ID}" data-type="activity" data-id="${item.activity.ID}">${item.activity.Title}</a>`
+        );
+      }
+
+      let hasResults = false;
+      const addCategory = (categoryName, categoryResults) => {
+        if (categoryResults && categoryResults.length > 0) {
+          hasResults = true;
+          const categoryDiv = document.createElement('div');
+          categoryDiv.classList.add('dropdown-category');
+          const categoryTitle = document.createElement('h3');
+          categoryTitle.textContent = categoryName;
+          categoryDiv.appendChild(categoryTitle);
+          const ul = document.createElement('ul');
+          categoryResults.forEach(resultHTML => {
+            const li = document.createElement('li');
+            li.innerHTML = resultHTML;
+            ul.appendChild(li);
+          });
+          categoryDiv.appendChild(ul);
+          resultsDropdown.appendChild(categoryDiv);
+        }
+      };
+
+      addCategory('Activities', activities);
+      addCategory('Teams', []);
+      addCategory('Players', players);
+
+      // Add hover listeners for details
+      resultsDropdown.querySelectorAll('a[data-type="user"]').forEach(a => {
+        a.addEventListener('mouseenter', () => showUserDetails(a.getAttribute('data-id')));
+      });
+      resultsDropdown.querySelectorAll('a[data-type="activity"]').forEach(a => {
+        a.addEventListener('mouseenter', () => showActivityDetails(a.getAttribute('data-id')));
+      });
+
+      if (hasResults) {
+        resultsDropdown.style.display = 'block';
+      } else {
+        const noResults = document.createElement('div');
+        noResults.classList.add('dropdown-no-results');
+        noResults.textContent = `No results found for "${query}".`;
+        resultsDropdown.appendChild(noResults);
+        resultsDropdown.style.display = 'block';
+      }
+    } else {
+      resultsDropdown.style.display = 'none';
+      detailsBox.innerHTML = '';
+    }
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (event) => {
+    if (!searchContainer.contains(event.target)) {
+      resultsDropdown.style.display = 'none';
+      detailsBox.innerHTML = '';
+    }
+  });
+
+  document.getElementById("fatherland").appendChild(searchPageDiv);
+</script>
+
+
+<style>
+  .search-bar-details-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+    min-height: 300px;
+    gap: 32px;
+  }
+  .search-details-box {
+    flex: 1 1 480px;
+    min-width: 340px;
+    max-width: 520px;
+    background: var(--bg-dark2);
+    color: var(--text);
+    border-radius: 18px;
+    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.25);
+    margin-left: 32px;
+    padding: 32px 24px 32px 24px;
+    height: 100%;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: box-shadow 0.2s;
+    border: 2px solid var(--accent2);
+  }
+  .search-details-box:hover {
+    box-shadow: 0 12px 48px 0 rgba(0,0,0,0.35);
+    border-color: var(--accent);
+  }
+  .details-content {
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem;
+    padding-top: 8px;
+  }
+  .details-content .main-img {
+    width: 100%;
+    max-width: 420px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 16px 0 rgba(0,0,0,0.18);
+    object-fit: cover;
+  }
+  .details-content .logo-img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    border-radius: 50%;
+    background: #222;
+    margin: -50px auto 8px auto;
+    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18);
+    border: 3px solid var(--accent);
+    position: relative;
+    z-index: 2;
+    display: block;
+  }
+  .details-content .profile-img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0 auto 16px auto;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.18);
+    border: 3px solid var(--accent2);
+    background: #222;
+  }
+  .details-content .title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .details-content .desc {
+    margin-bottom: 18px;
+    color: var(--text);
+  }
+  .details-content .info-row {
+    margin-bottom: 8px;
+    font-size: 1.05rem;
+  }
+  .loading, .error {
+    color: var(--accent2);
+    margin-top: 40px;
+    text-align: center;
+    font-size: 1.2rem;
+  }
+  </style>
+      </script>
     </div>
   </div>
 </body>
