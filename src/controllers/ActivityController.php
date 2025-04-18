@@ -457,5 +457,112 @@ public static function searchActivities($title)
     echo json_encode(['success' => true, 'data' => $results]);
 }
 
+
+public static function getAllActivity()
+{
+    global $pdo;
+
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Type: application/json; charset=utf-8');
+
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    // Filters (all optional, can be omitted or partially provided)
+    $languageID    = $input['languageID']    ?? null;
+    $positionID    = $input['positionID']    ?? null;
+    $environmentID = $input['environmentID'] ?? null;
+    $typeID        = $input['typeID']        ?? null;
+    $limit         = isset($input['limit']) ? intval($input['limit']) : 10;
+
+    // Sorting
+    $orderBy = $input['orderBy'] ?? 'Title'; // Title, Team_Count, Player_Count, Active_Player_Count
+    $order   = strtoupper($input['order'] ?? 'ASC'); // ASC or DESC
+
+    // Fields for each section
+    $fields             = $input['fields'] ?? '*';
+    $activityDataFields = $input['activityDataFields'] ?? '*';
+    $levelFields        = $input['levelFields'] ?? '*';
+    $filterFields       = $input['filterFields'] ?? '*';
+
+    // Validate order
+    $allowedOrderBy = [
+        'Title' => 'a.Title',
+        'Team_Count' => 'ad.Team_Count',
+        'Player_Count' => 'ad.Player_Count',
+        'Active_Player_Count' => 'ad.Active_Player_Count'
+    ];
+    $orderBySql = $allowedOrderBy[$orderBy] ?? 'a.Title';
+    $order = ($order === 'DESC') ? 'DESC' : 'ASC';
+
+    // Build WHERE clause (all filters optional)
+    $where = [];
+    $params = [];
+
+    if ($languageID !== null && $languageID !== '') {
+        $where[] = 'ad.LanguageID = :languageID';
+        $params[':languageID'] = $languageID;
+    }
+    if ($positionID !== null && $positionID !== '') {
+        $where[] = 'ad.PositionID = :positionID';
+        $params[':positionID'] = $positionID;
+    }
+    if ($environmentID !== null && $environmentID !== '') {
+        $where[] = 'ad.EnvironmentID = :environmentID';
+        $params[':environmentID'] = $environmentID;
+    }
+    if ($typeID !== null && $typeID !== '') {
+        $where[] = 'ad.TypeID = :typeID';
+        $params[':typeID'] = $typeID;
+    }
+
+    $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
+
+    // Select fields
+    $selectFields = $fields === '*' ? 'a.*' : 'a.' . implode(', a.', array_map('htmlspecialchars', $fields));
+    $selectActivityDataFields = $activityDataFields === '*' ? 'ad.*' : 'ad.' . implode(', ad.', array_map('htmlspecialchars', $activityDataFields));
+
+    // Main query
+    $sql = "SELECT a.ID
+            FROM Activity a
+            LEFT JOIN ActivityData ad ON ad.ActivityID = a.ID
+            $whereSql
+            GROUP BY a.ID
+            ORDER BY $orderBySql $order
+            LIMIT :limit";
+
+    $stmt = $pdo->prepare($sql);
+    foreach ($params as $k => $v) {
+        $stmt->bindValue($k, $v);
+    }
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $activityIDs = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    $results = [];
+    foreach ($activityIDs as $activityID) {
+        // Prepare input for getActivite
+        $fakeInput = [
+            'fields' => $fields,
+            'activityDataFields' => $activityDataFields,
+            'levelFields' => $levelFields,
+            'filterFields' => $filterFields
+        ];
+        // Use output buffering to capture the output of getActivite
+        ob_start();
+        // Simulate input for getActivite
+        $oldInput = file_get_contents('php://input');
+        file_put_contents('php://input', json_encode($fakeInput));
+        self::getActivite($activityID);
+        $json = ob_get_clean();
+        if ($oldInput !== false) file_put_contents('php://input', $oldInput);
+        $decoded = json_decode($json, true);
+        if ($decoded && isset($decoded['data'])) {
+            $results[] = $decoded['data'];
+        }
+    }
+
+    echo json_encode(['success' => true, 'data' => $results]);
+}
 }
 
