@@ -127,11 +127,65 @@
     }
   }
 
+  // Helper to render user details
+  async function showUserDetails(userId) {
+    detailsBox.innerHTML = '<div class="loading">Loading user...</div>';
+    try {
+      const res = await fetch(`http://localhost:9999/api/user/id/${userId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: ["Pseudo", "Email", "Img", "Id", "CreatedAt", "LastLogin"]
+        })
+      });
+      const result = await res.json();
+      if (result.success && result.data && result.data.user) {
+        const u = result.data.user;
+        detailsBox.innerHTML = `
+          <div class="details-content">
+            <img src="${u.Img}" alt="Profile" class="profile-img">
+            <div class="title">${u.Pseudo}</div>
+            <div class="desc">${u.Email || ""}</div>
+            <div class="info-row"><strong>User ID:</strong> ${u.Id}</div>
+            <div class="info-row"><strong>Created:</strong> ${u.CreatedAt ? new Date(u.CreatedAt).toLocaleDateString() : "N/A"}</div>
+            <div class="info-row"><strong>Last Login:</strong> ${u.LastLogin ? new Date(u.LastLogin).toLocaleString() : "N/A"}</div>
+          </div>
+        `;
+      } else {
+        detailsBox.innerHTML = '<div class="error">User not found.</div>';
+      }
+    } catch {
+      detailsBox.innerHTML = '<div class="error">Error loading user.</div>';
+    }
+  }
+
+  // Keyboard navigation state
+  let searchLinks = [];
+  let selectedIndex = -1;
+
+  function updateSelection(newIndex) {
+    // Remove previous highlight
+    searchLinks.forEach(link => link.classList.remove('selected'));
+    if (newIndex >= 0 && newIndex < searchLinks.length) {
+      searchLinks[newIndex].classList.add('selected');
+      // Scroll into view if needed
+      searchLinks[newIndex].scrollIntoView({ block: 'nearest' });
+      // Show details for the selected item
+      const type = searchLinks[newIndex].getAttribute('data-type');
+      const id = searchLinks[newIndex].getAttribute('data-id');
+      if (type === 'user') showUserDetails(id);
+      if (type === 'activity') showActivityDetails(id);
+    }
+    selectedIndex = newIndex;
+  }
+
   searchInputBox.addEventListener('input', async () => {
     const query = searchInputBox.value.trim();
     resultsDropdown.innerHTML = '';
     detailsBox.innerHTML = '';
     const currentToken = ++_searchToken;
+    selectedIndex = -1;
+    searchLinks = [];
 
     if (query) {
       // Fetch players
@@ -207,6 +261,10 @@
         a.addEventListener('mouseenter', () => showActivityDetails(a.getAttribute('data-id')));
       });
 
+      // Gather all links for keyboard navigation
+      searchLinks = Array.from(resultsDropdown.querySelectorAll('a[data-type]'));
+      selectedIndex = -1;
+
       if (hasResults) {
         resultsDropdown.style.display = 'block';
       } else {
@@ -222,11 +280,56 @@
     }
   });
 
+  // Keyboard navigation for search results
+  searchInputBox.addEventListener('keydown', function (e) {
+    if (!searchLinks.length || resultsDropdown.style.display !== 'block') return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      let nextIndex = selectedIndex + 1;
+      if (nextIndex >= searchLinks.length) nextIndex = 0;
+      updateSelection(nextIndex);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      let prevIndex = selectedIndex - 1;
+      if (prevIndex < 0) prevIndex = searchLinks.length - 1;
+      updateSelection(prevIndex);
+    } else if (e.key === 'Enter') {
+      if (selectedIndex >= 0 && selectedIndex < searchLinks.length) {
+        e.preventDefault();
+        searchLinks[selectedIndex].click();
+      }
+    }
+  });
+
+  // Mouse click/hover also updates selection
+  resultsDropdown.addEventListener('mousemove', function (e) {
+    if (e.target.tagName === 'A' && e.target.hasAttribute('data-type')) {
+      const idx = searchLinks.indexOf(e.target);
+      if (idx !== -1) updateSelection(idx);
+    }
+  });
+
+  // Also update details on mouseover/focus for accessibility
+  resultsDropdown.addEventListener('mouseover', function (e) {
+    if (e.target.tagName === 'A' && e.target.hasAttribute('data-type')) {
+      const idx = searchLinks.indexOf(e.target);
+      if (idx !== -1) updateSelection(idx);
+    }
+  });
+  resultsDropdown.addEventListener('focusin', function (e) {
+    if (e.target.tagName === 'A' && e.target.hasAttribute('data-type')) {
+      const idx = searchLinks.indexOf(e.target);
+      if (idx !== -1) updateSelection(idx);
+    }
+  });
+
   // Close dropdown when clicking outside
   document.addEventListener('click', (event) => {
-    if (!searchContainer.contains(event.target)) {
+    if (!searchContainer.includes && !searchContainer.contains(event.target)) {
       resultsDropdown.style.display = 'none';
       detailsBox.innerHTML = '';
+      selectedIndex = -1;
     }
   });
 
@@ -379,6 +482,13 @@
   font-size: 1.2rem;
   color: var(--bold);
   letter-spacing: 0.5px;
+}
+/* Highlight selected search result */
+.search-results-dropdown a.selected {
+  background: var(--accent2);
+  color: #fff;
+  border-radius: 6px;
+  outline: none;
 }
   </style>
       </script>
