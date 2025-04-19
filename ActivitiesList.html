@@ -182,7 +182,7 @@ async function fetchActivities() {
   }));
 
   const activityList = creator.superScrollableList({
-    mode: "masonry",
+    mode: "post",
     items: merged,
     width: "100%",
     height: "100%",
@@ -206,7 +206,7 @@ async function fetchActivities() {
         <div style="position:relative;width:100%;overflow:hidden;border-radius:12px;">
           <img src="${activity.Main_Img || ""}" style="width:100%;display:block;object-fit:cover;max-height:180px;filter:brightness(0.92);">
           ${activity.Logo_Img ? `
-            <img src="${activity.Logo_Img}" style="position:absolute;top:12px;left:12px;width:48px;height:48px;object-fit:contain;background:white;border-radius:8px;box-shadow:0 2px 8px #0002;">
+            <img src="${activity.Logo_Img}" style="position:absolute;top:0px;left:0px;width:100%;height:100%;object-fit:contain;background:transparent;border-radius:8px;">
           ` : ""}
         </div>
       `;
