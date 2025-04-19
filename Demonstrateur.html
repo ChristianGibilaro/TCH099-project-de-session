@@ -122,6 +122,7 @@
         <button class="onglet" onclick="afficherSection('section6', this)">Media</button>
         <button class="onglet" onclick="afficherSection('section7', this)">Page</button>
         <button class="onglet last" onclick="afficherSection('section8', this)">Search</button>
+        <button class="onglet" onclick="afficherSection('section9', this)">Messagerie</button>
       </div>
     </div>
 
@@ -522,6 +523,54 @@ target.append(
           document.getElementById("section8").appendChild(searchPageElement);
         </script>
       </div>
+
+      <!------------------------------------------------ SECTION 9 - MESSAGERIE ---------------------------------------------->
+      <div id="section9" class="contenu-onglet" style="display: none;">
+        <div class="messagerie-container">
+
+          <!-- Écran 1 : Liste des conversations -->
+          <div class="chat-screen conversation-list">
+            <h3>Conversations</h3>
+            <ul class="chat-preview-list">
+              <li class="chat-preview">Alice</li>
+              <li class="chat-preview">Bob</li>
+              <li class="chat-preview">Charlie</li>
+            </ul>
+            <button class="add-convo-btn">+</button>
+          </div>
+
+          <!-- Écran 2 : Création de conversation -->
+          <div class="chat-screen create-conversation">
+            <h3>Nouvelle conversation</h3>
+            <input type="text" placeholder="Nom de la conversation" class="chat-input" />
+            <input type="text" placeholder="Pseudo de l'utilisateur" class="chat-input" />
+            <button class="create-btn">Ajouter</button>
+          </div>
+
+          <!-- Écran 3 : Affichage de conversation -->
+          <div class="chat-screen chat-view">
+            <div class="chat-header">
+              <button class="back-btn">⮜</button>
+              <div class="chat-title">Alice</div>
+            </div>
+            <div class="chat-messages">
+              <div class="message other">
+                <img src="ressources/Commun/user_profile_image_example.png" alt="pdp" class="avatar" />
+                <div class="bubble">Salut, ça va ?<span class="timestamp">10:03</span></div>
+              </div>
+              <div class="message self">
+                <div class="bubble">Oui super et toi ?<span class="timestamp">10:05</span></div>
+              </div>
+            </div>
+            <div class="chat-input-area">
+              <input type="text" class="chat-message-input" placeholder="Écrire un message..." />
+              <button class="send-btn">Envoyer</button>
+            </div>
+          </div>
+
+  </div>
+</div>
+
 
     </div>
   </div>
