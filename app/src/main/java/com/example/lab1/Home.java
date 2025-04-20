@@ -2,6 +2,7 @@ package com.example.lab1;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,16 +22,22 @@ import java.util.Random;
 
 public class Home extends AppCompatActivity {
 
+    private static final String TAG = "HomeActivity";
     private ImageButton btnLogout, btnMessages;
     private ImageView btnAdd;
     private RecyclerView photoGrid;
     private PostAdapter adapter;
     private int[] randomImages = {R.drawable.image, R.drawable.logo};
+    private String apiKey;  // récupère l'API key
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        // Récupère l'apiKey depuis l'Intent
+        apiKey = getIntent().getStringExtra("apiKey");
+        Log.d(TAG, "onCreate: apiKey reçu = " + apiKey);
 
         btnLogout = findViewById(R.id.btnLogout);
         btnMessages = findViewById(R.id.btnMessages);
@@ -59,6 +66,7 @@ public class Home extends AppCompatActivity {
                 int selectedImage = randomImages[randomIndex];
                 String newDescription = "Post aléatoire #" + (adapter.getItemCount() + 1);
                 adapter.addPost(new Post(selectedImage, newDescription));
+                Log.d(TAG, "Nouveau post ajouté: " + newDescription);
             }
         });
 
@@ -66,17 +74,20 @@ public class Home extends AppCompatActivity {
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "Logout tapped, returning to Login");
                 Intent intent = new Intent(Home.this, Login.class);
                 startActivity(intent);
                 finish();
             }
         });
 
-        // Bouton Messages : ouvre l'activité de messagerie
+        // Bouton Messages : ouvre l'activité de messagerie en passant l'apiKey
         btnMessages.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.d(TAG, "Messages tapped, launching MessagerieHome with apiKey");
                 Intent intent = new Intent(Home.this, MessagerieHome.class);
+                intent.putExtra("apiKey", apiKey);
                 startActivity(intent);
             }
         });
@@ -114,8 +125,8 @@ public class Home extends AppCompatActivity {
         @NonNull
         @Override
         public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            // On "inflate" le layout pour chaque publication (item_post.xml)
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_post, parent, false);
             return new PostViewHolder(view);
         }
 

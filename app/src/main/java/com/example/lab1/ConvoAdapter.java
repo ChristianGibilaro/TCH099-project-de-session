@@ -1,6 +1,5 @@
 package com.example.lab1;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,20 +7,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConvoAdapter extends RecyclerView.Adapter<ConvoAdapter.ConvoViewHolder> {
 
-    // We use a list of Conversation objects; a null value indicates an empty (blank) cell.
+    // Liste de Conversation; null indique une cellule vide
     private final List<Conversation> convoList = new ArrayList<>();
 
     public ConvoAdapter() {
-        // Initialize with 8 blank cells (1 column x 8 rows)
+        // Initialise 8 cellules vides
         for (int i = 0; i < 8; i++) {
             convoList.add(null);
         }
     }
+
     public interface OnConvoClickListener {
         void onConvoClick(Conversation conversation);
     }
@@ -31,7 +32,6 @@ public class ConvoAdapter extends RecyclerView.Adapter<ConvoAdapter.ConvoViewHol
     public void setOnConvoClickListener(OnConvoClickListener listener) {
         this.listener = listener;
     }
-
 
     @NonNull
     @Override
@@ -45,36 +45,45 @@ public class ConvoAdapter extends RecyclerView.Adapter<ConvoAdapter.ConvoViewHol
     public void onBindViewHolder(@NonNull ConvoViewHolder holder, int position) {
         Conversation convo = convoList.get(position);
         if (convo == null) {
-            // Blank cell: show default or nothing.
+            // Cellule vide
             holder.imgConvoProfile.setImageDrawable(null);
             holder.tvConvoName.setText("");
         } else {
-            // A conversation exists: display default image and conversation name.
-            holder.imgConvoProfile.setImageResource(R.drawable.defaultaccount);
+            // Charge l'avatar via Glide
+            Glide.with(holder.imgConvoProfile.getContext())
+                    .load(convo.getImgUrl())
+                    .placeholder(R.drawable.defaultaccount)
+                    .into(holder.imgConvoProfile);
             holder.tvConvoName.setText(convo.getName());
         }
 
         holder.itemView.setOnClickListener(v -> {
-            if (convo != null) {
-                // Debug log to see which conversation is clicked.
-                Log.d("ConvoAdapter", "Conversation clicked: " + convo.getName());
-                if (listener != null) {
-                    listener.onConvoClick(convo);
-                }
-            } else {
-                Log.d("ConvoAdapter", "Blank cell clicked; no conversation.");
+            if (convo != null && listener != null) {
+                listener.onConvoClick(convo);
             }
         });
-
     }
-
 
     @Override
     public int getItemCount() {
         return convoList.size();
     }
 
-    // Adds a conversation to the next empty cell; returns true if added.
+    /**
+     * Vide la liste et réinitialise à 8 cellules vides.
+     */
+    public void clear() {
+        convoList.clear();
+        for (int i = 0; i < 8; i++) {
+            convoList.add(null);
+        }
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Ajoute une Conversation dans la prochaine cellule vide.
+     * @return true si inséré, false sinon
+     */
     public boolean addConversation(Conversation conversation) {
         for (int i = 0; i < convoList.size(); i++) {
             if (convoList.get(i) == null) {
@@ -86,18 +95,16 @@ public class ConvoAdapter extends RecyclerView.Adapter<ConvoAdapter.ConvoViewHol
         return false;
     }
 
-    // Optionally add a new row (since our grid is 1 column, one new cell)
+    /** Ajoute une nouvelle cellule (colonne unique) */
     public void addRow() {
         convoList.add(null);
         notifyItemInserted(convoList.size() - 1);
     }
 
-    // Returns the index of the next empty cell, or -1 if none.
+    /** Renvoie l'index de la prochaine cellule vide, ou -1 si aucune. */
     public int getNextEmptySquare() {
         for (int i = 0; i < convoList.size(); i++) {
-            if (convoList.get(i) == null) {
-                return i;
-            }
+            if (convoList.get(i) == null) return i;
         }
         return -1;
     }
@@ -105,6 +112,7 @@ public class ConvoAdapter extends RecyclerView.Adapter<ConvoAdapter.ConvoViewHol
     static class ConvoViewHolder extends RecyclerView.ViewHolder {
         ImageView imgConvoProfile;
         TextView tvConvoName;
+
         public ConvoViewHolder(@NonNull View itemView) {
             super(itemView);
             imgConvoProfile = itemView.findViewById(R.id.imgConvoProfile);
