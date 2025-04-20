@@ -284,6 +284,11 @@ get('/api/inconnu/${userID}', function($userID){
  post('/api/envoyerMessage', function(){
     ChatController::createMessage();
  });
+ // Liste des chats d’un utilisateur (avec nom et image du créateur)
+post('/api/user/chats', function() {
+    ChatController::getChatsForUser();
+});
+
 
 
 //---------------------------- EXTERNAL API GATES ----------------------------//
