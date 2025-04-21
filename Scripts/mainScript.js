@@ -2,7 +2,7 @@ class mainScript extends globalVars {
     pageName = "";
     //False = localhost , true = server api
     //"http://162.243.167.200:9999";
-    // "http://localhost:9999"
+    // "https://api.lunarcovenant.com"
 
     constructor(pageName) {
         super();
@@ -52,7 +52,7 @@ class mainScript extends globalVars {
         event.preventDefault();
         const form = event.target.form;
         const formData = new FormData(form);
-        var apiUrl = "http://localhost:9999";
+        var apiUrl = "https://api.lunarcovenant.com";
 
 
 
@@ -91,7 +91,7 @@ class mainScript extends globalVars {
         const form = event.target.form;
         const formData = new FormData(form);
         console.log(formData);
-        var apiUrl = "http://localhost:9999";
+        var apiUrl = "https://api.lunarcovenant.com";
 
         try {
             const response = await fetch(`${apiUrl}/api/user/create`, {
@@ -121,7 +121,7 @@ class mainScript extends globalVars {
      */
 
     async GetSteamGameData(appid) {
-        var apiUrl = "http://localhost:9999";
+        var apiUrl = "https://api.lunarcovenant.com";
 
         try {
             const response = await fetch(`${apiUrl}/api/steam/game/${appid}`, {
@@ -146,7 +146,7 @@ class mainScript extends globalVars {
      * @param {string} userid - The Steam user ID.
      */
     async GetSteamUserData(userId) {
-        var apiUrl = "http://localhost:9999";
+        var apiUrl = "https://api.lunarcovenant.com";
 
         try {
             const response = await fetch(`${apiUrl}/api/steam/user/${userId}`, {
@@ -166,7 +166,7 @@ class mainScript extends globalVars {
     }
 
     async verifyWithServer(token) {
-        var apiUrl = "http://localhost:9999";
+        var apiUrl = "https://api.lunarcovenant.com";
 
         try {
             console.log('Sending verification request to server...');
@@ -196,7 +196,7 @@ class mainScript extends globalVars {
     }
 
     async simulateBot() {
-        var apiUrl = "http://localhost:9999";
+        var apiUrl = "https://api.lunarcovenant.com";
 
         try {
             const response = await fetch(`${apiUrl}/api/recaptcha/simulateBot`, {

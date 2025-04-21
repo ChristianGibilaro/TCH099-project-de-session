@@ -82,7 +82,7 @@
   async function showActivityDetails(activityId) {
     detailsBox.innerHTML = '<div class="loading">Loading activity...</div>';
     try {
-      const res = await fetch(`http://localhost:9999/api/activity/id/${activityId}`, {
+      const res = await fetch(`https://api.lunarcovenant.com/api/activity/id/${activityId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -131,7 +131,7 @@
   async function showUserDetails(userId) {
     detailsBox.innerHTML = '<div class="loading">Loading user...</div>';
     try {
-      const res = await fetch(`http://localhost:9999/api/user/id/${userId}`, {
+      const res = await fetch(`https://api.lunarcovenant.com/api/user/id/${userId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -189,7 +189,7 @@
 
     if (query) {
       // Fetch players
-      const playerPromise = fetch(`http://localhost:9999/api/user/search/${encodeURIComponent(query)}`, {
+      const playerPromise = fetch(`https://api.lunarcovenant.com/api/user/search/${encodeURIComponent(query)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -199,7 +199,7 @@
       }).then(res => res.json());
 
       // Fetch activities
-      const activityPromise = fetch(`http://localhost:9999/api/activity/search/${encodeURIComponent(query)}`, {
+      const activityPromise = fetch(`https://api.lunarcovenant.com/api/activity/search/${encodeURIComponent(query)}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

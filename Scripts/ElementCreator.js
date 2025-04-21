@@ -835,7 +835,7 @@ async fetchSearchResults(query) {
     }
     try {
         // Fetch players
-        const playerPromise = fetch(`http://localhost:9999/api/user/search/${encodeURIComponent(query)}`, {
+        const playerPromise = fetch(`https://api.lunarcovenant.com/api/user/search/${encodeURIComponent(query)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -845,7 +845,7 @@ async fetchSearchResults(query) {
         }).then(res => res.json());
 
         // Fetch activities
-        const activityPromise = fetch(`http://localhost:9999/api/activity/search/${encodeURIComponent(query)}`, {
+        const activityPromise = fetch(`https://api.lunarcovenant.com/api/activity/search/${encodeURIComponent(query)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

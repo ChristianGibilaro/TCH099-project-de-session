@@ -42,7 +42,7 @@
     <div class="barre-filtres" id="in1">
       <script>
         async function fetchFilterOptions(filterType, id,parent,placeholder) {
-          const response = await fetch(`http://localhost:9999/api/filter/${id}`, {
+          const response = await fetch(`https://api.lunarcovenant.com/api/filter/${id}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ "filterType": filterType })
@@ -89,7 +89,7 @@
       let paged = 1;
 
       async function fetchActivityCount() {
-  const response = await fetch('http://localhost:9999/api/activity/count', {
+  const response = await fetch('https://api.lunarcovenant.com/api/activity/count', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -102,7 +102,7 @@
 
       async function fetchActivitiesPage(page) {
         const offset = (page - 1) * PAGE_SIZE;
-        const response = await fetch('http://localhost:9999/api/activity/all', {
+        const response = await fetch('https://api.lunarcovenant.com/api/activity/all', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
