@@ -11,7 +11,6 @@ require './src/controllers/SteamController.php';
 require './src/controllers/RecaptchaController.php';
 require './src/controllers/ChatController.php';
 require './src/controllers/AdminController.php';
-require './src/controllers/FilterController.php';
 
 //Diviser chaque routes clesse en fichiers pour chaque controller
 
@@ -26,10 +25,6 @@ get('/api/admin/hash', function() {
 
     // Pass the input directly to the controller
     AdminController::generatePasswordHash($input);
-});
-
-post('/api/filter/$id', function($id) {
-    FilterController::getFilterById($id);
 });
 
 //----------------------------USER CONTROLLER----------------------------//
@@ -132,10 +127,6 @@ post('/api/activity/all', function() {
     ActivityController::getAllActivity();
 });
 
-post('/api/activity/count', function() {
-    ActivityController::countAllActivity();
-});
-
 post('/api/activity/id/$id', function($id) {
     ActivityController::getActivite($id);
 });
@@ -209,51 +200,45 @@ delete('/api/team/${id}', function ($id) {
 
 //----------------------------MATCH CONTROLLER----------------------------//
 
-post('/api/match/create', function() {
-    //MatchController::creerMatch(); need re-work, I will do it later
+post('/api/match/create', function () {
+    MatchController::createMatch();                // fonctionelle
 });
 
-post('/api/match/invite/${userID}', function($userID) {
-    //need admin apikey
+post('/api/match/invite/${userID}', function ($userID) {
+    MatchController::inviteUser($userID);          // fonctionelle
 });
 
-post('/api/match/join/${userID}', function($userID) {
-    //need admin apikey
+post('/api/match/join/${userID}', function ($userID) {
+    MatchController::joinMatch($userID);           // fonctionelle 
 });
 
-post('/api/match/quit/${userID}', function($userID) {
-    //need admin apikey
+post('/api/match/quit/${userID}', function ($userID) {
+    MatchController::quitMatch($userID);           // fonctionelle
 });
 
-post('/api/match/ban/${userID}', function($userID) {
-    //need admin apikey
+post('/api/match/ban/${userID}', function ($userID) {
+    MatchController::banUser($userID);             // fonctionelle (ne peut pas ban qqun sans etre admin de la team)
 });
 
-post('/api/match/connect', function() {
-     //need admin apikey
+post('/api/match/connect', function () {
+    MatchController::connectMatch();               // fonctionelle
 });
 
-get('/api/match/$id', function($id){
-    //have params in body to say what to get
+get('/api/match/$id', function ($id) {
+    MatchController::getMatch($id);                // fonctionelle
 });
 
-get('/api/match/search', function(){
-    //search parameter in body
-    //have params in body to say what to get
+post('/api/match/search', function () {
+    MatchController::searchMatches();              // fonctionelle, passe de get a post (mettre les infos a filtrer dans le post)
 });
 
-put('/api/match/$id', function($id){
-    //need admin apikey
+put('/api/match/$id', function ($id) {
+    MatchController::updateMatch($id);             // fonctionelle
 });
 
-delete('/api/match/${id}', function($id){
-    //need admin apikey
-});
-
-
-
-
-
+delete('/api/match/${id}', function ($id) {
+    MatchController::deleteMatch($id);             // fonctionelle
+}); 
 
 
 
