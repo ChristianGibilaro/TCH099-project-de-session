@@ -2,7 +2,7 @@ class mainScript extends globalVars {
     pageName = "";
     //False = localhost , true = server api
     //"http://162.243.167.200:9999";
-    // "https://api.lunarcovenant.com"
+    // "http://localhost:9999"
 
     constructor(pageName) {
         super();
@@ -25,11 +25,36 @@ class mainScript extends globalVars {
         });
     }
 
+    // Set a cookie with an expiration time
+
+
+    // Get the value of a cookie by name
+    static getCookie(name) {
+        const decodedCookies = decodeURIComponent(document.cookie);
+        const cookies = decodedCookies.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.indexOf(name + '=') === 0) {
+                return cookie.substring(name.length + 1);
+            }
+        }
+        return null;
+    }
+
+    static setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000); // Convert days to milliseconds
+        document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/;Secure;HttpOnly`;
+    }
+
+
     async connecterUser(event) {
         event.preventDefault();
         const form = event.target.form;
         const formData = new FormData(form);
-        var apiUrl = "https://api.lunarcovenant.com";
+        var apiUrl = "http://localhost:9999";
+
+
 
         try {
             var url = `${apiUrl}/api/user/connect`;
@@ -41,9 +66,13 @@ class mainScript extends globalVars {
             // Traitement de la reponse
             if (response.ok) {
                 const jsonData = await response.json(); // Parse the JSON and store it
-                alert(JSON.stringify(jsonData));
+                alert(jsonData.apiKey);
                 //const result = await response.json();
                 //form.reset(); // Reinitialiser le formulaire si la soummission est reussie.
+                // Example usage
+                mainScript.setCookie('lunarCovenantApikey',jsonData.apiKey , 1); // Store for 1 day
+                const authKey = mainScript.getCookie('lunarCovenantApikey');
+                console.log(authKey);
             } else {
                 console.log('FRONT-END:Echec connexion.');
             }
@@ -53,12 +82,16 @@ class mainScript extends globalVars {
         }
     }
 
+
+
+
+
     async creerUser(event) {
         event.preventDefault();
         const form = event.target.form;
         const formData = new FormData(form);
         console.log(formData);
-        var apiUrl = "https://api.lunarcovenant.com";
+        var apiUrl = "http://localhost:9999";
 
         try {
             const response = await fetch(`${apiUrl}/api/user/create`, {
@@ -88,7 +121,7 @@ class mainScript extends globalVars {
      */
 
     async GetSteamGameData(appid) {
-        var apiUrl = "https://api.lunarcovenant.com";
+        var apiUrl = "http://localhost:9999";
 
         try {
             const response = await fetch(`${apiUrl}/api/steam/game/${appid}`, {
@@ -113,7 +146,7 @@ class mainScript extends globalVars {
      * @param {string} userid - The Steam user ID.
      */
     async GetSteamUserData(userId) {
-        var apiUrl = "https://api.lunarcovenant.com";
+        var apiUrl = "http://localhost:9999";
 
         try {
             const response = await fetch(`${apiUrl}/api/steam/user/${userId}`, {
@@ -133,7 +166,7 @@ class mainScript extends globalVars {
     }
 
     async verifyWithServer(token) {
-        var apiUrl = "https://api.lunarcovenant.com";
+        var apiUrl = "http://localhost:9999";
 
         try {
             console.log('Sending verification request to server...');
@@ -163,7 +196,7 @@ class mainScript extends globalVars {
     }
 
     async simulateBot() {
-        var apiUrl = "https://api.lunarcovenant.com";
+        var apiUrl = "http://localhost:9999";
 
         try {
             const response = await fetch(`${apiUrl}/api/recaptcha/simulateBot`, {

@@ -484,7 +484,7 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
 
         for (let i = 0; i < elements.length; i++) {
             const text = elements[i].trim().toLowerCase();
-            if (text.startsWith(compare)) {
+            if (text.startsWith(compare) || elements[i] === "--Clear--") {
                 out.push(elements[i]);
             }
         }
@@ -504,8 +504,13 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
             choice.innerText = elements[i];
             choice.className = "choice";
             parent.appendChild(choice);
-            choice.addEventListener('mouseover', (option) => {
+            choice.addEventListener('click', (option) => {
+              if(option.target.innerHTML != "--Clear--"){
                 textBox.value = option.target.innerHTML;
+              }else{
+                textBox.value = "";
+              }
+                
             });
         }
     }
@@ -830,7 +835,7 @@ async fetchSearchResults(query) {
     }
     try {
         // Fetch players
-        const playerPromise = fetch(`https://api.lunarcovenant.com/api/user/search/${encodeURIComponent(query)}`, {
+        const playerPromise = fetch(`http://localhost:9999/api/user/search/${encodeURIComponent(query)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -840,7 +845,7 @@ async fetchSearchResults(query) {
         }).then(res => res.json());
 
         // Fetch activities
-        const activityPromise = fetch(`https://api.lunarcovenant.com/api/activity/search/${encodeURIComponent(query)}`, {
+        const activityPromise = fetch(`http://localhost:9999/api/activity/search/${encodeURIComponent(query)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

@@ -20,90 +20,6 @@
 <script>
   var creator = new ElementCreator(document.title);
   var API = new mainScript(document.title);
-  console.log(document.title);
-  // ---------------------------------------------- API DATA ----------------------------------------------
-
-
-  var elements =
-    [["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/553850/header.jpg", "Te3te", "Long texte"],
-    ["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1739922037", "T2e", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/12e1bd007bebc8ffe7e9fad77ea3e6b6.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/a779abf92aeec12331d10524426171fb.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/e214786a5ff033e8ad5d57501bf82a16.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/928f27d1a6ae1828ad77b45f2d424dbf.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/8edc69aa76b7aac408ba3c248aa8d7d4.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/ea3a48c74a9efb9a08635fe7990347cc.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/994d88a370250b303be16fc98bb5cdac.png", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/db3a47863b50389cccce3066cf7f7a53.jpg", "Texte", "Long texte"],];
-  var titles = ['nein', "Texte", "Long texte"];
-
-  var titleType = [["txt"], ["txt"], ["txt"]];
-  var titlesRow = creator.CreateTableTitles(titles, [40, 40, 20], 3, null, null, null);
-
-  var rowType = [["img", "100%", "160px", "image_failed", "FillImage", "object-fit: cover; object-position: 1% 40%;"], ["txt"], ["txt"]];
-  var rows = creator.CreateTableRows(elements, rowType, [20, 60, 20], 3, null, null, "text-align: center;");
-
-  const helldiversPlanets = [
-    "Acamar IV",
-    "Acerbitas",
-    "Acretia",
-    "Aesir Pass",
-    "Angel's Venture",
-    "Charon Prime",
-    "Choohe",
-    "Cratérus",
-    "Crimsica",
-    "Draupnir",
-    "Durgen",
-    "Emeria",
-    "Erata Prime",
-    "Esker",
-    "Estanu",
-    "Fenrir III",
-    "Fori Prime",
-    "Frosthorn",
-    "Heeth",
-    "Hellmire",
-    "Heze Bay",
-    "Ingmar",
-    "Isen IV",
-    "Kavis",
-    "Keid",
-    "Kraz",
-    "Lestrade",
-    "Maia",
-    "Malevelon Creek",
-    "Marfark",
-    "Martale",
-    "Matar Bay",
-    "Mefst",
-    "Meridia",
-    "Mort",
-    "Nivel IV",
-    "Obari",
-    "Oshaune",
-    "Penta",
-    "Pöpli IX",
-    "Provost",
-    "Pythea Bay",
-    "Seyshel Beach",
-    "Skarv",
-    "Sutnar",
-    "Thanatos",
-    "The Fold",
-    "Thera",
-    "Tibit",
-    "Troost",
-    "Turing",
-    "Ubanea",
-    "Ustotu",
-    "Vandalon IV",
-    "Varylia 5",
-    "Vernen Wells", // Sometimes appears as Vanern Wells
-    "X-45",
-    "Zagon Prime"
-  ];
-
 </script>
 
 <body>
@@ -115,7 +31,6 @@
   </header>
   <div id="dimmer" onclick="toggleMenu()"></div>
 
-
   <div id="contenu" style="height: 100%;">
 
     <div id="head">
@@ -126,160 +41,271 @@
 
     <div class="barre-filtres" id="in1">
       <script>
-        window.addEventListener("load", (event) => { initializePagination("fatherland"); });
-        document.getElementById("in1").append(creator.CreateFilterTextbox(helldiversPlanets, "Find a planet to liberate"));
-        document.getElementById("in1").append(creator.CreateCheckList(helldiversPlanets, "(Click to Open) Find a planet to liberate"));
+        async function fetchFilterOptions(filterType, id,parent,placeholder) {
+          const response = await fetch(`http://localhost:9999/api/filter/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "filterType": filterType })
+          });
+          const data = await response.json();
+          if (!data.elements || !Array.isArray(data.elements)) return [[], []];
+
+          const names = ["--Clear--"];
+          names.push(...data.elements.map(e => e.Name));
+          const ids = data.elements.map(e => e.ID);
+          console.log(names, ids);
+          parent.append(creator.CreateFilterTextbox(names,placeholder));
+          return [names, ids];
+        }   
+
+        const positionFilter = fetchFilterOptions('PositionFilter',1,document.getElementById("in1"),"Position");
+        const typeFilter =  fetchFilterOptions('TypeFilter',1,document.getElementById("in1"),"Type");
+        const languageFilter =  fetchFilterOptions('LanguageFilter',1,document.getElementById("in1"),"Language");
+        const environmentFilter =  fetchFilterOptions('EnvironmentFilter',1,document.getElementById("in1"),"Environment");
+        
+
+        // Removed initializePagination call (it does not exist)
+        
       </script>
 
-      <div class="bloc-filtre">
-        <input type="number" id="filtre-nombre" placeholder="Nombre (ex: 10)" min="0" max="100" step="1">
-      </div>
+      <button class="btn-connexion" id="filter-button" onclick="toggleFilter()">Filter</button>
+    </div>
 
-      <div class="bloc-filtre">
-        <input type="datetime-local" id="filtre-datetime">
-      </div>
-
-      <div class="bloc-filtre filtre-checkboxes">
-        <label><input type="checkbox" name="categorie" value="tshirt"> T-shirt</label>
+    <div id="fatherland" class="contenu-onglet">
+      <!-- Fixed id: removed extra space -->
+      <div class="page-content" id="page-content-container" style="height: 100%;">
+        <div class="pagination" id="pagination-container">
+          <button class="prev-page">&lt; Previous</button>
+          <button class="next-page">Next &gt;</button>
+        </div>
       </div>
     </div>
 
+    <script>
+      // Only declare these variables ONCE
+      const PAGE_SIZE = 10;
+      let totalActivities = 0;
+      let PAgesd = 1;
+      let paged = 1;
 
-
-    <div id="fatherland" class="contenu-onglet">
-      <div class="page-content" id="page-content-container " style="height: 100%;">
-        <div class="page-item active">
-          
-          <script>
-async function fetchActivities() {
-  const response = await fetch('https://api.lunarcovenant.com/api/activity/all', {
+      async function fetchActivityCount() {
+  const response = await fetch('http://localhost:9999/api/activity/count', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      limit: 40,
-      fields: [
-        "ID", "Title", "Main_Img", "Description", "Logo_Img", "Point_Value",
-        "Word_4_Player", "Word_4_Teammate", "Word_4_Playing",
-        "Main_Color", "Second_Color", "Friend_Main_Color", "Friend_Second_Color"
-      ],
-      activityDataFields: [
-        "Team_Count", "QuickTeam_Count", "Player_Count", "Active_Player_Count"
-      ]
-    })
+            //environmentID:1
+          })
   });
   const data = await response.json();
-  // Extract array of {activity, activityData, ...}
-  const activities =
-    Array.isArray(data.activities) ? data.activities
-    : Array.isArray(data.data) ? data.data
-    : Array.isArray(data) ? data
-    : [];
-
-  // Merge activity and activityData for each item
-  const merged = activities.map(item => ({
-    ...(item.activity || {}),
-    ...(item.activityData && typeof item.activityData === "object" ? item.activityData : {})
-  }));
-
-  const activityList = creator.superScrollableList({
-    mode: "post",
-    items: merged,
-    width: "100%",
-    height: "100%",
-    renderItem: (activity, idx) => {
-      const playerCount = activity.Player_Count ?? activity.player_count ?? 0;
-      const word4player = activity.Word_4_Player || "player";
-      const teamCount = activity.Team_Count ?? activity.team_count ?? "";
-      const activePlayerCount = activity.Active_Player_Count ?? activity.active_player_count ?? "";
-      const activityId = activity.ID || activity.Id || activity.id || "";
-
-      let statBlock = `
-        <div style="padding:4px 0 12px 0;text-align:left;min-width:90px;font-size:0.95em;">
-          <div><b>${playerCount}</b> ${word4player}</div>
-          <div><b>${teamCount||"-"}</b> Teams</div>
-          <div><b>${activePlayerCount||"-"}</b> active</div>
-          <div style="color:var(--accent2);font-size:0.9em;">${activity.Point_Value ? `Points: ${activity.Point_Value}` : ""}</div>
-        </div>
-      `;
-
-      let mainImg = `
-        <div style="position:relative;width:100%;overflow:hidden;border-radius:12px;">
-          <img src="${activity.Main_Img || ""}" style="width:100%;display:block;object-fit:cover;max-height:180px;filter:brightness(0.92);">
-          ${activity.Logo_Img ? `
-            <img src="${activity.Logo_Img}" style="position:absolute;top:0px;left:0px;width:100%;height:100%;object-fit:contain;background:transparent;border-radius:8px;">
-          ` : ""}
-        </div>
-      `;
-
-      let title = `
-        <div style="text-align:center;font-weight:bold;font-size:1.2em;margin:12px 0 6px 0;color:var(--accent2);">
-          ${activity.Title || ""}
-        </div>
-      `;
-
-      let desc = `
-        <div style="padding:4px 0 0 0;white-space:pre-line;font-size:1em;">${activity.Description || ""}</div>
-      `;
-
-      // The whole tile is clickable and redirects to Activity.html?id=...
-      return `
-        <div class="activity-card" 
-             style="background:var(--bg-dark2);border-radius:14px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;cursor:pointer;transition:box-shadow 0.15s;"
-             onclick="window.location.href='Activity.html?id=${encodeURIComponent(activityId)}'">
-          ${mainImg}
-          <div style="display:flex;gap:18px;padding:14px 14px 10px 14px;">
-            <div style="flex:0 0 90px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;">
-              ${statBlock}
-            </div>
-            <div style="flex:1;min-width:0;">
-              ${title}
-              ${desc}
-            </div>
-          </div>
-        </div>
-      `;
-    }
-  });
-
-  const target = document.querySelector('#fatherland .page-item.active');
-  if (target) {
-    target.innerHTML = "";
-    target.append(activityList);
-  }
+  return data.count || 0;
 }
-fetchActivities();
-          </script>>
 
+      async function fetchActivitiesPage(page) {
+        const offset = (page - 1) * PAGE_SIZE;
+        const response = await fetch('http://localhost:9999/api/activity/all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            limit: PAGE_SIZE,
+            start: offset,
+            fields: [
+              "ID", "Title", "Main_Img", "Description", "Logo_Img", "Point_Value",
+              "Word_4_Player", "Word_4_Teammate", "Word_4_Playing",
+              "Main_Color", "Second_Color", "Friend_Main_Color", "Friend_Second_Color"
+            ],
+            activityDataFields: [
+              "Team_Count", "QuickTeam_Count", "Player_Count", "Active_Player_Count"
+            ]
+          })
+        });
+        const data = await response.json();
+        const activities =
+          Array.isArray(data.activities) ? data.activities
+            : Array.isArray(data.data) ? data.data
+              : Array.isArray(data) ? data
+                : [];
+        return activities.map(item => ({
+          ...(item.activity || {}),
+          ...(item.activityData && typeof item.activityData === "object" ? item.activityData : {})
+        }));
+      }
 
+      function renderActivityList(activities) {
+        return creator.superScrollableList({
+          mode: "post",
+          items: activities,
+          width: "100%",
+          height: "100%",
+          renderItem: (activity, idx) => {
+            const playerCount = activity.Player_Count ?? activity.player_count ?? 0;
+            const word4player = activity.Word_4_Player || "player";
+            const teamCount = activity.Team_Count ?? activity.team_count ?? "";
+            const activePlayerCount = activity.Active_Player_Count ?? activity.active_player_count ?? "";
+            const activityId = activity.ID || activity.Id || activity.id || "";
 
-        </div>
-        <div class="page-item">
-          <script>
-            document.write(creator.PutInDiv(creator.CreateScrollableTable("100%", "100%", "", rows, null, null, " margin-top:20px;"), null, "CenterChilds", "height: 100%"));
-          </script>
-        </div>
-        <div class="page-item">
-          <script>
-            document.write(creator.PutInDiv(creator.CreateScrollableTable("100%", "100%", "", rows, null, null, " margin-top:20px;"), null, "CenterChilds", "height: 100%"));
-          </script>
-        </div>
-        <div class="page-item">
-          <script>
+            let statBlock = `
+              <div style="padding:4px 0 12px 0;text-align:left;min-width:90px;font-size:0.95em;">
+                <div><b>${playerCount}</b> ${word4player}</div>
+                <div><b>${teamCount||"-"}</b> Teams</div>
+                <div><b>${activePlayerCount||"-"}</b> active</div>
+                <div style="color:var(--accent2);font-size:0.9em;">${activity.Point_Value ? `Points: ${activity.Point_Value}` : ""}</div>
+              </div>
+            `;
 
-          </script>
-        </div>
-        <div class="page-item">
-          <script>
-            document.write(creator.PutInDiv(creator.CreateScrollableTable("100%", "100%", "", rows, null, null, " margin-top:20px;"), null, "CenterChilds", "height: 100%"));
-          </script>
-        </div>
-      </div>
-      <div class="pagination" id="pagination-container">
-        <button class="prev-page">&lt; Previous</button>
-        <button class="next-page">Next &gt;</button>
-      </div>
-    </div>
+            let mainImg = `
+              <div style="position:relative;width:100%;overflow:hidden;border-radius:12px;">
+                <img src="${activity.Main_Img || ""}" style="width:100%;display:block;object-fit:cover;max-height:180px;filter:brightness(0.92);">
+                ${activity.Logo_Img ? `
+                  <img src="${activity.Logo_Img}" style="position:absolute;top:0px;left:0px;width:100%;height:100%;object-fit:contain;background:transparent;border-radius:8px;">
+                ` : ""}
+              </div>
+            `;
 
+            let title = `
+              <div style="text-align:center;font-weight:bold;font-size:1.2em;margin:12px 0 6px 0;color:var(--accent2);">
+                ${activity.Title || ""}
+              </div>
+            `;
+
+            let desc = `
+              <div style="padding:4px 0 0 0;white-space:pre-line;font-size:1em;">${activity.Description || ""}</div>
+            `;
+
+            return `
+              <div class="activity-card" 
+                   style="background:var(--bg-dark2);border-radius:14px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;cursor:pointer;transition:box-shadow 0.15s;"
+                   onclick="window.location.href='Activity.html?id=${encodeURIComponent(activityId)}'">
+                ${mainImg}
+                <div style="display:flex;gap:18px;padding:14px 14px 10px 14px;">
+                  <div style="flex:0 0 90px;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;">
+                    ${statBlock}
+                  </div>
+                  <div style="flex:1;min-width:0;">
+                    ${title}
+                    ${desc}
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        });
+      }
+
+      async function renderPages() {
+  totalActivities = await fetchActivityCount();
+  PAgesd = Math.ceil(totalActivities / PAGE_SIZE);
+
+  const pageContent = document.querySelector('#page-content-container');
+  // Pagination container will be filled later
+  pageContent.innerHTML = `<div class="pagination" id="pagination-container"></div>`;
+
+  // Create all page containers
+  const pageDivs = [];
+  for (let i = 1; i <= PAgesd; i++) {
+    const div = document.createElement('div');
+    div.className = 'page-item' + (i === 1 ? ' active' : '');
+    pageContent.appendChild(div);
+    pageDivs.push(div);
+  }
+
+  // Fetch and fill each page with its activities
+  for (let i = 1; i <= PAgesd; i++) {
+    const activities = await fetchActivitiesPage(i);
+    pageDivs[i - 1].innerHTML = '';
+    pageDivs[i - 1].append(renderActivityList(activities));
+  }
+
+  // Setup pagination buttons (including page numbers)
+  renderPaginationButtons();
+}
+
+function renderPaginationButtons() {
+  const container = document.getElementById('pagination-container');
+  container.innerHTML = `
+    <button class="prev-page">&lt; Previous</button>
+    <span class="page-numbers"></span>
+    <button class="next-page">Next &gt;</button>
+  `;
+
+  const pageNumbers = container.querySelector('.page-numbers');
+  pageNumbers.innerHTML = '';
+  for (let i = 1; i <= PAgesd; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.className = 'page-btn' + (i === paged ? ' active' : '');
+    btn.onclick = () => {
+      changePage(i);
+      // Update active class on all page buttons
+      const allBtns = container.querySelectorAll('.page-btn');
+      allBtns.forEach((b, idx) => {
+        if (idx === i - 1) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+    };
+    pageNumbers.appendChild(btn);
+  }
+
+  // Also update active class when using prev/next
+  container.querySelector('.prev-page').onclick = () => {
+    changePage(paged - 1);
+    updatePageBtnActive();
+  };
+  container.querySelector('.next-page').onclick = () => {
+    changePage(paged + 1);
+    updatePageBtnActive();
+  };
+
+  // Helper to update active class
+  function updatePageBtnActive() {
+    const allBtns = container.querySelectorAll('.page-btn');
+    allBtns.forEach((b, idx) => {
+      if (idx === paged - 1) {
+        b.classList.add('active');
+      } else {
+        b.classList.remove('active');
+      }
+    });
+  }
+  // Initial update
+  updatePageBtnActive();
+}
+
+async function loadPage(page) {
+  if (page < 1 || page > PAgesd) return;
+  paged = page;
+  const pageContent = document.querySelector('#page-content-container');
+  const pageItems = pageContent.querySelectorAll('.page-item');
+  pageItems.forEach((item, idx) => item.classList.toggle('active', idx === page - 1));
+  renderPaginationButtons();
+}
+
+function changePage(page) {
+  if (page < 1 || page > PAgesd) return;
+  loadPage(page);
+}
+
+      async function loadPage(page) {
+        if (page < 1 || page > PAgesd) return;
+        paged = page;
+        const pageContent = document.querySelector('#page-content-container');
+        const pageItems = pageContent.querySelectorAll('.page-item');
+        pageItems.forEach((item, idx) => item.classList.toggle('active', idx === page - 1));
+
+        const activities = await fetchActivitiesPage(page);
+        pageItems[page - 1].innerHTML = "";
+        pageItems[page - 1].append(renderActivityList(activities));
+      }
+
+      function changePage(page) {
+        if (page < 1 || page > PAgesd) return;
+        loadPage(page);
+      }
+
+      window.addEventListener("load", renderPages);
+    </script>
 
   </div>
 
