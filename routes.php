@@ -127,6 +127,10 @@ post('/api/activity/all', function() {
     ActivityController::getAllActivity();
 });
 
+post('/api/activity/count', function() {
+    ActivityController::countAllActivity();
+});
+
 post('/api/activity/id/$id', function($id) {
     ActivityController::getActivite($id);
 });
