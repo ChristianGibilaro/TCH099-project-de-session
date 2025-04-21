@@ -149,53 +149,52 @@ delete('/api/activity/${id}', function($id){
 });
    
 
-//----------------------------TEAM CONTROLLER----------------------------//
+//---------------------------- TEAM CONTROLLER ----------------------------//
 
-post('/api/team/create', function() {
-    // TeamController::creerTeam(); Need re-work, I will do it later
+post('/api/team/create', function () {
+    TeamController::createTeam();                    //  ← fonction prête -- fonctionelle
 });
 
-post('/api/team/invite/${userID}', function($userID) {
-    //need admin apikey
+post('/api/team/invite/${userID}', function ($userID) {
+    TeamController::inviteUser($userID);            //  ← admin API‑Key requise -- fonctionelle
 });
 
-post('/api/team/join/${userID}', function($userID) {
-    //need admin apikey
+post('/api/team/join/${userID}', function ($userID) {
+    TeamController::joinTeam($userID);              //  ← admin API‑Key requise -- fonctionelle
 });
 
-post('/api/team/ban/${userID}', function($userID) {
-    //need admin apikey
+post('/api/team/ban/${userID}', function ($userID) {
+    TeamController::banUser($userID);               //  ← admin API‑Key requise -- fonctionnelle
 });
 
-post('/api/team/quit/${userID}', function($userID) {
-    //need admin apikey
+post('/api/team/quit/${userID}', function ($userID) {
+    TeamController::quitTeam($userID);              //  ← admin API‑Key requise -- fonctionelle
 });
 
-post('/api/team/connect', function() {
-     //need admin apikey
+post('/api/team/connect', function () {
+    TeamController::connectTeam();                  //  ← admin API‑Key créée/retournée -- fonctionelle
 });
 
-get('/api/team/$id', function($id){
-    // TeamController::getTeam($id); Need re-work, I will do it later
-    //have params in body to say what to get
+get('/api/team/$id', function ($id) {
+    TeamController::getTeam($id);                   //  ← params optionnels dans le body -- fonctionelle
 });
 
-get('/api/team/search', function(){
-    //search parameter in body
-    //have params in body to say what to get
+post('/api/team/search', function () {
+    TeamController::searchTeams();                  //  ← ?search=…&limit=… -- fonctionelle et a present un POST*
 });
 
-get('/api/team/${title}', function($title){
-    //search parameter in body
-    //have params in body to say what to get
+post('/api/team/title', function () {
+    $input = json_decode(file_get_contents('php://input'), true); // fonctionelle
+    $title = $input['title'] ?? '';
+    TeamController::getTeamByTitle($title);
 });
 
-put('/api/team/$id', function($id){
-    //need admin apikey
+put('/api/team/$id', function ($id) {
+    TeamController::updateTeam($id);                //  ← admin API‑Key requise -- fonctionelle
 });
 
-delete('/api/team/${id}', function($id){
-    //need admin apikey
+delete('/api/team/${id}', function ($id) {
+    TeamController::deleteTeam($id);                //  ← admin API‑Key requise -- faut tester avec password que je ne possede pas
 });
 
 
