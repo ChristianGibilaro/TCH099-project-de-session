@@ -4,38 +4,390 @@ include_once(__DIR__ . '/../../config.php');
 
 class TeamController
 {
-   
+    private static function sendJSON($success, $message, $extra = [], $code = 200)
+    {
+        http_response_code($code);
+        header('Content-Type: application/json');
+        echo json_encode(array_merge(['success' => $success, 'message' => $message], $extra));
+        exit;
+    }
+
+    private static function getInput()
+    {
+        if (!empty($_POST)) return $_POST;
+        $input = json_decode(file_get_contents('php://input'), true);
+        return is_array($input) ? $input : [];
+    }
+
+    private static function checkAdmin($teamID)
+    {
+        global $pdo;
+        $headers = getallheaders();
+        $apiKey = $headers['X-API-Key'] ?? null;
+
+        if (!$apiKey) self::sendJSON(false, "Clé API manquante.", [], 401);
+
+        $stmt = $pdo->prepare("SELECT ID FROM User WHERE ApiKey = :api");
+        $stmt->execute(['api' => $apiKey]);
+        $userID = $stmt->fetchColumn();
+        if (!$userID) self::sendJSON(false, "Clé API invalide.", [], 401);
+
+        $stmt = $pdo->prepare("SELECT 1 FROM AdminTeam WHERE UserID = :u AND TeamID = :t");
+        $stmt->execute(['u' => $userID, 't' => $teamID]);
+        if (!$stmt->fetchColumn()) self::sendJSON(false, "Droits administrateur requis pour l'équipe $teamID.", [], 403);
+    }
+
+    private static function getApiKeyFromUserID(int $userID): ?string
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT ApiKey FROM User WHERE ID = :id");
+    $stmt->execute(['id' => $userID]);
+    return $stmt->fetchColumn() ?: null;
+}
+
+
+    public static function createTeam()
+    {
+        global $pdo;
+        $data = self::getInput();
+
+        $activityID  = $data['activityID']  ?? null;
+        $name        = $data['name']        ?? null;
+        $description = $data['description'] ?? null;
+        $mainColor   = $data['main_color']  ?? null;
+        $secondColor = $data['second_color']?? null;
+
+        if (!$activityID || !$name || !$description || !$mainColor || !$secondColor)
+            self::sendJSON(false, "Champs 'activityID', 'name', 'description', 'main_color', 'second_color' obligatoires.");
+
+        $stmt = $pdo->prepare("INSERT INTO Team (ActivityID, Name, Description, Main_Color, Second_Color) VALUES (:a,:n,:d,:m,:s)");
+        $stmt->execute([
+            ':a' => $activityID,
+            ':n' => $name,
+            ':d' => $description,
+            ':m' => $mainColor,
+            ':s' => $secondColor
+        ]);
+
+        self::sendJSON(true, "Équipe créée avec succès.", ["team_id" => $pdo->lastInsertId()]);
+    }
+
+    public static function inviteUser(int $userID)
+    {
+        global $pdo;
+        $userID = intval($userID);
+        $data = self::getInput();
+
+        $teamID = $data['teamID'] ?? null;
+        $rankID = $data['rankID'] ?? 3;
+        $msg    = $data['message'] ?? "Invitation à rejoindre l'équipe.";
+        $exp    = $data['expires'] ?? null;
+
+        if (!$teamID) self::sendJSON(false, "teamID manquant.");
+        self::checkAdmin($teamID);
+
+        $sql = "INSERT INTO Invitation (Name, TeamID, UserID, RankID, Expiration_date)
+                VALUES (:n,:t,:u,:r,:e)";
+        $pdo->prepare($sql)->execute([
+            ':n'=>$msg, ':t'=>$teamID, ':u'=>$userID, ':r'=>$rankID, ':e'=>$exp
+        ]);
+
+        self::sendJSON(true, "Invitation envoyée à l'utilisateur $userID.");
+    }
+
+    public static function joinTeam(int $userID)
+    {
+        global $pdo;
+        $data = self::getInput();
+
+        $teamID = $data['teamID'] ?? null;
+        if (!$teamID) self::sendJSON(false, "teamID manquant.");
+        self::checkAdmin($teamID);
+
+        $dup = $pdo->prepare("SELECT 1 FROM UserTeam WHERE UserID=:u AND TeamID=:t");
+        $dup->execute([':u'=>$userID, ':t'=>$teamID]);
+        if ($dup->fetchColumn()) self::sendJSON(false, "Déjà membre.", [], 409);
+
+        $pdo->prepare("INSERT INTO UserTeam (UserID,TeamID,RankID,Game_Count)
+             VALUES (:u,:t,3,0)")->execute([':u'=>$userID, ':t'=>$teamID]);
+
+        self::sendJSON(true, "Utilisateur $userID ajouté.");
+    }
+
     public static function getTeam($id)
     {
-        global $pdo;  
+        global $pdo;
         header('Content-Type: application/json');
+        $data = self::getInput();
+        $fields = $data['fields'] ?? '*';
 
-        if (!$id) {
-            echo json_encode(['success' => false, 'message' => "Paramètre 'id' manquant."]);
+        $select = ($fields === '*') ? '*' : implode(', ', array_map('htmlspecialchars', $fields));
+        $stmt = $pdo->prepare("SELECT $select FROM Team WHERE ID = :id");
+        $stmt->execute(['id' => $id]);
+        $team = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$team) self::sendJSON(false, "Équipe introuvable.");
+        self::sendJSON(true, "Équipe récupérée.", ["team" => $team]);
+    }
+
+    public static function searchTeams(): void
+{
+    global $pdo;
+    header('Content-Type: application/json');
+
+    $input = json_decode(file_get_contents("php://input"), true);
+    $title = $input['title'] ?? '';
+
+    $limit = $input['limit'] ?? 10;
+    $fields = $input['fields'] ?? '*';
+    $selectFields = $fields === '*' ? '*' : implode(', ', array_map('htmlspecialchars', $fields));
+
+    $sql = "SELECT $selectFields FROM Team WHERE Name LIKE :search ORDER BY Name ASC LIMIT :limit";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':search', '%' . $title . '%', PDO::PARAM_STR);
+    $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+    $stmt->execute();
+
+    $teams = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    if (!$teams) {
+        echo json_encode(['success' => false, 'message' => "Équipe introuvable."]);
+        return;
+    }
+
+    echo json_encode(['success' => true, 'data' => $teams]);
+}
+
+    public static function banUser(int $userID): void
+{
+    global $pdo;
+
+    $teamID = $_POST['teamID'] ?? null;
+    if (!$teamID) self::sendJSON(false, "teamID manquant.");
+
+    self::checkAdmin($teamID);
+
+    $sql = "DELETE FROM UserTeam WHERE UserID = :u AND TeamID = :t";
+    $pdo->prepare($sql)->execute([':u' => $userID, ':t' => $teamID]);
+
+    self::sendJSON(true, "Utilisateur $userID banni de l’équipe $teamID.");
+}
+
+public static function quitTeam(int $userID): void
+{
+    global $pdo;
+
+    $inputJSON = file_get_contents('php://input');
+    $data = json_decode($inputJSON, true);
+    $teamID = $data['teamID'] ?? null;
+
+    if (!$teamID) self::sendJSON(false, "teamID manquant.");
+
+    $sql = "DELETE FROM UserTeam WHERE UserID = :u AND TeamID = :t";
+    $pdo->prepare($sql)->execute([':u' => $userID, ':t' => $teamID]);
+
+    self::sendJSON(true, "Utilisateur $userID a quitté l’équipe $teamID.");
+}
+
+public static function connectTeam(): void
+{
+    global $pdo;
+
+    header('Content-Type: application/json');
+
+    $data = [];
+    if (isset($_POST) && !empty($_POST)) {
+        $data = $_POST;
+    } else {
+        $input = file_get_contents('php://input');
+        $data = json_decode($input, true);
+    }
+
+    if (!is_array($data)) {
+        echo json_encode(['success' => false, 'message' => 'Corps JSON invalide.']);
+        return;
+    }
+
+    $email = $data['email']    ?? null;
+    $password = $data['password'] ?? null;
+    $teamID = $data['teamID']  ?? null;
+
+    if (!$email || !$password || !$teamID) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Champs 'email', 'password' et 'teamID' requis."
+        ]);
+        return;
+    }
+
+    $stmt = $pdo->prepare("SELECT ID FROM User WHERE Email = :email");
+    $stmt->execute(['email' => $email]);
+    $userID = $stmt->fetchColumn();
+
+    if (!$userID) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Aucun utilisateur avec cet email."
+        ]);
+        return;
+    }
+
+    $stmt = $pdo->prepare("SELECT Password FROM AdminTeam WHERE UserID = :uid AND TeamID = :tid");
+    $stmt->execute(['uid' => $userID, 'tid' => $teamID]);
+    $dbPassword = $stmt->fetchColumn();
+
+    if (!$dbPassword) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Aucun droit admin pour cette équipe."
+        ]);
+        return;
+    }
+
+    if ($dbPassword !== $password) {
+        echo json_encode([
+            'success' => false,
+            'message' => "Mot de passe incorrect."
+        ]);
+        return;
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => "Connexion admin réussie.",
+        'apiKey' => self::getApiKeyFromUserID($userID),
+        'userID' => $userID
+    ]);
+}
+
+
+public static function getTeamByTitle(string $title): void
+{
+    global $pdo;
+
+    header('Content-Type: application/json');
+    $title = trim($title);
+
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM Team WHERE Name = :title LIMIT 1");
+        $stmt->execute(['title' => $title]);
+        $team = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$team) {
+            echo json_encode(['success' => false, 'message' => 'Équipe introuvable.']);
             return;
         }
 
-        try {
-            $stmt = $pdo->prepare("SELECT * FROM Team WHERE ID = :teamID");
-            $stmt->execute([':teamID' => $id]);
-            $team = $stmt->fetch(PDO::FETCH_ASSOC);
+        echo json_encode(['success' => true, 'data' => $team]);
+    } catch (PDOException $e) {
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erreur DB : ' . $e->getMessage()
+        ]);
+    }
+}
 
-            if ($team) {
-                echo json_encode([
-                    'success' => true,
-                    'team' => $team
-                ]);
-            } else {
-                echo json_encode([
-                    'success' => false,
-                    'message' => "Aucune équipe trouvée pour l'ID = $id"
-                ]);
-            }
-        } catch (PDOException $e) {
-            echo json_encode([
-                'success' => false,
-                'message' => "Erreur DB : " . $e->getMessage()
-            ]);
+public static function deleteTeam($id): void
+{
+    global $pdo;
+
+    header('Content-Type: application/json');
+    $headers = getallheaders();
+    $apiKey = $headers['X-API-Key'] ?? null;
+
+    if (!$apiKey) self::sendJSON(false, "Clé API manquante.");
+
+    // Trouver l'admin via la clé
+    $stmt = $pdo->prepare("SELECT ID FROM User WHERE ApiKey = :api");
+    $stmt->execute(['api' => $apiKey]);
+    $userID = $stmt->fetchColumn();
+    if (!$userID) self::sendJSON(false, "Clé API invalide.");
+
+    // Obtenir le mot de passe de l'admin
+    $stmt = $pdo->prepare("SELECT Password FROM AdminTeam WHERE UserID = :u AND TeamID = :t");
+    $stmt->execute(['u' => $userID, 't' => $id]);
+    $adminPwdHash = $stmt->fetchColumn();
+
+    if (!$adminPwdHash) {
+        self::sendJSON(false, "Droits administrateur requis pour l’équipe $id.");
+    }
+
+    // Lire le mot de passe envoyé
+    $input = json_decode(file_get_contents("php://input"), true);
+    $password = $input['password'] ?? null;
+
+    if (!$password || !password_verify($password, $adminPwdHash)) {
+        self::sendJSON(false, "Mot de passe incorrect.");
+    }
+
+    // Supprimer l'équipe
+    $stmt = $pdo->prepare("DELETE FROM Team WHERE ID = :id");
+    $stmt->execute(['id' => $id]);
+
+    self::sendJSON(true, "Équipe $id supprimée avec succès.");
+}
+
+
+public static function updateTeam($id): void
+{
+    global $pdo;
+
+    header('Content-Type: application/json');
+    $headers = getallheaders();
+    $apiKey = $headers['X-API-Key'] ?? null;
+
+    if (!$apiKey) {
+        self::sendJSON(false, "Clé API manquante.");
+    }
+
+    // Vérifie si l'utilisateur est admin de cette équipe
+    $stmt = $pdo->prepare("SELECT ID FROM User WHERE ApiKey = :api");
+    $stmt->execute(['api' => $apiKey]);
+    $userID = $stmt->fetchColumn();
+    if (!$userID) self::sendJSON(false, "Clé API invalide.");
+
+    $stmt = $pdo->prepare("SELECT 1 FROM AdminTeam WHERE UserID = :u AND TeamID = :t");
+    $stmt->execute(['u' => $userID, 't' => $id]);
+    if (!$stmt->fetchColumn()) {
+        self::sendJSON(false, "Droits administrateur requis pour l’équipe $id.");
+    }
+
+
+    $data = json_decode(file_get_contents("php://input"), true);
+    if (!is_array($data)) {
+        self::sendJSON(false, "Corps JSON invalide.");
+    }
+
+    // Champs modifiables
+    $fields = [
+        'ActivityID', 'Name', 'Description',
+        'Main_Color', 'Second_Color'
+    ];
+
+    $updates = [];
+    $params = [':id' => $id];
+
+    foreach ($fields as $field) {
+        if (isset($data[$field])) {
+            $updates[] = "$field = :$field";
+            $params[":$field"] = $data[$field];
         }
     }
+
+    if (empty($updates)) {
+        self::sendJSON(false, "Aucun champ à mettre à jour.");
+    }
+
+    $sql = "UPDATE Team SET " . implode(", ", $updates) . " WHERE ID = :id";
+
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        self::sendJSON(true, "Équipe mise à jour avec succès.");
+    } catch (PDOException $e) {
+        self::sendJSON(false, "Erreur DB : " . $e->getMessage());
+    }
+}
+
+
 }

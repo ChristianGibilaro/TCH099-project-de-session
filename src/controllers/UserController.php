@@ -177,7 +177,7 @@ class UserController{
                     throw new Exception('Échec du renommage de l\'image.');
                 }
     
-                $imagePath = 'https://api.lunarcovenant.com/' . $newPath;
+                $imagePath = 'http://localhost:9999/' . $newPath;
     
                 $stmtUpdate = $pdo->prepare('UPDATE User SET Img = :img WHERE ID = :id');
                 $stmtUpdate->execute([':img' => $imagePath, ':id' => $userID]);
