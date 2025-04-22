@@ -29,6 +29,12 @@ get('/api/admin/hash', function() {
 
 //----------------------------USER CONTROLLER----------------------------//
 
+//Route pour avoir les donnees d'un user selon
+get('/api/profile_android/${userID}', function($userID){
+    AndroidController::getUserDataForAndroid($userID);
+});
+
+
 // Route for creating a user
 post('/api/user/create', function() {
     UserController::creerUser();
