@@ -29,6 +29,9 @@ get('/api/admin/hash', function() {
 
 //----------------------------USER CONTROLLER----------------------------//
 
+get('/api/total_friends/${userID}', function($userID){
+    AndroidController::getUserTotalFriendsForAndroid($userID);
+});
 //Route pour avoir les donnees d'un user selon
 get('/api/profile_android/${userID}', function($userID){
     AndroidController::getUserDataForAndroid($userID);

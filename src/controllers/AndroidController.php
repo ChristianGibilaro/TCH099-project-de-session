@@ -47,6 +47,7 @@ class AndroidController
         }
     }
 
+    //retourne le nom, le pseudo, la description et l'image prole d'un utilisateur(Pour Android)
     public static function getUserDataForAndroid($userID){
         global $pdo;
         header('Access-Control-Allow-Origin: *');
@@ -57,6 +58,29 @@ class AndroidController
         }
         try {
             $sql = 'SELECT User.Name, User.Pseudo, User.Description, User.Img FROM User WHERE User.ID LIKE :userID';
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['userID' => $userID]);
+            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+
+            echo json_encode($userData, JSON_UNESCAPED_SLASHES);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Tables "User, Chat et MEssage"):' => $e->getMessage()]);
+        }
+    }
+
+    public static function getUserTotalFriendsForAndroid($userID){
+        global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+        if (!$userID) {
+            echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
+            return;
+        }
+        try {
+            $sql = 'SELECT COUNT(UserFriend.FriendID) AS total_friends FROM UserFriend WHERE UserFriend.UserID LIKE :userID';
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['userID' => $userID]);
