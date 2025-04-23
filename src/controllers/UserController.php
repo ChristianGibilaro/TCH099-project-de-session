@@ -64,9 +64,13 @@ class UserController{
 
     public static function creerUser() {
         global $pdo;
-        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: *'); // Added for CORS consistency
+        header('Content-Type: application/json; charset=utf-8'); // Added charset for consistency
     
+        // Initialize response structure
         $response = ['success' => false, 'message' => '', 'errors' => []];
+        $tempImagePath = null; // Initialize here for cleanup in catch blocks
+        $baseDir = __DIR__ . '/../../'; // Define base directory early
     
         try {
             if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -75,7 +79,7 @@ class UserController{
             }
     
             // === Validate fields ===
-            $requiredFields = ['pseudonym', 'nom', 'email', 'password', 'password2', 'description', 'language_id', 'age', 'agreement'];
+            $requiredFields = ['pseudonym', 'nom', 'email', 'password', 'password2', 'description', 'language_name', 'age', 'agreement'];
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
                     $response['errors'][$field] = "Le champ '$field' est requis.";
@@ -86,68 +90,100 @@ class UserController{
                 $response['errors']['password2'] = 'Les mots de passe ne correspondent pas.';
             }
     
-            if ($_POST['agreement'] !== 'accepted') {
+            if (empty($_POST['agreement']) || $_POST['agreement'] !== 'accepted') {
                 $response['errors']['agreement'] = 'Vous devez accepter les conditions.';
             }
     
+            // === Prepare data (only if basic validation passes) ===
+            if (empty($response['errors'])) {
+                $pseudonym = htmlspecialchars($_POST['pseudonym']);
+                $nom = htmlspecialchars($_POST['nom']);
+                $email = htmlspecialchars($_POST['email']);
+                $password = $_POST['password'];
+                $description = htmlspecialchars($_POST['description']);
+                $age = htmlspecialchars($_POST['age']);
+                $languageName = htmlspecialchars($_POST['language_name']);
+                $positionName = isset($_POST['position_name']) ? htmlspecialchars($_POST['position_name']) : null;
+                $imagePath = null;
+                $originalFileName = null;
+                $languageID = null;
+                $positionID = null;
+
+                // === Find Language ID ===
+                $stmtLang = $pdo->prepare('SELECT ID FROM Language WHERE Name = :name');
+                $stmtLang->execute([':name' => $languageName]);
+                $languageResult = $stmtLang->fetch(PDO::FETCH_ASSOC);
+                if (!$languageResult) {
+                    $response['errors']['language_name'] = "Langue '$languageName' non trouvée.";
+                } else {
+                    $languageID = $languageResult['ID'];
+                }
+
+                // === Find Position ID (Optional) ===
+                if (!empty($positionName)) {
+                    $stmtPos = $pdo->prepare('SELECT ID FROM Position WHERE Name = :name');
+                    $stmtPos->execute([':name' => $positionName]);
+                    $positionResult = $stmtPos->fetch(PDO::FETCH_ASSOC);
+                    if ($positionResult) {
+                        $positionID = $positionResult['ID'];
+                    } else {
+                        // $response['errors']['position_name'] = "Position '$positionName' non trouvée."; // Optional: Treat as error
+                        $positionID = null;
+                    }
+                } else {
+                    $positionID = null;
+                }
+            }
+
+            // Check for errors accumulated so far (including language/position lookup)
             if (!empty($response['errors'])) {
-                throw new Exception('Champs manquants ou invalides.');
+                // Set message specifically for validation errors
+                $response['message'] = 'Erreur de validation. Veuillez corriger les champs indiqués.';
+                throw new Exception('Champs manquants ou invalides.'); // Throw to trigger catch block
             }
     
-            // === Prepare data ===
-            $pseudonym = htmlspecialchars($_POST['pseudonym']);
-            $nom = htmlspecialchars($_POST['nom']);
-            $email = htmlspecialchars($_POST['email']);
-            $password = $_POST['password'];
-            $description = htmlspecialchars($_POST['description']);
-            $age = htmlspecialchars($_POST['age']);
-            $languageID = intval($_POST['language_id']);
-            $imagePath = null;
-            $originalFileName = null;
-    
-            // === Insert position first ===
-            $stmtPosition = $pdo->prepare('INSERT INTO Position (Name) VALUES (:name)');
-            $stmtPosition->execute([':name' => $nom]);
-            $positionID = $pdo->lastInsertId();
-    
-            // === Temporary image path (will be renamed after user insert)
-            $tempImagePath = null;
-    
+            // === Handle file upload ===
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $fileTmpPath = $_FILES['image']['tmp_name'];
                 $originalFileName = basename($_FILES['image']['name']);
                 $fileType = mime_content_type($fileTmpPath);
     
-                $imageFolder = 'ressources/images/profile/';
-                $videoFolder = 'ressources/videos/';
+                $imageFolder = $baseDir . 'ressources/images/profile/';
+                $videoFolder = $baseDir . 'ressources/videos/';
     
-                if (!file_exists($imageFolder)) mkdir($imageFolder, 0755, true);
-                if (!file_exists($videoFolder)) mkdir($videoFolder, 0755, true);
+                if (!is_dir($imageFolder)) mkdir($imageFolder, 0775, true);
+                if (!is_dir($videoFolder)) mkdir($videoFolder, 0775, true);
     
                 $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                $allowedVideoTypes = ['video/mp4', 'video/x-msvideo', 'video/webm'];
+                $allowedVideoTypes = ['video/mp4', 'video/x-msvideo', 'video/webm', 'video/quicktime'];
     
+                $targetFolder = null;
                 if (in_array($fileType, $allowedImageTypes)) {
-                    $destinationPath = $imageFolder . uniqid('temp_', true) . '_' . $originalFileName;
+                    $targetFolder = $imageFolder;
                 } elseif (in_array($fileType, $allowedVideoTypes)) {
-                    $destinationPath = $videoFolder . uniqid('temp_', true) . '_' . $originalFileName;
+                    $targetFolder = $imageFolder; // Or $videoFolder;
                 } else {
                     throw new Exception("Type de fichier non pris en charge: $fileType");
                 }
     
-                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
-                    throw new Exception('Impossible de déplacer le fichier téléchargé.');
-                }
+                $tempFileName = uniqid('temp_', true) . '_' . preg_replace('/[^a-zA-Z0-9.\-]/', '_', $originalFileName);
+                $destinationPath = $targetFolder . $tempFileName;
     
+                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
+                    throw new Exception('Impossible de déplacer le fichier téléchargé. Vérifiez les permissions.');
+                }
                 $tempImagePath = $destinationPath;
     
             } elseif (!empty($_POST['imageLink'])) {
-                $imagePath = trim($_POST['imageLink']);
+                $imagePath = filter_var(trim($_POST['imageLink']), FILTER_VALIDATE_URL) ? trim($_POST['imageLink']) : null;
+                if (!$imagePath) {
+                     throw new Exception('Lien d\'image fourni invalide.');
+                }
             } else {
-                throw new Exception('Aucune image téléchargée ou lien fourni.');
+                 throw new Exception('Aucune image téléchargée ou lien fourni.');
             }
     
-            // === Insert user with placeholder or imageLink ===
+            // === Insert user ===
             $stmtUser = $pdo->prepare('INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
                                        VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, :language_id, :creation_date, :position_id, :description, :age)');
             $stmtUser->execute([
@@ -156,7 +192,7 @@ class UserController{
                 ':nom' => $nom,
                 ':email' => $email,
                 ':passwordd' => password_hash($password, PASSWORD_DEFAULT),
-                ':last_login' => date('Y-m-d'),
+                ':last_login' => date('Y-m-d H:i:s'),
                 ':language_id' => $languageID,
                 ':creation_date' => date('Y-m-d H:i:s'),
                 ':position_id' => $positionID,
@@ -165,35 +201,66 @@ class UserController{
             ]);
     
             $userID = $pdo->lastInsertId();
+            if (!$userID) {
+                throw new Exception("Impossible de récupérer l'ID de l'utilisateur après l'insertion.");
+            }
     
-            // === If a file was uploaded, rename it and update user record ===
+            // === Rename uploaded file and update user record ===
             if ($tempImagePath) {
                 $extension = pathinfo($originalFileName, PATHINFO_EXTENSION);
                 $safePseudonym = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $pseudonym);
-                $newFileName = "{$safePseudonym}_{$userID}." . $extension;
-                $newPath = 'ressources/images/profile/' . $newFileName;
-    
-                if (!rename($tempImagePath, $newPath)) {
-                    throw new Exception('Échec du renommage de l\'image.');
+                $newFileName = "{$safePseudonym}_{$userID}." . ($extension ? strtolower($extension) : 'jpg');
+                
+                $finalRelativePath = 'ressources/images/profile/' . $newFileName;
+                $finalAbsolutePath = $baseDir . $finalRelativePath;
+
+                if (!rename($tempImagePath, $finalAbsolutePath)) {
+                    error_log("Échec du renommage de '$tempImagePath' vers '$finalAbsolutePath'");
+                    // Optionally: Set a default image path or leave as 'pending'
+                    $imagePath = null; // Indicate failure to finalize image path
+                } else {
+                    $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+                    $imagePath = $baseUrl . '/' . $finalRelativePath;
+
+                    $stmtUpdate = $pdo->prepare('UPDATE User SET Img = :img WHERE ID = :id');
+                    $stmtUpdate->execute([':img' => $imagePath, ':id' => $userID]);
                 }
-    
-                $imagePath = 'http://localhost:9999/' . $newPath;
-    
-                $stmtUpdate = $pdo->prepare('UPDATE User SET Img = :img WHERE ID = :id');
-                $stmtUpdate->execute([':img' => $imagePath, ':id' => $userID]);
             }
     
             $response['success'] = true;
             $response['message'] = 'Compte créé avec succès !';
-            $response['path'] = $imagePath;
+            $response['userID'] = $userID;
+            $response['imagePath'] = $imagePath; // Final image path/URL or null/link
     
-        } catch (Exception $e) {
-            if (empty($response['message'])) {
-                $response['message'] = 'Une erreur est survenue.';
+        } catch (PDOException $e) {
+            http_response_code(500);
+            $response['message'] = 'Erreur de base de données.';
+            error_log("PDOException in creerUser: " . $e->getMessage() . " SQLSTATE: " . $e->getCode());
+             if ($tempImagePath && file_exists($tempImagePath)) {
+                 unlink($tempImagePath);
+             }
+        }
+        catch (Exception $e) {
+            $exceptionMessage = $e->getMessage();
+            if ($exceptionMessage === 'Méthode HTTP non autorisée.') {
+                http_response_code(405);
+                $response['message'] = $exceptionMessage;
+            } elseif ($exceptionMessage === 'Champs manquants ou invalides.') {
+                http_response_code(400); // Bad Request
+                // The message was already set before throwing
+                // $response['message'] is already 'Erreur de validation...'
+                // $response['errors'] contains the specific errors
+            } else {
+                http_response_code(500); // Internal Server Error for other exceptions
+                $response['message'] = $exceptionMessage; // Use the specific error message
+                error_log("Exception in creerUser: " . $exceptionMessage); // Log other errors
             }
-            $response['exception'] = $e->getMessage();
+             if ($tempImagePath && file_exists($tempImagePath)) { // Cleanup temp file on any exception
+                 unlink($tempImagePath);
+             }
         }
     
+        // Always encode the $response array, which contains success, message, and errors (if any)
         echo json_encode($response);
     }
 
@@ -204,6 +271,7 @@ class UserController{
     header('Content-Type: application/json; charset=utf-8');
 
     if (!$userID) {
+        http_response_code(400); // Bad request if ID is missing
         echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
         return;
     }
@@ -215,12 +283,25 @@ class UserController{
 
         // Validate fields input
         if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
+            http_response_code(400);
             echo json_encode(['success' => false, 'message' => "Paramètre 'fields' doit être '*' ou un tableau non vide."]);
             return;
         }
 
-        // Build the SELECT clause
-        $selectFields = $fields === '*' ? '*' : implode(', ', array_map('htmlspecialchars', $fields));
+        // Basic validation against known columns (optional but recommended)
+        $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+        $selectFields = '*';
+        if (is_array($fields)) {
+            $validFields = array_intersect($fields, $allowedFields);
+            if (empty($validFields)) {
+                 http_response_code(400);
+                 echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
+                 return;
+            }
+            // Sanitize field names (though PDO prepares values, good practice for identifiers if needed)
+            $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
+        }
+
 
         $sql = "SELECT $selectFields FROM User WHERE User.ID = :userID";
 
@@ -231,38 +312,57 @@ class UserController{
         if ($userData) {
             echo json_encode(['success' => true, 'data' => $userData]);
         } else {
+            http_response_code(404); // Not Found
             echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'ID fourni."]);
         }
     } catch (PDOException $e) {
         http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Erreur Database: ' . $e->getMessage()]);
+        error_log("PDOException in getUserById: " . $e->getMessage());
+        echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
+    } catch (Exception $e) {
+         http_response_code(500);
+         error_log("Exception in getUserById: " . $e->getMessage());
+         echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
     }
 
     }
 
-    public static function getUserByUsername($username, $input) {
+    public static function getUserByUsername($username) { // Removed $input, read from body
         global $pdo;
     
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
     
         if (!$username) {
-            echo json_encode(['success' => false, 'message' => "Paramètre 'username' manquant."]);
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "Paramètre 'username' manquant dans l'URL."]);
             return;
         }
     
         try {
-            // Extract fields from the input
+             // Parse the JSON body to get the desired fields
+            $input = json_decode(file_get_contents('php://input'), true);
             $fields = isset($input['fields']) ? $input['fields'] : '*';
     
             // Validate fields input
             if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' doit être '*' ou un tableau non vide."]);
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' dans le body doit être '*' ou un tableau non vide."]);
                 return;
             }
     
-            // Build the SELECT clause
-            $selectFields = $fields === '*' ? '*' : implode(', ', array_map('htmlspecialchars', $fields));
+             // Basic validation against known columns (optional but recommended)
+            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+            $selectFields = '*';
+            if (is_array($fields)) {
+                $validFields = array_intersect($fields, $allowedFields);
+                if (empty($validFields)) {
+                     http_response_code(400);
+                     echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
+                     return;
+                }
+                $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
+            }
     
             $sql = "SELECT $selectFields FROM User WHERE User.Pseudo = :username";
     
@@ -273,37 +373,56 @@ class UserController{
             if ($userData) {
                 echo json_encode(['success' => true, 'data' => $userData]);
             } else {
+                http_response_code(404);
                 echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec le nom d'utilisateur fourni."]);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur Database: ' . $e->getMessage()]);
+            error_log("PDOException in getUserByUsername: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
+        } catch (Exception $e) {
+             http_response_code(500);
+             error_log("Exception in getUserByUsername: " . $e->getMessage());
+             echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
         }
     }
 
-    public static function getUserByApiKey($apiKey, $input) {
+    public static function getUserByApiKey($apiKey) { // Removed $input, read from body
         global $pdo;
     
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
     
         if (!$apiKey) {
-            echo json_encode(['success' => false, 'message' => "Paramètre 'apiKey' manquant."]);
+             http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "Paramètre 'apiKey' manquant dans l'URL."]);
             return;
         }
     
         try {
-            // Extract fields from the input
+            // Parse the JSON body to get the desired fields
+            $input = json_decode(file_get_contents('php://input'), true);
             $fields = isset($input['fields']) ? $input['fields'] : '*';
     
             // Validate fields input
             if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' doit être '*' ou un tableau non vide."]);
+                 http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' dans le body doit être '*' ou un tableau non vide."]);
                 return;
             }
     
-            // Build the SELECT clause
-            $selectFields = $fields === '*' ? '*' : implode(', ', array_map('htmlspecialchars', $fields));
+            // Basic validation against known columns (optional but recommended)
+            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+            $selectFields = '*';
+            if (is_array($fields)) {
+                $validFields = array_intersect($fields, $allowedFields);
+                if (empty($validFields)) {
+                     http_response_code(400);
+                     echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
+                     return;
+                }
+                $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
+            }
     
             $sql = "SELECT $selectFields FROM User WHERE User.ApiKey = :apiKey";
     
@@ -314,50 +433,74 @@ class UserController{
             if ($userData) {
                 echo json_encode(['success' => true, 'data' => $userData]);
             } else {
+                 http_response_code(404);
                 echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'apiKey fourni."]);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur Database: ' . $e->getMessage()]);
+            error_log("PDOException in getUserByApiKey: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
+        } catch (Exception $e) {
+             http_response_code(500);
+             error_log("Exception in getUserByApiKey: " . $e->getMessage());
+             echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
         }
     }
 
-    public static function searchUsersByUsername($username, $input) {
+    public static function searchUsersByUsername($username) { // Removed $input, read from body
         global $pdo;
     
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
     
         if (!$username) {
-            echo json_encode(['success' => false, 'message' => "Paramètre 'username' manquant."]);
+            http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "Paramètre 'username' manquant dans l'URL."]);
             return;
         }
     
         try {
-            // Extract fields and limit from the input
+            // Parse the JSON body to get the desired fields and limit
+            $input = json_decode(file_get_contents('php://input'), true);
             $fields = isset($input['fields']) ? $input['fields'] : '*';
-            $limit = isset($input['limit']) ? intval($input['limit']) : 10; // Default to 10 users if not specified
+            $limit = isset($input['limit']) ? intval($input['limit']) : 10; // Default limit
     
             // Validate fields input
             if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' doit être '*' ou un tableau non vide."]);
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' dans le body doit être '*' ou un tableau non vide."]);
                 return;
             }
     
             // Validate limit
             if ($limit <= 0) {
+                http_response_code(400);
                 echo json_encode(['success' => false, 'message' => "Paramètre 'limit' doit être un entier positif."]);
                 return;
             }
     
-            // Build the SELECT clause
-            $selectFields = $fields === '*' ? '*' : implode(', ', array_map('htmlspecialchars', $fields));
+            // Basic validation against known columns (optional but recommended)
+            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+            $selectFields = '*';
+            if (is_array($fields)) {
+                $validFields = array_intersect($fields, $allowedFields);
+                if (empty($validFields)) {
+                     http_response_code(400);
+                     echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
+                     return;
+                }
+                // Add similarity for ordering even if not explicitly requested in output fields
+                $selectFields = implode(', ', array_map(function($field) { return "`User`.`" . str_replace("`", "``", $field) . "`"; }, $validFields));
+            } else {
+                 $selectFields = '`User`.*'; // Select all user fields if '*'
+            }
+
     
             // Query to find users matching the username, ordered by similarity
-            $sql = "SELECT $selectFields, LOCATE(:username, User.Pseudo) AS similarity
+            $sql = "SELECT $selectFields, LOCATE(:username, `User`.`Pseudo`) AS similarity
                     FROM User
-                    WHERE User.Pseudo LIKE :usernamePattern
-                    ORDER BY similarity ASC, User.Pseudo ASC
+                    WHERE `User`.`Pseudo` LIKE :usernamePattern
+                    ORDER BY similarity ASC, `User`.`Pseudo` ASC
                     LIMIT :limit";
     
             $stmt = $pdo->prepare($sql);
@@ -368,14 +511,27 @@ class UserController{
     
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
+            // Remove similarity field if '*' wasn't requested or if specific fields were requested without 'similarity'
+             if ($fields !== '*' && is_array($fields) && !in_array('similarity', $fields)) {
+                 foreach ($users as &$user) {
+                     unset($user['similarity']);
+                 }
+             }
+
             if ($users) {
                 echo json_encode(['success' => true, 'data' => $users]);
             } else {
+                http_response_code(404);
                 echo json_encode(['success' => false, 'message' => "Aucun utilisateur trouvé correspondant au nom d'utilisateur fourni."]);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur Database: ' . $e->getMessage()]);
+             error_log("PDOException in searchUsersByUsername: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
+        } catch (Exception $e) {
+             http_response_code(500);
+             error_log("Exception in searchUsersByUsername: " . $e->getMessage());
+             echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
         }
     }
 
@@ -390,7 +546,8 @@ class UserController{
     
         // Check if the API key is provided in the body
         if (!isset($input['apiKey'])) {
-            echo json_encode(['success' => false, 'message' => "Paramètre 'apiKey' manquant."]);
+             http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "Paramètre 'apiKey' manquant dans le body."]);
             return;
         }
     
@@ -404,7 +561,8 @@ class UserController{
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
             if (!$user) {
-                echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'API key fourni."]);
+                 http_response_code(404); // Or 401 Unauthorized if API key is invalid
+                echo json_encode(['success' => false, 'message' => "Utilisateur introuvable ou clé API invalide."]);
                 return;
             }
     
@@ -417,10 +575,12 @@ class UserController{
             echo json_encode(['success' => true, 'message' => "Déconnexion réussie."]);
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur Database: ' . $e->getMessage()]);
-        } catch (Exception $e) {
+             error_log("PDOException in userDisconnect: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
+        } catch (Exception $e) { // Catch potential general errors, though less likely here
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+             error_log("Exception in userDisconnect: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
         }
     }
 
@@ -433,14 +593,19 @@ class UserController{
         // Read the JSON body from the request
         $input = json_decode(file_get_contents('php://input'), true);
     
-        // Validate required fields
-        if (!isset($input['apiKey']) || !isset($input['data'])) {
-            echo json_encode(['success' => false, 'message' => "Paramètres 'apiKey' et 'data' manquants."]);
+        // Validate required fields in the body
+        if (!isset($input['apiKey']) || !isset($input['data']) || !is_array($input['data']) || empty($input['data'])) {
+             http_response_code(400);
+            echo json_encode(['success' => false, 'message' => "Paramètres 'apiKey' et 'data' (tableau non vide) manquants ou invalides dans le body."]);
             return;
         }
     
         $apiKey = $input['apiKey'];
-        $data = $input['data']; // This should be an associative array of fields to update
+        $data = $input['data']; // Associative array of fields to update
+    
+        // --- Whitelist fields that can be modified ---
+        $allowedUpdateFields = ['Pseudo', 'Name', 'Email', 'Description', 'Birth', 'LanguageID', 'PositionID', 'Img']; // Add/remove fields as needed
+        // Password should likely have a separate endpoint/process
     
         try {
             // Check if the user exists with the provided API key
@@ -450,32 +615,91 @@ class UserController{
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
             if (!$user) {
-                echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'API key fourni."]);
+                 http_response_code(404); // Or 401 Unauthorized
+                echo json_encode(['success' => false, 'message' => "Utilisateur introuvable ou clé API invalide."]);
                 return;
             }
     
-            // Build the SQL query dynamically based on the provided data
+            // Build the SQL query dynamically based on the *allowed* provided data
             $fields = [];
             $params = ['userID' => $user['ID']];
+            $updateErrors = [];
+
             foreach ($data as $key => $value) {
-                $fields[] = "`$key` = :$key";
-                $params[$key] = $value;
+                if (in_array($key, $allowedUpdateFields)) {
+                    // --- Add specific validation per field if necessary ---
+                    if ($key === 'Email' && !filter_var($value, FILTER_VALIDATE_EMAIL)) {
+                        $updateErrors['Email'] = 'Format d\'email invalide.';
+                        continue; // Skip this field
+                    }
+                     if ($key === 'LanguageID' || $key === 'PositionID') {
+                         // Optional: Check if the provided ID exists in the respective table
+                         $tableName = ($key === 'LanguageID') ? 'Language' : 'Position';
+                         $checkStmt = $pdo->prepare("SELECT 1 FROM `$tableName` WHERE ID = :id");
+                         $checkStmt->execute(['id' => $value]);
+                         if (!$checkStmt->fetchColumn() && $value !== null) { // Allow setting PositionID to null
+                             $updateErrors[$key] = "ID invalide pour '$tableName'.";
+                             continue;
+                         }
+                     }
+                     if ($key === 'Img' && !filter_var($value, FILTER_VALIDATE_URL) && !empty($value)) { // Allow empty Img?
+                         $updateErrors['Img'] = 'Format d\'URL invalide pour Img.';
+                         continue;
+                     }
+
+                    // Sanitize key for SQL statement (basic backtick escaping)
+                    $safeKey = "`" . str_replace("`", "``", $key) . "`";
+                    $fields[] = "$safeKey = :$key";
+                    // Sanitize value before adding to params (htmlspecialchars or type casting)
+                    $params[$key] = is_string($value) ? htmlspecialchars($value) : $value;
+                } else {
+                    // Optionally log or ignore attempts to update disallowed fields
+                     error_log("Attempt to update disallowed field '$key' by user ID {$user['ID']}");
+                }
             }
+
+             // If validation errors occurred during field processing
+             if (!empty($updateErrors)) {
+                 http_response_code(400);
+                 echo json_encode(['success' => false, 'message' => 'Erreurs de validation des données fournies.', 'errors' => $updateErrors]);
+                 return;
+             }
+
+            // Check if there are any valid fields to update
+            if (empty($fields)) {
+                 http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Aucun champ valide à mettre à jour n'a été fourni."]);
+                return;
+            }
+    
             $fieldsSql = implode(', ', $fields);
     
             // Update the user data
             $sql = "UPDATE User SET $fieldsSql WHERE ID = :userID";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
+            $success = $stmt->execute($params);
     
-            // Return success response
-            echo json_encode(['success' => true, 'message' => "Les données de l'utilisateur ont été mises à jour avec succès."]);
+            if ($success) {
+                echo json_encode(['success' => true, 'message' => "Les données de l'utilisateur ont été mises à jour avec succès."]);
+            } else {
+                 // This might indicate a more specific DB error caught by PDOException below
+                 throw new Exception("La mise à jour de l'utilisateur a échoué sans PDOException.");
+            }
+
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur Database: ' . $e->getMessage()]);
+             error_log("PDOException in modifyUserByApiKey: " . $e->getMessage() . " SQLSTATE: " . $e->getCode());
+            // Check for specific constraint violations (e.g., unique email)
+            if ($e->getCode() == '23000') { // Integrity constraint violation
+                 http_response_code(409); // Conflict
+                 echo json_encode(['success' => false, 'message' => 'Erreur de contrainte: L\'email ou le pseudonyme existe peut-être déjà.']);
+            } else {
+                 echo json_encode(['success' => false, 'message' => 'Erreur Database lors de la mise à jour.']);
+            }
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+             error_log("Exception in modifyUserByApiKey: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Serveur: ' . $e->getMessage()]);
         }
     }
-}
+} // End of class UserController

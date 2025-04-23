@@ -11,6 +11,7 @@ require './src/controllers/SteamController.php';
 require './src/controllers/RecaptchaController.php';
 require './src/controllers/ChatController.php';
 require './src/controllers/AdminController.php';
+require './src/controllers/FilterController.php';
 
 //Diviser chaque routes clesse en fichiers pour chaque controller
 
@@ -27,6 +28,29 @@ get('/api/admin/hash', function() {
     AdminController::generatePasswordHash($input);
 });
 
+post('/api/filter/create', function() {
+    FilterController::createFilter();
+});
+
+post('/api/filter/all', function() {
+    FilterController::getFiltersByType();
+});
+
+post('/api/filter/$id', function($id) {
+    FilterController::getFilterById($id);
+});
+
+
+
+
+
+
+
+
+
+
+
+//----------------------------USER CONTROLLER----------------------------//
 //----------------------------USER CONTROLLER----------------------------//
 
 //Route qui combiner les donnees des route ci-dessous
