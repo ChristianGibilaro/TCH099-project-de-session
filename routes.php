@@ -28,9 +28,22 @@ get('/api/admin/hash', function() {
     AdminController::generatePasswordHash($input);
 });
 
+post('/api/filter/create', function() {
+    FilterController::createFilter();
+});
+
+post('/api/filter/all', function() {
+    FilterController::getFiltersByType();
+});
+
 post('/api/filter/$id', function($id) {
     FilterController::getFilterById($id);
 });
+
+
+
+
+
 
 //----------------------------USER CONTROLLER----------------------------//
 
