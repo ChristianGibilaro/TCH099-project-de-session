@@ -43,6 +43,21 @@ post('/api/filter/$id', function($id) {
 
 //----------------------------USER CONTROLLER----------------------------//
 
+//Route qui combiner les donnees des route ci-dessous
+get('/api/user_data_combined/${userID}', function($userID){
+    AndroidController::getUserDataCombinedAndroid($userID);
+});
+
+//Router pour touver nombre de jeux d'un user
+get('/api/total_games/${userID}', function($userID){
+    AndroidController::getUserTotalGameCountForAndroid($userID);
+});
+
+//Route pour trouver le nombre d'amis d'un user
+get('/api/total_friends/${userID}', function($userID){
+    AndroidController::getUserTotalFriendsForAndroid($userID);
+});
+
 //Route pour avoir les donnees d'un user selon
 get('/api/profile_android/${userID}', function($userID){
     AndroidController::getUserDataForAndroid($userID);
