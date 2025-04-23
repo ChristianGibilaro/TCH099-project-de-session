@@ -430,12 +430,15 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
      * @returns {HTMLElement} The HTML div element containing the filter textbox and dropdown.
      */
     CreateFilterTextbox(elements, placeholder, id) {
-        const filteredDiv = document.createElement("div");
-        filteredDiv.className = "bloc-filtre";
-        filteredDiv.id = id || '';
+
+          const filteredDiv = document.createElement("div");
+          filteredDiv.className = "bloc-filtre";
+          filteredDiv.id = id || '';
+
 
         const textBox = document.createElement("input");
         textBox.type = "text";
+        textBox.name = id;
         textBox.placeholder = placeholder;
         filteredDiv.appendChild(textBox);
 
@@ -484,7 +487,7 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
 
         for (let i = 0; i < elements.length; i++) {
             const text = elements[i].trim().toLowerCase();
-            if (text.startsWith(compare)) {
+            if (text.startsWith(compare) || elements[i] === "--Clear--") {
                 out.push(elements[i]);
             }
         }
@@ -499,16 +502,26 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
      * @param {HTMLInputElement} textBox - The HTML input element to update on mouseover.
      */
     PopulateLi(elements, parent, textBox) {
-        for (let i = 0; i < elements.length; i++) {
-            const choice = document.createElement("li");
-            choice.innerText = elements[i];
-            choice.className = "choice";
-            parent.appendChild(choice);
-            choice.addEventListener('mouseover', (option) => {
-                textBox.value = option.target.innerHTML;
-            });
-        }
-    }
+      for (let i = 0; i < elements.length; i++) {
+          const choice = document.createElement("li");
+          choice.innerText = elements[i];
+          choice.className = "choice";
+          parent.appendChild(choice);
+          // Use 'mousedown' instead of 'click'
+          choice.addEventListener('mousedown', (option) => {
+            // Prevent the textbox from losing focus immediately on mousedown
+            option.preventDefault(); 
+            console.log(option.target.innerText);
+            if(option.target.innerText != "--Clear--"){
+              textBox.value = option.target.innerText;
+            }else{
+              textBox.value = "";
+            }
+            // Optionally hide the dropdown manually after selection
+            // parent.closest('.liste-choices').style.display = 'none'; 
+          });
+      }
+  }
 
     /**
      * Creates an HTML structure for a filter textbox with an associated checklist dropdown.
@@ -536,7 +549,10 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
         optionsDiv.style.display = 'none';
         optionsDiv.appendChild(choicesList);
 
-        this.PopulateCheck(elements, choicesList, "");
+        this.PopulateCheck(elements, choicesList, textBox).addEventListener('click', () => {
+          textBox.value = "";
+          this.FilterCheck(choicesList.children, textBox.value);
+      });
 
         textBox.addEventListener('click', () => {
             optionsDiv.style.display = optionsDiv.style.display === 'block' ? 'none' : 'block';
@@ -555,18 +571,26 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
      * @param {string[]} elements - The array of strings to use as labels for the checkboxes.
      * @param {HTMLUListElement} parent - The HTML ul element to append the list items to.
      */
-    PopulateCheck(elements, parent) {
+    PopulateCheck(elements, parent, textBox,choices) {
+      var out;
         for (let i = 0; i < elements.length; i++) {
             const choice = document.createElement("li");
-            choice.innerHTML = '<input type="checkbox" style = "margin-left:5px;margin-right:5px" />' + elements[i];
+            if(elements[i] != "--Clear--"){
+            choice.innerHTML = '<input type="checkbox" style = "margin-left:5px;margin-right:5px" />';
+            }else{
+              out = choice;
+            }
+            choice.innerHTML += elements[i];
             choice.className = "choice";
             parent.appendChild(choice);
+              
         }
+        return out;
     }
 
     /**
      * Filters a collection of HTML list items (containing checkboxes) based on an input string.
-     * Shows list items whose text content starts with the input string (case-insensitive) and hides others.
+     * Shows list items whose text content starts with the input string (case-insensitivse) and hides others.
      * @param {HTMLCollection} elements - The HTMLCollection of li elements to filter.
      * @param {string} input - The input string to filter by.
      */
@@ -575,7 +599,7 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
 
         for (let i = 0; i < elements.length; i++) {
             const text = elements[i].innerText.trim().toLowerCase();
-            elements[i].hidden = compare !== "" && !text.startsWith(compare);
+            elements[i].hidden = (compare !== "" && !text.startsWith(compare)) && elements[i].innerText !== "--Clear--";
         }
     }
 
@@ -597,217 +621,248 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
      * - For 'image' type: `src` for the image source.
      * - For 'switchable' type:
      * - `type1`: Object defining the first input (e.g., { type: 'url', label: 'Source URL', name: 'source_url', required: true }).
-     * - `type2`: Object defining the second input (e.g., { type: 'file', label: 'Upload File', name: 'source_file', required: true }).
+    * - `type2`: Object defining the second input (e.g., { type: 'file', label: 'Upload File', name: 'source_file', required: true }).
      * - `defaultType`: String indicating which type is visible initially ('type1' or 'type2').
      * - `switchButtonText`: (Optional) Template for the switch button text, using '%typeLabel%' as a placeholder for the *other* input's label (e.g., "Switch to %typeLabel%"). Defaults are provided if omitted.
+     * - For 'hidden' type:
+     * - `label`: The main label for the collapsible group.
+     * - `name`: A base name/ID for the group and button.
+     * - `inputs`: An array of standard input configuration objects to be placed inside the collapsible section.
+     * - `buttonTextShow` (optional): Text for the button when content is hidden (default: "Show").
+     * - `buttonTextHide` (optional): Text for the button when content is shown (default: "Hide").
+     * - `initiallyHidden` (optional): Boolean, determines if content is hidden initially (default: true).
      * @param {string} [submitButtonText="Submit"] - The text for the submit button.
      * @param {string} [loginLink] - An optional link to a login page.
      * @param {string} [loginLinkText="Already have an account? Log in."] - The text for the login link.
-     * @returns {string} The HTML string for the generated form. Does NOT include the required JavaScript for switchable inputs; that must be added separately.
+     * @returns {string} The HTML string for the generated form. Does NOT include the required JavaScript for switchable or hidden inputs; that must be added separately or via inline `onclick`.
      */
     CreateDynamicForm(formTitle, formId, formMethod, formEnctype, inputConfig, submitButtonText = "Submit", loginLink = null,loginLinkText = "") {
-        let html = `<h3 class="form-title">${formTitle}</h3>\n`;
-        html += `<form id="${formId}" method="${formMethod}" enctype="${formEnctype}">\n`;
+      let html = `<h3 class="form-title">${formTitle}</h3>\n`;
+      html += `<form id="${formId}" method="${formMethod}" enctype="${formEnctype}">\n`;
 
-        // Helper function to generate standard input HTML (simplified version)
-        const generateInputHtml = (def, idSuffix = '', extraClasses = '', extraStyles = '', isDisabled = false) => {
-            const inputId = def.id || (def.name + idSuffix);
-            const requiredAttr = def.required ? 'required' : '';
-            const placeholderAttr = def.placeholder ? `placeholder="${def.placeholder}"` : '';
-            const defaultValueAttr = def.defaultValue !== null && def.defaultValue !== undefined ? `value="${def.defaultValue}"` : '';
-            const disabledAttr = isDisabled ? 'disabled' : '';
-            let inputHtml = '';
+      // Helper function to generate standard input HTML (more robust)
+      const generateInputHtml = (def, idSuffix = '', extraClasses = '', extraStyles = '', isDisabled = false) => {
+          const inputId = def.id || (def.name + idSuffix);
+          // Store original required state for toggling
+          const originalRequired = def.required ? 'data-original-required="true"' : 'data-original-required="false"';
+          // Apply required only if not disabled
+          const requiredAttr = (def.required && !isDisabled) ? 'required' : '';
+          const placeholderAttr = def.placeholder ? `placeholder="${def.placeholder}"` : '';
+          const defaultValueAttr = def.defaultValue !== null && def.defaultValue !== undefined ? `value="${def.defaultValue}"` : '';
+          const disabledAttr = isDisabled ? 'disabled' : '';
+          let inputHtml = '';
+          let labelHtml = `<label for="${inputId}">${def.label} ${def.required ? '*' : ''}</label>\n`; // Default label
 
-            switch (def.type.toLowerCase()) {
-                case 'text':
-                case 'email':
-                case 'password':
-                case 'url':
-                case 'time':
-                case 'color':
-                case 'date':
-                case 'number':
-                    inputHtml = `
-                    <label for="${inputId}">${def.label} ${def.required ? '*' : ''}</label>
-                    <input type="${def.type.toLowerCase()}" id="${inputId}" name="${def.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr} ${disabledAttr}>
+          switch (def.type.toLowerCase()) {
+              case 'text':
+              case 'email':
+              case 'password':
+              case 'url':
+              case 'time':
+              case 'color':
+              case 'date':
+              case 'number':
+                  inputHtml = `
+                  ${labelHtml}
+                  <input type="${def.type.toLowerCase()}" id="${inputId}" name="${def.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr} ${disabledAttr} ${originalRequired}>
+              `;
+                  break;
+              case 'file':
+                  inputHtml = `
+                  ${labelHtml}
+                  <input type="file" id="${inputId}" name="${def.name}" ${requiredAttr} ${disabledAttr} ${originalRequired}>
+              `;
+                  break;
+              case 'textarea':
+                  inputHtml = `
+                  ${labelHtml}
+                  <textarea id="${inputId}" name="${def.name}" ${placeholderAttr} ${requiredAttr} ${disabledAttr} rows="${def.rows || 3}" ${originalRequired}>${def.defaultValue || ''}</textarea>
+              `;
+                  break;
+              case 'options':
+                  inputHtml = `
+                  ${labelHtml}
+                  <select id="${inputId}" name="${def.name}" ${requiredAttr} ${disabledAttr} ${originalRequired}>
+              `;
+                  if (def.options && Array.isArray(def.options)) {
+                      inputDef.options.forEach(option => {
+                          const selectedAttr = def.defaultValue === option ? 'selected' : '';
+                          inputHtml += `        <option value="${option}" ${selectedAttr}>${option}</option>\n`;
+                      });
+                  }
+                  inputHtml += `      </select>`;
+                  break;
+              case 'checkbox':
+                  const checkboxId = def.id || def.name + '-' + (def.value || '').replace(/\s+/g, '-').toLowerCase();
+                  const checkedAttr = def.defaultValue ? 'checked' : '';
+                  const labelContent = def.labelLink ? `${def.label} <a href="${def.labelLink}">${def.text}</a>.` : `${def.label}.`;
+                  // Checkbox label is handled differently
+                  inputHtml = `
+                  <input type="checkbox" id="${checkboxId}" name="${def.name}" value="${def.value || 'on'}" ${checkedAttr} ${requiredAttr} ${disabledAttr} ${originalRequired}>
+                  <label for="${checkboxId}">${labelContent}</label>
+              `;
+                  // Return directly as checkbox group structure is different
+                  return `<div class="checkbox-group ${extraClasses}" style="${extraStyles}">${inputHtml}</div>`;
+              case 'image':
+                  const srcAttr = def.src ? `src="${def.src}"` : '';
+                  inputHtml = `
+                  ${labelHtml}
+                  <input type="image" id="${inputId}" name="${def.name}" ${srcAttr} ${placeholderAttr} ${defaultValueAttr} ${requiredAttr} ${disabledAttr} ${originalRequired}>
+              `;
+                  break;
+              // Add other simple types if needed
+              default:
+                  console.warn(`generateInputHtml helper doesn't support type: ${def.type}`);
+                  return ''; // Return empty for unsupported types in helper
+          }
+          // Wrap most inputs in a standard div structure
+          return `<div class="input-wrapper ${extraClasses}" style="${extraStyles}">${inputHtml}</div>`;
+      };
+
+
+      inputConfig.forEach(inputDef => {
+          const inputId = inputDef.id || inputDef.name;
+          // Required attribute is handled within generateInputHtml or specific cases now
+          // const requiredAttr = inputDef.required ? 'required' : '';
+          const placeholderAttr = inputDef.placeholder ? `placeholder="${inputDef.placeholder}"` : '';
+          const defaultValueAttr = inputDef.defaultValue !== null && inputDef.defaultValue !== undefined ? `value="${inputDef.defaultValue}"` : '';
+          let inputGroupHtml = '';
+
+          switch (inputDef.type.toLowerCase()) {
+              // --- Cases using the helper directly ---
+              case 'text':
+              case 'email':
+              case 'password':
+              case 'url':
+              case 'file':
+              case 'image':
+              case 'time':
+              case 'options':
+              case 'textarea':
+              case 'color':
+              case 'date':
+              case 'number':
+                  inputGroupHtml = `
+                  <div class="input-group">
+                    ${generateInputHtml(inputDef)}
+                  </div>
                 `;
-                    break;
-                case 'file':
-                    inputHtml = `
-                    <label for="${inputId}">${def.label} ${def.required ? '*' : ''}</label>
-                    <input type="file" id="${inputId}" name="${def.name}" ${requiredAttr} ${disabledAttr}>
-                `;
-                    break;
-                case 'textarea':
-                    inputHtml = `
-                    <label for="${inputId}">${def.label} ${def.required ? '*' : ''}</label>
-                    <textarea id="${inputId}" name="${def.name}" ${placeholderAttr} ${requiredAttr} ${disabledAttr}>${def.defaultValue || ''}</textarea>
-                `;
-                    break;
-                // Add other simple types if needed, adapting from the original function
-                default:
-                    console.warn(`generateInputHtml helper doesn't support type: ${def.type}`);
-                    return ''; // Return empty for unsupported types in helper
-            }
-            return `<div class="input-wrapper ${extraClasses}" style="${extraStyles}">${inputHtml}</div>`;
-        };
+                  break;
+              case 'checkbox':
+                  // Checkbox uses its own group structure from the helper
+                  inputGroupHtml = generateInputHtml(inputDef);
+                  break;
 
+              // --- Switchable Case ---
+              case 'switchable':
+                  const baseName = inputDef.name;
+                  const type1Def = inputDef.type1;
+                  const type2Def = inputDef.type2;
+                  const input1Id = type1Def.name; // Use name as ID for simplicity here
+                  const input2Id = type2Def.name;
+                  const isType1Default = inputDef.defaultType.toLowerCase() === 'type1';
 
-        inputConfig.forEach(inputDef => {
-            const inputId = inputDef.id || inputDef.name;
-            const requiredAttr = inputDef.required ? 'required' : '';
-            const placeholderAttr = inputDef.placeholder ? `placeholder="${inputDef.placeholder}"` : '';
-            const defaultValueAttr = inputDef.defaultValue !== null && inputDef.defaultValue !== undefined ? `value="${inputDef.defaultValue}"` : '';
-            let inputGroupHtml = '';
+                  // Generate HTML for both types, setting initial disabled/style state
+                  const type1Html = generateInputHtml(type1Def, '', `switchable-content switchable-type1`, isType1Default ? '' : 'display: none;', !isType1Default);
+                  const type2Html = generateInputHtml(type2Def, '', `switchable-content switchable-type2`, !isType1Default ? '' : 'display: none;', isType1Default);
 
-            switch (inputDef.type.toLowerCase()) {
-                // --- Cases for existing types (text, email, password, url, file, etc.) ---
-                // (Keep your existing cases here, wrapping the output in <div class="input-group">...</div>)
-                case 'text':
-                case 'email':
-                case 'password':
-                case 'url':
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <input type="${inputDef.type.toLowerCase()}" id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
-    </div>
-  `;
-                    break;
-                case 'file':
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <input type="file" id="${inputId}" name="${inputDef.name}" ${requiredAttr}>
-    </div>
-  `;
-                    break;
-                case 'image':
-                    const srcAttr = inputDef.src ? `src="${inputDef.src}"` : '';
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <input type="image" id="${inputId}" name="${inputDef.name}" ${srcAttr} ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
-    </div>
-  `;
-                    break;
-                case 'time':
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <input type="time" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
-    </div>
-  `;
-                    break;
-                case 'options':
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <select id="${inputId}" name="${inputDef.name}" ${requiredAttr}>
-  `;
-                    if (inputDef.options && Array.isArray(inputDef.options)) {
-                        inputDef.options.forEach(option => {
-                            const selectedAttr = inputDef.defaultValue === option ? 'selected' : '';
-                            inputGroupHtml += `        <option value="${option}" ${selectedAttr}>${option}</option>\n`;
-                        });
-                    }
-                    inputGroupHtml += `      </select>
-    </div>
-  `;
-                    break;
-                case 'textarea':
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <textarea id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${requiredAttr}>${inputDef.defaultValue || ''}</textarea>
-    </div>
-  `;
-                    break;
-                case 'checkbox':
-                    const checkboxId = inputDef.id || inputDef.name + '-' + (inputDef.value || '').replace(/\s+/g, '-').toLowerCase();
-                    const checkedAttr = inputDef.defaultValue ? 'checked' : '';
-                    const labelContent = inputDef.labelLink ? `${inputDef.label} <a href="${inputDef.labelLink}">${inputDef.text}</a>.` : `${inputDef.label}.`;
-                    inputGroupHtml = `
-    <div class="checkbox-group">
-      <input type="checkbox" id="${checkboxId}" name="${inputDef.name}" value="${inputDef.value || 'on'}" ${checkedAttr} ${requiredAttr}>
-      <label for="${checkboxId}">${labelContent}</label>
-    </div>
-  `;
-                    break;
-                case 'color':
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <input type="color" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
-    </div>
-  `;
-                    break;
-                case 'date':
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <input type="date" id="${inputId}" name="${inputDef.name}" ${defaultValueAttr} ${requiredAttr}>
-    </div>
-  `;
-                    break;
-                case 'number':
-                    inputGroupHtml = `
-    <div class="input-group">
-      <label for="${inputId}">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-      <input type="number" id="${inputId}" name="${inputDef.name}" ${placeholderAttr} ${defaultValueAttr} ${requiredAttr}>
-    </div>
-  `;
-                    break;
+                  const defaultButtonTemplate = "Switch to %typeLabel%";
+                  const buttonTemplate = inputDef.switchButtonText || defaultButtonTemplate;
+                  const type1ButtonText = buttonTemplate.replace('%typeLabel%', type2Def.label || 'Type 2');
+                  const type2ButtonText = buttonTemplate.replace('%typeLabel%', type1Def.label || 'Type 1');
+                  const switchableInitialButtonText = isType1Default ? type1ButtonText : type2ButtonText;
 
-                // --- NEW Switchable Case ---
-                case 'switchable':
-                    // ... (previous checks and variable assignments remain the same) ...
-                    const baseName = inputDef.name;
-                    const type1Def = inputDef.type1;
-                    const type2Def = inputDef.type2;
-                    const input1Id = type1Def.name;
-                    const input2Id = type2Def.name;
-                    const isType1Default = inputDef.defaultType.toLowerCase() === 'type1';
-                    const type1Html = generateInputHtml(type1Def, '', `switchable-content switchable-type1`, isType1Default ? '' : 'display: none;', !isType1Default);
-                    const type2Html = generateInputHtml(type2Def, '', `switchable-content switchable-type2`, !isType1Default ? '' : 'display: none;', isType1Default);
-                    const defaultButtonTemplate = "Switch to %typeLabel%";
-                    const buttonTemplate = inputDef.switchButtonText || defaultButtonTemplate;
-                    const type1ButtonText = buttonTemplate.replace('%typeLabel%', type2Def.label || 'Type 2');
-                    const type2ButtonText = buttonTemplate.replace('%typeLabel%', type1Def.label || 'Type 1');
-                    const initialButtonText = isType1Default ? type1ButtonText : type2ButtonText;
+                  // NOTE: The button below requires separate JavaScript to function correctly.
+                  // The data-* attributes are provided for easy selection in JS.
+                  inputGroupHtml = `
+                  <div class="input-group switchable-input-group" id="group_${baseName}">
+                      <label class="switchable-group-label">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
+                      ${type1Html}
+                      ${type2Html}
+                      <button type="button" class="switchable-input-button"
+                              data-group-id="group_${baseName}"
+                              data-type1-id="${input1Id}"
+                              data-type2-id="${input2Id}"
+                              data-type1-button-text="${encodeURIComponent(type1ButtonText)}"
+                              data-type2-button-text="${encodeURIComponent(type2ButtonText)}">
+                          ${switchableInitialButtonText}
+                      </button>
+                  </div>
+              `;
+                  break;
 
-                    inputGroupHtml = `
-                    <div class="input-group switchable-input-group" id="group_${baseName}">
-                        <label class="switchable-group-label">${inputDef.label} ${inputDef.required ? '*' : ''}</label>
-                        ${type1Html}
-                        ${type2Html}
-                        <button type="button" class="switchable-input-button"
-                                data-group-id="group_${baseName}"
-                                data-type1-id="${input1Id}"
-                                data-type2-id="${input2Id}"
-                                data-type1-button-text="${encodeURIComponent(type1ButtonText)}"
-                                data-type2-button-text="${encodeURIComponent(type2ButtonText)}">
-                            ${initialButtonText}
-                        </button>
-                    </div>
-                `;
-                    break;
-                default:
-                    console.warn(`Unknown input type: ${inputDef.type}`);
-                    break;
-            }
-            html += inputGroupHtml; // Append the generated group HTML
-        });
+               // --- NEW Hidden Case ---
+               case 'hidden':
+                  const hiddenGroupName = inputDef.name;
+                  const contentId = `hidden_content_${hiddenGroupName}`;
+                  const buttonId = `hidden_button_${hiddenGroupName}`;
+                  const initiallyHidden = inputDef.initiallyHidden !== false; // Default to true if undefined
+                  const buttonTextShow = inputDef.buttonTextShow || "Show";
+                  const buttonTextHide = inputDef.buttonTextHide || "Hide";
+                  const hiddenInitialButtonText = initiallyHidden ? buttonTextShow : buttonTextHide;
+                  const initialDisplayStyle = initiallyHidden ? 'display: none;' : 'display: block;';
 
-        html += `    <button type="submit" id="soummission_btn" class="btn-connexion">${submitButtonText}</button>\n`;
+                  let innerInputsHtml = '';
+                  if (inputDef.inputs && Array.isArray(inputDef.inputs)) {
+                      inputDef.inputs.forEach(innerDef => {
+                          // Use the helper function, passing the initial disabled state
+                          innerInputsHtml += generateInputHtml(innerDef, '', '', '', initiallyHidden);
+                      });
+                  }
 
-        if (loginLink) {
-            html += `    <p class="signup-link">${loginLinkText}<a href="${loginLink}">here!</a></p>`;
-        }
+                  // Basic inline onclick for toggling.
+                  const toggleScript = `
+                      var content = document.getElementById('${contentId}');
+                      var button = document.getElementById('${buttonId}');
+                      var isHidden = content.style.display === 'none';
+                      content.style.display = isHidden ? 'block' : 'none';
+                      button.textContent = isHidden ? '${buttonTextHide}' : '${buttonTextShow}';
+                      // Toggle disabled state and required attribute for inputs inside
+                      var inputs = content.querySelectorAll('input, textarea, select');
+                      inputs.forEach(input => {
+                          input.disabled = !isHidden;
+                          var originalRequired = input.getAttribute('data-original-required') === 'true';
+                          if (originalRequired) {
+                              if (isHidden) {
+                                  input.setAttribute('required', '');
+                              } else {
+                                  input.removeAttribute('required');
+                              }
+                          }
+                      });
+                  `.replace(/\n\s*/g, ' ').trim(); // Minify the inline script
 
-        html += `</form>\n`;
-        return html;
-    }
+                  inputGroupHtml = `
+                  <div class="input-group hidden-input-group" id="group_${hiddenGroupName}">
+                      <label class="hidden-group-label">${inputDef.label}</label>
+                      <button type="button" id="${buttonId}" class="hidden-input-button switchable-input-button" onclick="${toggleScript}">
+                          ${hiddenInitialButtonText}
+                      </button>
+                      <div id="${contentId}" class="hidden-content" style="${initialDisplayStyle}">
+                          ${innerInputsHtml}
+                      </div>
+                  </div>
+                  `;
+                  break;
+
+              default:
+                  console.warn(`Unknown input type: ${inputDef.type}`);
+                  break;
+          }
+          html += inputGroupHtml; // Append the generated group HTML
+      });
+
+      html += `    <button type="submit" id="soummission_btn" class="btn-connexion">${submitButtonText}</button>\n`;
+
+      if (loginLink) {
+          html += `    <p class="signup-link">${loginLinkText}<a href="${loginLink}">here!</a></p>`;
+      }
+
+      html += `</form>\n`;
+       // Add note about required JS for dynamic elements
+       html += `<!-- Note: 'Switchable' and 'Hidden' input types require JavaScript to handle button clicks and state changes if not using the provided inline onclick. -->\n`;
+      return html;
+  }
 
 // Add a property to track the latest search token
 _searchToken = 0;
