@@ -11,6 +11,7 @@ require './src/controllers/SteamController.php';
 require './src/controllers/RecaptchaController.php';
 require './src/controllers/ChatController.php';
 require './src/controllers/AdminController.php';
+require './src/controllers/FilterController.php';
 
 //Diviser chaque routes clesse en fichiers pour chaque controller
 
