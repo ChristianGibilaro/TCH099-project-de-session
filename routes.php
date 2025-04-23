@@ -41,16 +41,6 @@ post('/api/filter/$id', function($id) {
 });
 
 
-
-
-
-
-
-
-
-
-
-//----------------------------USER CONTROLLER----------------------------//
 //----------------------------USER CONTROLLER----------------------------//
 
 //Route pour avoir les donnees d'un user selon
@@ -178,6 +168,9 @@ delete('/api/activity/${id}', function($id){
     //need admin apikey & admin paswsword
 });
    
+post('/api/activity/count', function(){
+    ActivityController::countAllActivity();
+});
 
 //---------------------------- TEAM CONTROLLER ----------------------------//
 
