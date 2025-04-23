@@ -70,7 +70,8 @@ class AndroidController
             echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Tables "User, Chat et MEssage"):' => $e->getMessage()]);
         }
     }
-
+    
+    //function qui retourne le nombre total d'amis d'un utilisateur selon l'ID passee en parametre
     public static function getUserTotalFriendsForAndroid($userID){
         global $pdo;
         header('Access-Control-Allow-Origin: *');
@@ -90,10 +91,59 @@ class AndroidController
             echo json_encode($userData, JSON_UNESCAPED_SLASHES);
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Tables "User, Chat et MEssage"):' => $e->getMessage()]);
+            echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Table "UserFriend"):' => $e->getMessage()]);
         }
     }
 
-    
+    //function qui retourne le nombre total de jeux ou de parties de jeux cumulees d'un utilisateur selon l'ID passee en parametre
+    public static function getUserTotalGameCountForAndroid($userID){
+        global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+        if (!$userID) {
+            echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
+            return;
+        }
+        try {
+            $sql = 'SELECT SUM(UserActivity.Game_Count) AS game_count_total FROM UserActivity WHERE UserActivity.UserID LIKE :userID';
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['userID' => $userID]);
+            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+
+            echo json_encode($userData, JSON_UNESCAPED_SLASHES);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Table "UserActivity"):' => $e->getMessage()]);
+        }
+    }
+
+    //Function qui conbine les requete des fonctions ci-dessus
+    public static function getUserDataCombinedAndroid($userID){
+        global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+        if (!$userID) {
+            echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
+            return;
+        }
+        try {
+            $sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, UF.total_friends, UA.game_count_total
+                FROM (SELECT User.ID AS UserID, User.Name AS UserName, User.Pseudo, User.Description, User.Img FROM User WHERE User.ID = :userID) AS U
+                INNER JOIN (SELECT UserFriend.UserID, COUNT(UserFriend.FriendID) AS total_friends FROM UserFriend WHERE UserFriend.UserID =:userID2) AS UF ON UF.UserID = U.UserID
+                INNER JOIN (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID';
+                
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['userID' => $userID, 'userID2' => $userID, 'userID3' => $userID]);
+            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+
+            echo json_encode($userData, JSON_UNESCAPED_SLASHES);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Tables "User, UserActivity et UserFriend"):' => $e->getMessage()]);
+        }
+    }
     
 }
