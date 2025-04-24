@@ -1033,6 +1033,13 @@ class ActivityController
             // --- Execute Count Query ---
             $stmtTotal = $pdo->prepare($sqlTotal);
 
+            // --- ADDED CHECK ---
+            if ($stmtTotal === false) {
+                $errorInfo = $pdo->errorInfo();
+                throw new Exception("PDO prepare() failed for count query. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
+            }
+            // --- END ADDED CHECK ---
+
             // --- DEBUGGING START ---
             echo "--- DEBUG COUNT QUERY ---<br>";
             echo "SQL Total: " . htmlspecialchars($sqlTotal) . "<br>";
