@@ -285,6 +285,7 @@ SQL;
         }
     }
 
+
     public static function createMessage()
     {
         global $pdo;

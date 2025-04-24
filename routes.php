@@ -88,6 +88,11 @@ post('/api/user/id/${userID}', function($userID) {
     UserController::getUserById($userID, $input);
 });
 
+get('/api/chat/userinfoById', function() {
+    UserController::getUserByUserId();
+});
+
+
 get('/api/user/username/${username}', function($username) {
     // Read the JSON body from the request
     $input = json_decode(file_get_contents('php://input'), true);
@@ -125,6 +130,9 @@ put('/api/user/apikey', function() {
 
 delete('/api/user/${userID}', function($userID) {
     AdminController::deleteUserByAdmin($userID);
+});
+get('/api/user/info', function() {
+    ChatController::getUserByApiKey();
 });
 
 
