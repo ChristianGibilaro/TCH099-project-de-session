@@ -1069,7 +1069,7 @@ class ActivityController
                         if ($activityFields === '*' || in_array($key, $activityFields)) {
                             // Prepend base URL to image paths if selected
                             if (($key === 'Main_Img' || $key === 'Logo_Img') && !empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
-                                 $activityResult[$key] = "https://api.lunarcovenant.com/" . ltrim($value, '/');
+                                 $activityResult[$key] = "" . ltrim($value, '/');
                             } else {
                                  $activityResult[$key] = $value;
                             }
