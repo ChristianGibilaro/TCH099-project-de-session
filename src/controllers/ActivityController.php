@@ -956,15 +956,20 @@ class ActivityController
     }
 
     /**
-     * Searches for activities based on criteria provided in the JSON body.
-     * Simplified version based on previous working search logic.
-     *
-     * @return array The response array (success/data or error).
+     * Searches for activities based on a query string, requested fields, and pagination.
+     * Expects a JSON body like:
+     * {
+     *   "query": "search term",
+     *   "fields": ["ID", "Title", ...], // Fields from Activity table
+     *   "activityDataFields": ["Player_Count", ...], // Fields from ActivityData table
+     *   "pagination": { "page": 1, "limit": 10 }
+     * }
+     * @return array The response array (success/data/pagination or error).
      */
     public static function searchActivites()
     {
         global $pdo;
-        $response = ['success' => false, 'message' => 'Erreur initiale searchActivites']; // Default error
+        $response = ['success' => false, 'message' => 'Erreur initiale searchActivites'];
         self::$outputSent = false; // Reset flag
 
         // Set headers only if this function is the main entry point and headers not sent
@@ -974,131 +979,134 @@ class ActivityController
         }
 
         try {
-            // --- Get parameters from JSON body ---
+            // --- Get Input from JSON body ---
             $inputBody = json_decode(file_get_contents('php://input'), true);
-            // Handle potential JSON decoding errors
-            if (json_last_error() !== JSON_ERROR_NONE && !empty(file_get_contents('php://input'))) {
-                 throw new Exception("Corps JSON invalide fourni.", 400);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new Exception("Corps JSON invalide fourni.", 400);
             }
 
-            // Extract search query term
-            $queryTerm = $inputBody['query'] ?? null;
-            if (empty($queryTerm)) {
-                 // If query is empty, maybe return all activities or an error?
-                 // For now, let's proceed, it will match everything if WHERE clause is omitted.
-                 // Or, throw an error if a query term is mandatory:
-                 // throw new Exception("Le paramètre 'query' est requis.", 400);
-            }
-
-            // Extract field selection (expecting an array directly or '*')
-            $activityFields = $inputBody['fields'] ?? '*';
-            // Validate that fields is an array or '*'
-            if (!is_array($activityFields) && $activityFields !== '*') {
-                 throw new Exception("Le paramètre 'fields' doit être un tableau de noms de champs ou '*'.", 400);
-            }
-            // Ensure ID is always selected if specific fields are requested, needed for potential future use
-            if (is_array($activityFields) && !in_array('ID', $activityFields)) {
-                 $activityFields[] = 'ID';
-            }
-
-
-            // Extract pagination from the 'pagination' object
-            $paginationData = $inputBody['pagination'] ?? [];
-            $page = filter_var($paginationData['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-            $limit = filter_var($paginationData['limit'] ?? 10, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-            if ($page === false) $page = 1;
-            if ($limit === false) $limit = 10; // Default limit
-            if ($limit <= 0) $limit = 10; // Ensure limit is positive
+            // Extract parameters with defaults
+            $query = trim($inputBody['query'] ?? '');
+            $activityFields = $inputBody['fields'] ?? ['ID', 'Title', 'Main_Img']; // Default fields
+            $activityDataFields = $inputBody['activityDataFields'] ?? '*'; // Default to all ActivityData fields
+            $pagination = $inputBody['pagination'] ?? [];
+            $page = isset($pagination['page']) ? max(1, (int)$pagination['page']) : 1;
+            $limit = isset($pagination['limit']) ? max(1, (int)$pagination['limit']) : 10;
             $offset = ($page - 1) * $limit;
 
-            // --- Build Query ---
-            $whereClauses = [];
-            $params = []; // Parameters for both count and main query (named)
-
-            // Define fields to select for Activity
-            // Use the helper function, ensuring backticks for safety
-            $activitySelectClause = self::buildSelectClause($activityFields, 'a');
-
-            // Base query parts
-            $sqlBase = "FROM Activity a";
-            $sqlWhere = "";
-
-            // Query term filter (searching Title and Description)
-            if (!empty($queryTerm)) {
-                $whereClauses[] = "(a.Title LIKE :query OR a.Description LIKE :query)";
-                $params[':query'] = '%' . $queryTerm . '%';
+            // --- Validate Input ---
+            if (empty($query)) {
+                // Return empty result set if query is empty, or throw error? Returning empty set.
+                 $response = [
+                     'success' => true,
+                     'data' => [],
+                     'pagination' => [
+                         'currentPage' => $page,
+                         'limit' => $limit,
+                         'totalResults' => 0,
+                         'totalPages' => 0
+                     ]
+                 ];
+                 if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(200);
+                 // Skip further processing
+                 goto send_response; // Use goto to jump to the output stage
             }
 
-            if (!empty($whereClauses)) {
-                $sqlWhere = " WHERE " . implode(' AND ', $whereClauses); // Use AND if more clauses are added later
+            // Validate fields (basic check if it's an array or '*')
+            if ($activityFields !== '*' && !is_array($activityFields)) {
+                 throw new Exception("Le paramètre 'fields' doit être '*' ou un tableau.", 400);
             }
+             if ($activityDataFields !== '*' && !is_array($activityDataFields)) {
+                 throw new Exception("Le paramètre 'activityDataFields' doit être '*' ou un tableau.", 400);
+             }
 
-            // --- Execute Count Query ---
-            $sqlTotal = "SELECT COUNT(a.ID) " . $sqlBase . $sqlWhere;
-            $stmtTotal = $pdo->prepare($sqlTotal);
-            if ($stmtTotal === false) {
-                $errorInfo = $pdo->errorInfo();
-                throw new Exception("PDO prepare() failed for count query. SQL: {$sqlTotal}. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
+
+            // --- Build SELECT Clauses ---
+            // Add a.ID to activityFields if not present and not '*' to ensure join works and we can link data
+            if (is_array($activityFields) && !in_array('ID', $activityFields)) {
+                 $activityFieldsForSelect = array_merge(['ID'], $activityFields);
+            } else {
+                 $activityFieldsForSelect = $activityFields;
             }
-            // Bind only the necessary parameters for count (e.g., :query)
-            if (!empty($queryTerm)) {
-                 $stmtTotal->bindValue(':query', $params[':query']);
-            }
-            $stmtTotal->execute();
-            $totalRecords = $stmtTotal->fetchColumn();
-            $totalPages = ($limit > 0) ? ceil($totalRecords / $limit) : 0;
+            $activitySelectClause = self::buildSelectClause($activityFieldsForSelect, 'a');
+            $activityDataSelectClause = self::buildSelectClause($activityDataFields, 'ad');
+
+            // --- Count Total Matching Activities ---
+            $sqlCount = "SELECT COUNT(a.ID)
+                         FROM Activity a
+                         WHERE a.Title LIKE :queryPattern";
+            $stmtCount = $pdo->prepare($sqlCount);
+            $stmtCount->bindValue(':queryPattern', '%' . $query . '%', PDO::PARAM_STR);
+            $stmtCount->execute();
+            $totalResults = (int)$stmtCount->fetchColumn();
+            $totalPages = ceil($totalResults / $limit);
+
+            // --- Fetch Paginated Activities and their Data ---
+            $results = [];
+            if ($totalResults > 0 && $offset < $totalResults) {
+                $sqlSearch = "SELECT {$activitySelectClause}, {$activityDataSelectClause}
+                              FROM Activity a
+                              LEFT JOIN ActivityData ad ON a.ID = ad.ActivityID
+                              WHERE a.Title LIKE :queryPattern
+                              ORDER BY a.Title ASC -- Or LOCATE(:query, a.Title) ASC for relevance
+                              LIMIT :limit OFFSET :offset";
+
+                $stmtSearch = $pdo->prepare($sqlSearch);
+                $stmtSearch->bindValue(':queryPattern', '%' . $query . '%', PDO::PARAM_STR);
+                // $stmtSearch->bindValue(':query', $query, PDO::PARAM_STR); // Needed if using LOCATE in ORDER BY
+                $stmtSearch->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmtSearch->bindValue(':offset', $offset, PDO::PARAM_INT);
+                $stmtSearch->execute();
+
+                // Fetch and structure results
+                while ($row = $stmtSearch->fetch(PDO::FETCH_ASSOC)) {
+                    $activityData = [];
+                    $activityResult = [];
+
+                    // Separate fields into activity and activityData based on requested fields
+                    foreach ($row as $key => $value) {
+                        // Check if the key belongs to the requested activity fields
+                        if ($activityFields === '*' || in_array($key, $activityFields)) {
+                            // Prepend base URL to image paths if selected
+                            if (($key === 'Main_Img' || $key === 'Logo_Img') && !empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
+                                 $activityResult[$key] = "http://localhost:9999/" . ltrim($value, '/');
+                            } else {
+                                 $activityResult[$key] = $value;
+                            }
+                        }
+                        // Check if the key belongs to the requested activityData fields (or if '*' was requested)
+                        // Note: This assumes no overlapping column names between Activity and ActivityData other than potentially ActivityID
+                        // If there are overlaps, more specific handling or aliasing in SQL is needed.
+                        else if ($key !== 'ID' && ($activityDataFields === '*' || in_array($key, $activityDataFields))) {
+                             $activityData[$key] = $value;
+                        }
+                    }
+
+                    // Ensure ActivityID is not duplicated in activityData if '*' was used for both
+                    if ($activityDataFields === '*' && isset($activityData['ActivityID'])) {
+                        unset($activityData['ActivityID']);
+                    }
 
 
-            // --- Construct and Execute Main Search Query ---
-            $sqlOrder = " ORDER BY a.ID DESC"; // Example ordering
-            $sqlLimitOffset = " LIMIT :limit OFFSET :offset";
-            $sql = "SELECT {$activitySelectClause} " . $sqlBase . $sqlWhere . $sqlOrder . $sqlLimitOffset;
-
-            $stmt = $pdo->prepare($sql);
-             if ($stmt === false) {
-                $errorInfo = $pdo->errorInfo();
-                throw new Exception("PDO prepare() failed for search query. SQL: {$sql}. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
-            }
-
-            // Bind parameters using bindValue
-            if (!empty($queryTerm)) {
-                 $stmt->bindValue(':query', $params[':query']);
-            }
-            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-            // Execute the statement
-            $stmt->execute();
-            $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // Prepend base URL to image paths if they are relative paths and exist
-            $baseUrl = "https://apilunarcovenant.com/"; // Use your actual base URL
-            foreach ($activities as &$activity) {
-                // Check and prepend for Main_Img
-                if (isset($activity['Main_Img']) && !empty($activity['Main_Img']) && !filter_var($activity['Main_Img'], FILTER_VALIDATE_URL) && strpos($activity['Main_Img'], 'ressources/images/') === 0) {
-                    $activity['Main_Img'] = $baseUrl . ltrim($activity['Main_Img'], '/');
+                    $results[] = [
+                        'activity' => $activityResult,
+                        'activityData' => !empty($activityData) ? $activityData : null // Return null if no ActivityData found or requested
+                    ];
                 }
-                // Check and prepend for Logo_Img (if selected)
-                if (isset($activity['Logo_Img']) && !empty($activity['Logo_Img']) && !filter_var($activity['Logo_Img'], FILTER_VALIDATE_URL) && strpos($activity['Logo_Img'], 'ressources/images/') === 0) {
-                    $activity['Logo_Img'] = $baseUrl . ltrim($activity['Logo_Img'], '/');
-                }
             }
-            unset($activity); // Break the reference after the loop
 
-            // --- Assemble Result ---
+            // --- Prepare Success Response ---
             $response = [
                 'success' => true,
-                'data' => $activities,
+                'data' => $results,
                 'pagination' => [
                     'currentPage' => $page,
-                    'totalPages' => (int)$totalPages,
-                    'totalRecords' => (int)$totalRecords,
-                    'limit' => $limit
+                    'limit' => $limit,
+                    'totalResults' => $totalResults,
+                    'totalPages' => $totalPages
                 ]
             ];
-            if (php_sapi_name() !== 'cli' && !headers_sent()) {
-                 http_response_code(200);
-            }
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(200);
 
         } catch (PDOException $e) {
             // Handle PDO Exceptions
@@ -1106,52 +1114,39 @@ class ActivityController
             $response = [
                 'success' => false,
                 'message' => 'Erreur Base de Données: ' . ($e->errorInfo[2] ?? $e->getMessage()),
-                'error_details' => [ // Keep details for debugging
-                    'type' => 'PDOException',
-                    'code' => $e->getCode(),
-                    'sqlstate' => $e->errorInfo[0] ?? null,
-                    'driver_code' => $e->errorInfo[1] ?? null,
-                    'file' => basename($e->getFile()),
-                    'line' => $e->getLine(),
-                    // Optionally add SQL and params that failed if HY093 occurs again
-                    'sql_attempted' => $sql ?? $sqlTotal ?? 'N/A',
-                    'params_attempted' => $params ?? 'N/A'
-                ]
+                'error_details' => [ /* ... error details ... */ ] // Keep details concise for production
             ];
         } catch (Exception $e) {
             // Handle other Exceptions
-             $httpCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
-             if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code($httpCode);
+            $httpCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code($httpCode);
             $response = [
                 'success' => false,
                 'message' => 'Erreur Serveur: ' . $e->getMessage(),
-                'error_details' => [
-                    'type' => get_class($e),
-                    'code' => $e->getCode(),
-                    'file' => basename($e->getFile()),
-                    'line' => $e->getLine()
-                ]
+                 'error_details' => [ /* ... error details ... */ ] // Keep details concise for production
             ];
         }
 
+        // Label for goto statement
+        send_response:
+
         // --- Final Output Stage ---
         if (php_sapi_name() !== 'cli' && !self::$outputSent && !headers_sent()) {
-             $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
-             if ($jsonOutput === false) {
-                  http_response_code(500);
-                  $jsonError = json_last_error_msg();
-                  header('Content-Type: application/json; charset=utf-8'); // Ensure header
-                  echo '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
-             } else {
-                  header('Content-Type: application/json; charset=utf-8'); // Ensure header
-                  echo $jsonOutput;
-             }
-             self::$outputSent = true;
+            $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            if ($jsonOutput === false) {
+                http_response_code(500);
+                $jsonError = json_last_error_msg();
+                echo '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
+            } else {
+                echo $jsonOutput;
+            }
+            self::$outputSent = true;
         } elseif (php_sapi_name() !== 'cli' && !self::$outputSent && headers_sent()) {
-             // error_log("searchActivites: Headers already sent, cannot send JSON response.");
+            // Headers already sent, cannot output JSON. Log if necessary.
+            // error_log("searchActivites: Headers already sent, cannot send JSON response.");
         }
 
-        return $response; // Return for internal use/testing
+        // Return the response array for internal calls or testing
+        return $response;
     }
 } // End Class ActivityController
-
