@@ -1077,7 +1077,7 @@ class ActivityController
             $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Prepend base URL to image paths if they are relative paths and exist
-            $baseUrl = "http://localhost:9999/"; // Consider making this configurable
+            $baseUrl = "https://apilunarcovenant.com/"; // Consider making this configurable
             foreach ($activities as &$activity) {
                 if (isset($activity['Main_Img']) && !empty($activity['Main_Img']) && !filter_var($activity['Main_Img'], FILTER_VALIDATE_URL)) {
                     $activity['Main_Img'] = $baseUrl . ltrim($activity['Main_Img'], '/');
@@ -1106,17 +1106,42 @@ class ActivityController
         } catch (PDOException $e) {
             // Handle PDO Exceptions
             if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(500);
+
+            // Prepare base error details
+            $errorDetails = [
+                'type' => 'PDOException',
+                'code' => $e->getCode(),
+                'sqlstate' => $e->errorInfo[0] ?? null,
+                'driver_code' => $e->errorInfo[1] ?? null,
+                'file' => basename($e->getFile()),
+                'line' => $e->getLine()
+            ];
+
+            // Add specific details for HY093 error
+            if ($e->getCode() === 'HY093') {
+                // Check which statement failed based on line number (approximate)
+                if ($e->getLine() >= 1038 && $e->getLine() <= 1046) { // Around $stmtTotal->execute()
+                    $errorDetails['context'] = 'Executing count query ($stmtTotal)';
+                    $errorDetails['sql_executed'] = $sqlTotal ?? 'SQL not available';
+                    $errorDetails['params_provided'] = $params ?? 'Params not available';
+                } elseif ($e->getLine() >= 1067 && $e->getLine() <= 1075) { // Around $stmt->execute()
+                    $errorDetails['context'] = 'Executing search query ($stmt)';
+                    $errorDetails['sql_executed'] = $sql ?? 'SQL not available';
+                    $errorDetails['params_provided'] = $queryParams ?? 'Params not available';
+                } else {
+                    $errorDetails['context'] = 'Unknown execution context';
+                    // Try to provide both if context is unclear
+                    $errorDetails['sql_total'] = $sqlTotal ?? 'SQL Total not available';
+                    $errorDetails['params_total'] = $params ?? 'Params Total not available';
+                    $errorDetails['sql_search'] = $sql ?? 'SQL Search not available';
+                    $errorDetails['params_search'] = $queryParams ?? 'Params Search not available';
+                }
+            }
+
             $response = [
                 'success' => false,
                 'message' => 'Erreur Base de Données: ' . ($e->errorInfo[2] ?? $e->getMessage()),
-                'error_details' => [ // Added details
-                    'type' => 'PDOException',
-                    'code' => $e->getCode(),
-                    'sqlstate' => $e->errorInfo[0] ?? null,
-                    'driver_code' => $e->errorInfo[1] ?? null,
-                    'file' => basename($e->getFile()),
-                    'line' => $e->getLine()
-                ]
+                'error_details' => $errorDetails // Use the enhanced details
             ];
         } catch (Exception $e) {
             // Handle other Exceptions
