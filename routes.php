@@ -88,6 +88,19 @@ post('/api/user/id/${userID}', function($userID) {
     UserController::getUserById($userID, $input);
 });
 
+get('/api/chat/userinfoById', function() {
+    UserController::getUserByUserId();
+});
+
+get('/api/getUserDataForAndroid/{apiKey}', function($apiKey){
+    AndroidController::getUserDataForAndroidByApiKey($apiKey);
+});
+// Route pour récupérer la liste des images d'activité
+get('/api/activity/images', function() {
+    AndroidController::getActivityImages();
+});
+
+
 get('/api/user/username/${username}', function($username) {
     // Read the JSON body from the request
     $input = json_decode(file_get_contents('php://input'), true);
@@ -125,6 +138,9 @@ put('/api/user/apikey', function() {
 
 delete('/api/user/${userID}', function($userID) {
     AdminController::deleteUserByAdmin($userID);
+});
+get('/api/user/info', function() {
+    ChatController::getUserByApiKey();
 });
 
 
@@ -274,6 +290,10 @@ put('/api/match/$id', function ($id) {
     MatchController::updateMatch($id);             // fonctionelle
 });
 
+get('/api/team/$id/users', function($id) {
+    TeamController::getUsersByTeam($id);
+});
+
 delete('/api/match/${id}', function ($id) {
     MatchController::deleteMatch($id);             // fonctionelle
 }); 
@@ -300,9 +320,10 @@ get('/api/inconnu/${userID}', function($userID){
     ChatController::getMessageSelonChatID($chatID);
  });
  
- get('/api/singleChatOnly/${chatID}', function($chatID){
-    ChatController::getChatOnly($chatID);
- });
+ get('/api/singleMessageSelonChatIDOnly/{chatID}', function($chatID) {
+    ChatController::getMessageSelonChatID($chatID);
+});
+
 
  get('/api/singleChateSelonMessageIDOnly/${msgID}', function($msgID){
     ChatController::getChatSelonMessageID($msgID);
@@ -312,9 +333,10 @@ get('/api/inconnu/${userID}', function($userID){
     ChatController::creerChat();
  });
 
- post('/api/envoyerMessage', function(){
-    ChatController::createMessage();
- });
+ post('/api/envoyerMessage', function() {
+    ChatController::envoyerMessage();
+});
+
  // Liste des chats d’un utilisateur (avec nom et image du créateur)
 post('/api/user/chats', function() {
     ChatController::getChatsForUser();
