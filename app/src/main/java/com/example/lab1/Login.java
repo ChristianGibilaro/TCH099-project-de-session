@@ -26,7 +26,6 @@ public class Login extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private EditText etEmail, etPassword;
-    private TextView tvForgotPassword;
     private Button btnLogin, btnSignup;
 
     // Fixed to the real login route
@@ -39,7 +38,6 @@ public class Login extends AppCompatActivity {
 
         etEmail           = findViewById(R.id.etEmail);
         etPassword        = findViewById(R.id.etPassword);
-        tvForgotPassword  = findViewById(R.id.tvForgotPassword);
         btnLogin          = findViewById(R.id.btnLogin);
         btnSignup         = findViewById(R.id.btnSignup);
 
@@ -51,10 +49,7 @@ public class Login extends AppCompatActivity {
             Log.d(TAG, "onCreate: pre‑filled email → " + preEmail);
         }
 
-        tvForgotPassword.setOnClickListener(v -> {
-            Log.d(TAG, "onClick: Forgot password tapped");
-            startActivity(new Intent(Login.this, Forgot.class));
-        });
+
 
         btnSignup.setOnClickListener(v -> {
             Log.d(TAG, "onClick: Signup tapped");

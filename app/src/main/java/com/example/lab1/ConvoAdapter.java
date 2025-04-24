@@ -1,5 +1,6 @@
 package com.example.lab1;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,15 +14,8 @@ import java.util.List;
 
 public class ConvoAdapter extends RecyclerView.Adapter<ConvoAdapter.ConvoViewHolder> {
 
-    // Liste de Conversation; null indique une cellule vide
+    // Liste de Conversation
     private final List<Conversation> convoList = new ArrayList<>();
-
-    public ConvoAdapter() {
-        // Initialise 8 cellules vides
-        for (int i = 0; i < 8; i++) {
-            convoList.add(null);
-        }
-    }
 
     public interface OnConvoClickListener {
         void onConvoClick(Conversation conversation);
@@ -29,8 +23,21 @@ public class ConvoAdapter extends RecyclerView.Adapter<ConvoAdapter.ConvoViewHol
 
     private OnConvoClickListener listener;
 
+    public ConvoAdapter() {
+        // aucun pré-remplissage : on n'affiche que les conversations existantes
+    }
+
     public void setOnConvoClickListener(OnConvoClickListener listener) {
         this.listener = listener;
+    }
+
+    /**
+     * Charge la liste complète des conversations à afficher
+     */
+    public void setConversations(List<Conversation> list) {
+        convoList.clear();
+        convoList.addAll(list);
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -44,69 +51,35 @@ public class ConvoAdapter extends RecyclerView.Adapter<ConvoAdapter.ConvoViewHol
     @Override
     public void onBindViewHolder(@NonNull ConvoViewHolder holder, int position) {
         Conversation convo = convoList.get(position);
-        if (convo == null) {
-            // Cellule vide
-            holder.imgConvoProfile.setImageDrawable(null);
-            holder.tvConvoName.setText("");
+        String url = convo.getImgUrl();  // from JSON “creatorImg”
+        Log.d("ConvoAdapter", "Loading image for “" + convo.getName() + "”: " + url);
+
+        if (url == null || url.trim().isEmpty() || url.equals("pending")) {
+            // no valid URL → default avatar
+            holder.imgConvoProfile.setImageResource(R.drawable.defaultaccount);
         } else {
-            // Charge l'avatar via Glide
+            // build full URL if needed
+            String fullUrl = url.startsWith("http")
+                    ? url
+                    : "http://10.0.2.2:9999" + (url.startsWith("/") ? url : "/" + url);
+
             Glide.with(holder.imgConvoProfile.getContext())
-                    .load(convo.getImgUrl())
+                    .load(fullUrl)
                     .placeholder(R.drawable.defaultaccount)
+                    .error(R.drawable.defaultaccount)
                     .into(holder.imgConvoProfile);
-            holder.tvConvoName.setText(convo.getName());
         }
 
+        holder.tvConvoName.setText(convo.getName());
         holder.itemView.setOnClickListener(v -> {
-            if (convo != null && listener != null) {
-                listener.onConvoClick(convo);
-            }
+            if (listener != null) listener.onConvoClick(convo);
         });
     }
+
 
     @Override
     public int getItemCount() {
         return convoList.size();
-    }
-
-    /**
-     * Vide la liste et réinitialise à 8 cellules vides.
-     */
-    public void clear() {
-        convoList.clear();
-        for (int i = 0; i < 8; i++) {
-            convoList.add(null);
-        }
-        notifyDataSetChanged();
-    }
-
-    /**
-     * Ajoute une Conversation dans la prochaine cellule vide.
-     * @return true si inséré, false sinon
-     */
-    public boolean addConversation(Conversation conversation) {
-        for (int i = 0; i < convoList.size(); i++) {
-            if (convoList.get(i) == null) {
-                convoList.set(i, conversation);
-                notifyItemChanged(i);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /** Ajoute une nouvelle cellule (colonne unique) */
-    public void addRow() {
-        convoList.add(null);
-        notifyItemInserted(convoList.size() - 1);
-    }
-
-    /** Renvoie l'index de la prochaine cellule vide, ou -1 si aucune. */
-    public int getNextEmptySquare() {
-        for (int i = 0; i < convoList.size(); i++) {
-            if (convoList.get(i) == null) return i;
-        }
-        return -1;
     }
 
     static class ConvoViewHolder extends RecyclerView.ViewHolder {

@@ -82,14 +82,6 @@
             android:background="@android:drawable/edit_text" />
 
         <!-- Adresse Field (Optional) -->
-        <EditText
-            android:id="@+id/etAdresse"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Adresse (optionnel)"
-            android:padding="12dp"
-            android:layout_marginBottom="16dp"
-            android:background="@android:drawable/edit_text" />
 
         <!-- Password Field -->
         <EditText

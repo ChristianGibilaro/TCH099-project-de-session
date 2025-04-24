@@ -11,31 +11,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
+    private final List<Message> messages    = new ArrayList<>();
+    private final List<String> senderNames  = new ArrayList<>();
 
-    // List to hold Message objects.
-    private final List<Message> messages = new ArrayList<>();
 
-    // Call this method to add a new message to the adapter.
-    public void addMessage(Message message) {
+
+    /** New API: pass in the name too */
+    public void addMessage(Message message, String senderName) {
         messages.add(message);
-        notifyItemInserted(messages.size() - 1);
+        senderNames.add(senderName);
+        notifyItemInserted(messages.size()-1);
     }
 
-    @NonNull
-    @Override
+    @NonNull @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate our custom layout for each message item.
-        View view = LayoutInflater.from(parent.getContext())
+        View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_message, parent, false);
-        return new MessageViewHolder(view);
+        return new MessageViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        Message message = messages.get(position);
-        // Set the message text.
-        holder.tvMessageContent.setText(message.getContent());
-        // The sender image is already set as default in the XML.
+    public void onBindViewHolder(@NonNull MessageViewHolder holder, int pos) {
+        holder.tvSenderName.setText(senderNames.get(pos));
+        holder.tvMessageContent.setText(messages.get(pos).getContent());
+        // imgSender left as-is
     }
 
     @Override
@@ -45,12 +44,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
     static class MessageViewHolder extends RecyclerView.ViewHolder {
         ImageView imgSender;
-        TextView tvMessageContent;
+        TextView tvSenderName, tvMessageContent;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-            imgSender = itemView.findViewById(R.id.imgSender);
-            tvMessageContent = itemView.findViewById(R.id.tvMessageContent);
+            imgSender         = itemView.findViewById(R.id.imgSender);
+            tvSenderName      = itemView.findViewById(R.id.tvSenderName);
+            tvMessageContent  = itemView.findViewById(R.id.tvMessageContent);
         }
     }
 }

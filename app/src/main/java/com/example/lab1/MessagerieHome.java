@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -36,6 +37,8 @@ public class MessagerieHome extends AppCompatActivity {
     private ImageButton btnCreateConvo;
     private String apiKey;  // API key for authenticated calls
 
+    private TextView tvNoConvo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +55,7 @@ public class MessagerieHome extends AppCompatActivity {
         convoList.setLayoutManager(new GridLayoutManager(this, 1));
         adapter = new ConvoAdapter();
         convoList.setAdapter(adapter);
+        tvNoConvo      = findViewById(R.id.tvNoConvo);
         Log.d(TAG, "RecyclerView and adapter initialized");
 
         // Load chats for this user
@@ -168,20 +172,20 @@ public class MessagerieHome extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(List<Conversation> convos) {
-            Log.d(TAG, "LoadChatsTask ▶ onPostExecute, convos=" + (convos == null ? "null" : "size=" + convos.size()));
-            if (convos == null) {
-                Toast.makeText(MessagerieHome.this, "Erreur chargement chats ou aucun chat trouvé", Toast.LENGTH_LONG).show();
-                return;
+            Log.d(TAG, "LoadChatsTask ▶ onPostExecute, convos=" +
+                    (convos == null ? "null" : "size=" + convos.size()));
+            if (convos != null && !convos.isEmpty()) {
+                // Il y a des conversations à afficher
+                tvNoConvo.setVisibility(View.GONE);
+                convoList.setVisibility(View.VISIBLE);
+                adapter.setConversations(convos);
+            } else {
+                // Aucune conversation : on cache la liste et on affiche le message
+                convoList.setVisibility(View.GONE);
+                tvNoConvo.setVisibility(View.VISIBLE);
             }
-            adapter.clear();
-            Log.d(TAG, "Adapter cleared");
-            for (Conversation c : convos) {
-                Log.d(TAG, "Adding conversation: id=" + c.getId() + ", name=" + c.getName());
-                adapter.addConversation(c);
-            }
-            adapter.notifyDataSetChanged();
-            Log.d(TAG, "Adapter data updated");
         }
+
     }
 
     @Override

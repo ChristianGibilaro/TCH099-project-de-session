@@ -48,14 +48,6 @@
         android:padding="12dp"
         android:layout_marginBottom="24dp"/>
 
-    <TextView
-        android:id="@+id/tvForgotPassword"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Mot de passe oublié ?"
-        android:textColor="#0066CC"
-        android:layout_marginBottom="12dp"/>
-
     <Button
         android:id="@+id/btnSignup"
         android:layout_width="match_parent"

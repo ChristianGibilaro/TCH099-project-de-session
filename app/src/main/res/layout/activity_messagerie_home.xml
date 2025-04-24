@@ -29,7 +29,8 @@
             android:layout_height="wrap_content"
             android:text="No conversation yet. Create a new conversation."
             android:textSize="16sp"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="16dp"
+            android:visibility="gone"/>
 
         <!-- Create Conversation Section -->
         <LinearLayout
