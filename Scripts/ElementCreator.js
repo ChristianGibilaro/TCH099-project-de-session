@@ -1446,7 +1446,7 @@ createSearchPage(returnElement = false) {
     
 
     PrefabMenu = this.CreateMenu(["ressources/Final/Main/logo.png", "ressources/Commun/logo_example.png"],
-        [["ressources/Commun/activity_button.png", "Activities", "ActivitiesList.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "RandomActivity", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Demonstrateur", "Demonstrateur.html"],["ressources/Commun/teams_button.png", "PHP DataBase", "http://localhost:9997/"]],
+        [["ressources/Commun/activity_button.png", "Activities", "ActivitiesList.html",], ["ressources/Commun/teams_button.png", "Teams", "Teams.html"], ["ressources/Commun/teams_button.png", "Matches", "Activitymiscellaneous.html"], ["ressources/Commun/teams_button.png", "Create Activity", "CreateActivity.html"], ["ressources/Commun/teams_button.png", "Create Team", "CreateTeam.html"],["ressources/Commun/teams_button.png", "PHP DataBase", "http://db.lunarcovenant.com"]],
         [["ressources/Commun/activity_button.png", "Sign-up", "Sign-up.html"], ["ressources/Commun/activity_button.png", "Sign-In", "Sign-in.html"], ["ressources/Commun/user_profile_image_example.png", "HeRobrain_III", "profileUtilisateur.html"]]);
 
 }
