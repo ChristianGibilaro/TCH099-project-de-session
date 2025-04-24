@@ -142,39 +142,23 @@ class AndroidController
             return;
         }
         try {
-            /*$sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, UF.total_friends, UA.game_count_total, IL.url, IL.image
-                FROM (SELECT User.ID AS UserID, User.Name AS UserName, User.Pseudo, User.Description, User.Img FROM User WHERE User.ID = :userID) AS U
-                INNER JOIN (SELECT UserFriend.UserID, COUNT(UserFriend.FriendID) AS total_friends FROM UserFriend WHERE UserFriend.UserID =:userID2) AS UF ON UF.UserID = U.UserID
-                INNER JOIN (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID
-                INNER JOIN (SELECT ImgLib.UserID, ImgLib.Url AS url, ImgLib.Img AS image FROM ImgLib WHERE ImgLib.UserID = :userID4) AS IL ON IL.UserID = UA.UserID
-                GROUP BY U.UserID';*/
+            $sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, 
+                        UF.total_friends, UA.game_count_total, 
+                        GROUP_CONCAT(IL.url) AS urls, GROUP_CONCAT(IL.image) AS images
+                    FROM 
+                        (SELECT User.ID AS UserID, User.Name AS UserName, User.Pseudo, User.Description, User.Img 
+                        FROM User WHERE User.ID = :userID) AS U
+                    INNER JOIN 
+                        (SELECT UserFriend.UserID, COUNT(UserFriend.FriendID) AS total_friends 
+                        FROM UserFriend WHERE UserFriend.UserID = :userID2) AS UF ON UF.UserID = U.UserID
+                    INNER JOIN 
+                        (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total 
+                        FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID
+                    INNER JOIN 
+                        (SELECT ImgLib.UserID, ImgLib.Url AS url, ImgLib.Img AS image 
+                        FROM ImgLib WHERE ImgLib.UserID = :userID4) AS IL ON IL.UserID = UA.UserID
+                    GROUP BY U.UserID';
 
-            /*$sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, UF.total_friends, UA.game_count_total, IL.urls, IL.images
-                FROM (SELECT User.ID AS UserID, User.Name AS UserName, User.Pseudo, User.Description, User.Img FROM User WHERE User.ID = :userID) AS U
-                INNER JOIN (SELECT UserFriend.UserID, COUNT(UserFriend.FriendID) AS total_friends FROM UserFriend WHERE UserFriend.UserID =:userID2) AS UF ON UF.UserID = U.UserID
-                INNER JOIN (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID
-                INNER JOIN (SELECT Im.UserID, Im.Url AS urls, Im.Img AS images FROM (SELECT ImgLib.UserID, ImgLib.Url, ImgLib.Img FROM ImgLib WHERE ImgLib.UserID = :userID4 GROUP BY ImgLib.UserID) AS Im) AS IL ON IL.UserID = UA.UserID
-                GROUP BY U.UserID';
-                */
-
-                $sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, 
-                UF.total_friends, UA.game_count_total, 
-                GROUP_CONCAT(IL.url) AS urls, IL.image
-                FROM 
-                    (SELECT User.ID AS UserID, User.Name AS UserName, User.Pseudo, User.Description, User.Img 
-                    FROM User WHERE User.ID = :userID) AS U
-                INNER JOIN 
-                    (SELECT UserFriend.UserID, COUNT(UserFriend.FriendID) AS total_friends 
-                    FROM UserFriend WHERE UserFriend.UserID = :userID2) AS UF ON UF.UserID = U.UserID
-                INNER JOIN 
-                    (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total 
-                    FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID
-                INNER JOIN 
-                    (SELECT ImgLib.UserID, ImgLib.Url AS url, ImgLib.Img AS image 
-                    FROM ImgLib WHERE ImgLib.UserID = :userID4) AS IL ON IL.UserID = UA.UserID
-                GROUP BY U.UserID';
-
-                
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['userID' => $userID, 'userID2' => $userID, 'userID3' => $userID, 'userID4' => $userID]);
             $userData = $stmt->fetchAll(PDO::FETCH_ASSOC);
