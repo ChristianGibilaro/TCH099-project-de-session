@@ -1036,8 +1036,14 @@ class ActivityController
                 $errorInfo = $pdo->errorInfo();
                 throw new Exception("PDO prepare() failed for count query. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
             }
-            // Execute count query with only the filter params (not limit/offset)
-            $stmtTotal->execute($params); // Pass filter params directly (e.g., :query if present)
+
+            // Execute count query - Explicitly handle empty params case
+            if (empty($params)) {
+                $stmtTotal->execute(); // Execute without arguments if $params is empty
+            } else {
+                $stmtTotal->execute($params); // Execute with the parameters array otherwise
+            }
+
             $totalRecords = $stmtTotal->fetchColumn();
             $totalPages = ceil($totalRecords / $limit);
 
