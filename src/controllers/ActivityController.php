@@ -957,11 +957,11 @@ class ActivityController
 
     /**
      * Searches for activities based on criteria provided in the JSON body.
-     * Supports filtering, field selection, and pagination.
+     * Simplified version based on previous working search logic.
      *
      * @return array The response array (success/data or error).
      */
-    public static function searchActivites() // Simplified signature
+    public static function searchActivites()
     {
         global $pdo;
         $response = ['success' => false, 'message' => 'Erreur initiale searchActivites']; // Default error
@@ -983,6 +983,12 @@ class ActivityController
 
             // Extract search query term
             $queryTerm = $inputBody['query'] ?? null;
+            if (empty($queryTerm)) {
+                 // If query is empty, maybe return all activities or an error?
+                 // For now, let's proceed, it will match everything if WHERE clause is omitted.
+                 // Or, throw an error if a query term is mandatory:
+                 // throw new Exception("Le paramètre 'query' est requis.", 400);
+            }
 
             // Extract field selection (expecting an array directly or '*')
             $activityFields = $inputBody['fields'] ?? '*';
@@ -990,113 +996,96 @@ class ActivityController
             if (!is_array($activityFields) && $activityFields !== '*') {
                  throw new Exception("Le paramètre 'fields' doit être un tableau de noms de champs ou '*'.", 400);
             }
+            // Ensure ID is always selected if specific fields are requested, needed for potential future use
+            if (is_array($activityFields) && !in_array('ID', $activityFields)) {
+                 $activityFields[] = 'ID';
+            }
+
 
             // Extract pagination from the 'pagination' object
             $paginationData = $inputBody['pagination'] ?? [];
             $page = filter_var($paginationData['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
             $limit = filter_var($paginationData['limit'] ?? 10, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
             if ($page === false) $page = 1;
-            if ($limit === false) $limit = 10;
+            if ($limit === false) $limit = 10; // Default limit
+            if ($limit <= 0) $limit = 10; // Ensure limit is positive
             $offset = ($page - 1) * $limit;
 
             // --- Build Query ---
-            $params = []; // Parameters for the main query (named)
-            $countParams = []; // Parameters for the count query (positional)
-            $joins = [];
             $whereClauses = [];
+            $params = []; // Parameters for both count and main query (named)
 
             // Define fields to select for Activity
+            // Use the helper function, ensuring backticks for safety
             $activitySelectClause = self::buildSelectClause($activityFields, 'a');
 
-            // Base query
+            // Base query parts
             $sqlBase = "FROM Activity a";
+            $sqlWhere = "";
 
             // Query term filter (searching Title and Description)
-            $sqlWhere = ''; // Initialize where clause string
             if (!empty($queryTerm)) {
-                // Use named placeholders for the main query's WHERE clause
                 $whereClauses[] = "(a.Title LIKE :query OR a.Description LIKE :query)";
                 $params[':query'] = '%' . $queryTerm . '%';
-
-                // Use positional placeholders for the count query's WHERE clause
-                $sqlWhere = " WHERE (a.Title LIKE ? OR a.Description LIKE ?)";
-                $countParams = ['%' . $queryTerm . '%', '%' . $queryTerm . '%']; // Add value twice for the two '?'
-            } else {
-                 // If no query term, whereClauses and countParams remain empty, sqlWhere remains empty string
             }
 
-
-            // --- Construct Final SQL ---
-            $sqlSelect = "SELECT DISTINCT {$activitySelectClause} ";
-            $sqlCount = "SELECT COUNT(DISTINCT a.ID) ";
-
-            $sqlJoins = !empty($joins) ? ' ' . implode(' ', $joins) : '';
-            // Use $whereClauses for the main query's WHERE condition
-            $sqlWhereMain = !empty($whereClauses) ? ' WHERE ' . implode(' AND ', $whereClauses) : '';
-            $sqlOrder = " ORDER BY a.ID DESC";
-            $sqlLimit = " LIMIT :limit OFFSET :offset";
-
-            // Main query uses named placeholders in WHERE
-            $sql = $sqlSelect . $sqlBase . $sqlJoins . $sqlWhereMain . $sqlOrder . $sqlLimit;
-            // Count query uses positional placeholders in WHERE (constructed in $sqlWhere)
-            $sqlTotal = $sqlCount . $sqlBase . $sqlJoins . $sqlWhere; // Use the $sqlWhere built with '?'
+            if (!empty($whereClauses)) {
+                $sqlWhere = " WHERE " . implode(' AND ', $whereClauses); // Use AND if more clauses are added later
+            }
 
             // --- Execute Count Query ---
+            $sqlTotal = "SELECT COUNT(a.ID) " . $sqlBase . $sqlWhere;
             $stmtTotal = $pdo->prepare($sqlTotal);
             if ($stmtTotal === false) {
                 $errorInfo = $pdo->errorInfo();
-                // Add SQL to the exception message for easier debugging if prepare fails
                 throw new Exception("PDO prepare() failed for count query. SQL: {$sqlTotal}. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
             }
-
-            // Execute count query using the positional parameters array ($countParams)
-            $stmtTotal->execute($countParams); // Pass the array with positional values
-
+            // Bind only the necessary parameters for count (e.g., :query)
+            if (!empty($queryTerm)) {
+                 $stmtTotal->bindValue(':query', $params[':query']);
+            }
+            $stmtTotal->execute();
             $totalRecords = $stmtTotal->fetchColumn();
+            $totalPages = ($limit > 0) ? ceil($totalRecords / $limit) : 0;
 
-            // --- Execute Search Query ---
-            $stmt = $pdo->prepare($sql); // Prepare the main query (uses named :query if present)
+
+            // --- Construct and Execute Main Search Query ---
+            $sqlOrder = " ORDER BY a.ID DESC"; // Example ordering
+            $sqlLimitOffset = " LIMIT :limit OFFSET :offset";
+            $sql = "SELECT {$activitySelectClause} " . $sqlBase . $sqlWhere . $sqlOrder . $sqlLimitOffset;
+
+            $stmt = $pdo->prepare($sql);
              if ($stmt === false) {
                 $errorInfo = $pdo->errorInfo();
-                 // Add SQL to the exception message
                 throw new Exception("PDO prepare() failed for search query. SQL: {$sql}. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
             }
 
-            // Combine all parameters needed for the main query
-            $queryParams = $params; // $params contains {:query => value} if needed
-            $queryParams[':limit'] = $limit;
-            $queryParams[':offset'] = $offset;
-
-            // Bind parameters using bindValue for safety
-            foreach ($queryParams as $key => $val) { // Use $val directly, no reference needed
-                 if ($key === ':limit' || $key === ':offset') {
-                     // Bind limit/offset as integers
-                     $stmt->bindValue($key, $val, PDO::PARAM_INT);
-                 } else {
-                     // Bind other parameters (like :query) as strings (default)
-                     $stmt->bindValue($key, $val); // Use bindValue here too
-                 }
+            // Bind parameters using bindValue
+            if (!empty($queryTerm)) {
+                 $stmt->bindValue(':query', $params[':query']);
             }
-            // No need to unset $val reference as it wasn't used
+            $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
-            // Execute the main search statement using the bound values
+            // Execute the statement
             $stmt->execute();
             $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Prepend base URL to image paths if they are relative paths and exist
-            $baseUrl = "https://apilunarcovenant.com/"; // Consider making this configurable
+            $baseUrl = "https://apilunarcovenant.com/"; // Use your actual base URL
             foreach ($activities as &$activity) {
-                if (isset($activity['Main_Img']) && !empty($activity['Main_Img']) && !filter_var($activity['Main_Img'], FILTER_VALIDATE_URL)) {
+                // Check and prepend for Main_Img
+                if (isset($activity['Main_Img']) && !empty($activity['Main_Img']) && !filter_var($activity['Main_Img'], FILTER_VALIDATE_URL) && strpos($activity['Main_Img'], 'ressources/images/') === 0) {
                     $activity['Main_Img'] = $baseUrl . ltrim($activity['Main_Img'], '/');
                 }
-                if (isset($activity['Logo_Img']) && !empty($activity['Logo_Img']) && !filter_var($activity['Logo_Img'], FILTER_VALIDATE_URL)) {
+                // Check and prepend for Logo_Img (if selected)
+                if (isset($activity['Logo_Img']) && !empty($activity['Logo_Img']) && !filter_var($activity['Logo_Img'], FILTER_VALIDATE_URL) && strpos($activity['Logo_Img'], 'ressources/images/') === 0) {
                     $activity['Logo_Img'] = $baseUrl . ltrim($activity['Logo_Img'], '/');
                 }
             }
             unset($activity); // Break the reference after the loop
 
             // --- Assemble Result ---
-            $totalPages = ceil($totalRecords / $limit);
             $response = [
                 'success' => true,
                 'data' => $activities,
@@ -1114,44 +1103,20 @@ class ActivityController
         } catch (PDOException $e) {
             // Handle PDO Exceptions
             if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(500);
-
-            // Prepare base error details
-            $errorDetails = [
-                'type' => 'PDOException',
-                'code' => $e->getCode(),
-                'sqlstate' => $e->errorInfo[0] ?? null,
-                'driver_code' => $e->errorInfo[1] ?? null,
-                'file' => basename($e->getFile()),
-                'line' => $e->getLine()
-            ];
-
-            // Add specific details for HY093 error
-            if ($e->getCode() === 'HY093') {
-                // Check which statement failed based on line number (approximate)
-                // Adjust line numbers if the code structure changed significantly
-                if ($e->getLine() >= 1045 && $e->getLine() <= 1055) { // Approximate line for $stmtTotal->execute($countParams)
-                    $errorDetails['context'] = 'Executing count query ($stmtTotal with positional params)';
-                    $errorDetails['sql_executed'] = $sqlTotal ?? 'SQL not available';
-                    // Report the positional params array used
-                    $errorDetails['params_provided'] = $countParams ?? 'Params not available';
-                } elseif ($e->getLine() >= 1076 && $e->getLine() <= 1086) { // Approximate line for $stmt->execute()
-                    $errorDetails['context'] = 'Executing search query ($stmt with named params)';
-                    $errorDetails['sql_executed'] = $sql ?? 'SQL not available';
-                    // Report the named params array used for the main query
-                    $errorDetails['params_provided'] = $queryParams ?? 'Params not available';
-                } else {
-                    // ... existing fallback context ...
-                    $errorDetails['sql_total'] = $sqlTotal ?? 'SQL Total not available';
-                    $errorDetails['params_total'] = $countParams ?? 'Params Total not available'; // Use countParams here
-                    $errorDetails['sql_search'] = $sql ?? 'SQL Search not available';
-                    $errorDetails['params_search'] = $queryParams ?? 'Params Search not available'; // Use queryParams here
-                }
-            }
-
             $response = [
                 'success' => false,
                 'message' => 'Erreur Base de Données: ' . ($e->errorInfo[2] ?? $e->getMessage()),
-                'error_details' => $errorDetails // Use the enhanced details
+                'error_details' => [ // Keep details for debugging
+                    'type' => 'PDOException',
+                    'code' => $e->getCode(),
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'driver_code' => $e->errorInfo[1] ?? null,
+                    'file' => basename($e->getFile()),
+                    'line' => $e->getLine(),
+                    // Optionally add SQL and params that failed if HY093 occurs again
+                    'sql_attempted' => $sql ?? $sqlTotal ?? 'N/A',
+                    'params_attempted' => $params ?? 'N/A'
+                ]
             ];
         } catch (Exception $e) {
             // Handle other Exceptions
@@ -1160,7 +1125,7 @@ class ActivityController
             $response = [
                 'success' => false,
                 'message' => 'Erreur Serveur: ' . $e->getMessage(),
-                'error_details' => [ // Added details
+                'error_details' => [
                     'type' => get_class($e),
                     'code' => $e->getCode(),
                     'file' => basename($e->getFile()),
@@ -1170,18 +1135,15 @@ class ActivityController
         }
 
         // --- Final Output Stage ---
-        // (Identical output logic as in getActivite)
         if (php_sapi_name() !== 'cli' && !self::$outputSent && !headers_sent()) {
              $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
              if ($jsonOutput === false) {
                   http_response_code(500);
                   $jsonError = json_last_error_msg();
-                  // Ensure content type is set even for JSON encoding errors
-                  header('Content-Type: application/json; charset=utf-8');
+                  header('Content-Type: application/json; charset=utf-8'); // Ensure header
                   echo '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
              } else {
-                  // Ensure content type is set before output
-                  header('Content-Type: application/json; charset=utf-8');
+                  header('Content-Type: application/json; charset=utf-8'); // Ensure header
                   echo $jsonOutput;
              }
              self::$outputSent = true;
@@ -1191,6 +1153,5 @@ class ActivityController
 
         return $response; // Return for internal use/testing
     }
-
 } // End Class ActivityController
 
