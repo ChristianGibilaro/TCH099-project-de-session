@@ -16,17 +16,7 @@ class AndroidController
             return;
         }
         try {
-            //Certainnes colonnes sont renommees pour plus de clarite vu qu'elles portent exactement le meme nom(ID dand table 'User' et dans table 'Message')
-           /*$stmt = $pdo->query('SELECT User.ID, User.Pseudo, User.Img,
-                                        Message.ID AS MessageID, Message.Content, Message.Date,
-                                        Chat.ID AS ChatID, Chat.Name
-                FROM User
-                INNER JOIN Message ON Message.UserID=User.ID
-                INNER JOIN ChatMessage ON Message.ID = ChatMessage.MessageID
-                INNER JOIN Chat ON ChatMessage.ChatID = Chat.ID
-                WHERE User.ID = ');
-            $stmt->execute(['userID' => $userID]);
-            $userData = $stmt->fetch(PDO::FETCH_ASSOC);*/
+
             $sql = 'SELECT U.UserID AS UserID, U.Pseudo, U.Img, 
                Message.ID AS MessageID, Message.Content, Message.Date, 
                Chat.ID AS ChatID, Chat.Name
@@ -119,6 +109,29 @@ class AndroidController
         }
     }
 
+    public static function getUserImageLibForAndroid($userID){
+        global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+        if (!$userID) {
+            echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
+            return;
+        }
+        try {
+            $sql = 'SELECT ImgLib.Url FROM ImgLib WHERE ImgLib.UserID LIKE :userID';
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['userID' => $userID]);
+            $userData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+
+            echo json_encode($userData, JSON_UNESCAPED_SLASHES);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Table "ImgLib"):' => $e->getMessage()]);
+        }
+    }
+
     //Function qui conbine les requete des fonctions ci-dessus
     public static function getUserDataCombinedAndroid($userID){
         global $pdo;
@@ -129,15 +142,53 @@ class AndroidController
             return;
         }
         try {
-            $sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, UF.total_friends, UA.game_count_total
+            /*$sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, UF.total_friends, UA.game_count_total, IL.url, IL.image
                 FROM (SELECT User.ID AS UserID, User.Name AS UserName, User.Pseudo, User.Description, User.Img FROM User WHERE User.ID = :userID) AS U
                 INNER JOIN (SELECT UserFriend.UserID, COUNT(UserFriend.FriendID) AS total_friends FROM UserFriend WHERE UserFriend.UserID =:userID2) AS UF ON UF.UserID = U.UserID
-                INNER JOIN (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID';
+                INNER JOIN (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID
+                INNER JOIN (SELECT ImgLib.UserID, ImgLib.Url AS url, ImgLib.Img AS image FROM ImgLib WHERE ImgLib.UserID = :userID4) AS IL ON IL.UserID = UA.UserID
+                GROUP BY U.UserID';*/
+
+            /*$sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, UF.total_friends, UA.game_count_total, IL.urls, IL.images
+                FROM (SELECT User.ID AS UserID, User.Name AS UserName, User.Pseudo, User.Description, User.Img FROM User WHERE User.ID = :userID) AS U
+                INNER JOIN (SELECT UserFriend.UserID, COUNT(UserFriend.FriendID) AS total_friends FROM UserFriend WHERE UserFriend.UserID =:userID2) AS UF ON UF.UserID = U.UserID
+                INNER JOIN (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID
+                INNER JOIN (SELECT Im.UserID, Im.Url AS urls, Im.Img AS images FROM (SELECT ImgLib.UserID, ImgLib.Url, ImgLib.Img FROM ImgLib WHERE ImgLib.UserID = :userID4 GROUP BY ImgLib.UserID) AS Im) AS IL ON IL.UserID = UA.UserID
+                GROUP BY U.UserID';
+                */
+
+                $sql = 'SELECT U.UserName AS name, U.Pseudo AS pseudo, U.Description AS description, U.Img, 
+                UF.total_friends, UA.game_count_total, 
+                GROUP_CONCAT(IL.url) AS urls, IL.image
+                FROM 
+                    (SELECT User.ID AS UserID, User.Name AS UserName, User.Pseudo, User.Description, User.Img 
+                    FROM User WHERE User.ID = :userID) AS U
+                INNER JOIN 
+                    (SELECT UserFriend.UserID, COUNT(UserFriend.FriendID) AS total_friends 
+                    FROM UserFriend WHERE UserFriend.UserID = :userID2) AS UF ON UF.UserID = U.UserID
+                INNER JOIN 
+                    (SELECT UserActivity.UserID, SUM(UserActivity.Game_Count) AS game_count_total 
+                    FROM UserActivity WHERE UserActivity.UserID = :userID3) AS UA ON UA.UserID = UF.UserID
+                INNER JOIN 
+                    (SELECT ImgLib.UserID, ImgLib.Url AS url, ImgLib.Img AS image 
+                    FROM ImgLib WHERE ImgLib.UserID = :userID4) AS IL ON IL.UserID = UA.UserID
+                GROUP BY U.UserID';
+
                 
             $stmt = $pdo->prepare($sql);
-            $stmt->execute(['userID' => $userID, 'userID2' => $userID, 'userID3' => $userID]);
-            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->execute(['userID' => $userID, 'userID2' => $userID, 'userID3' => $userID, 'userID4' => $userID]);
+            $userData = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
+            foreach ($userData as &$data) {
+                if (!empty($data['urls'])) {
+                    $data['urls'] = explode(',', $data['urls']);
+                }
+                if (!empty($data['images'])) {
+                    $data['images'] = explode(',', $data['images']);
+                }
+            }
+    
+    
 
             echo json_encode($userData, JSON_UNESCAPED_SLASHES);
         } catch (PDOException $e) {

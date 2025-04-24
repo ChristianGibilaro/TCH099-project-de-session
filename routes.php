@@ -42,20 +42,16 @@ post('/api/filter/$id', function($id) {
 
 
 
-
-
-
-
-
-
-
-
-//----------------------------USER CONTROLLER----------------------------//
 //----------------------------USER CONTROLLER----------------------------//
 
 //Route qui combiner les donnees des route ci-dessous
 get('/api/user_data_combined/${userID}', function($userID){
     AndroidController::getUserDataCombinedAndroid($userID);
+});
+
+
+get('/api/user_image_lib/${userID}', function($userID){
+    AndroidController::getUserImageLibForAndroid($userID);
 });
 
 //Router pour touver nombre de jeux d'un user
