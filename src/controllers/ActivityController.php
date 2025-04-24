@@ -1033,23 +1033,26 @@ class ActivityController
             // --- Execute Count Query ---
             $stmtTotal = $pdo->prepare($sqlTotal);
             // Execute count query with only the filter params (not limit/offset)
-            $stmtTotal->execute($params);
+            $stmtTotal->execute($params); // Pass filter params directly (e.g., :query if present)
             $totalRecords = $stmtTotal->fetchColumn();
             $totalPages = ceil($totalRecords / $limit);
 
             // --- Execute Search Query ---
             $stmt = $pdo->prepare($sql);
-            // Bind limit and offset separately as they are integers
-            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-            // Bind other parameters (e.g., :query)
-            foreach ($params as $key => &$val) {
-                // Determine param type (simple check for now)
-                $paramType = is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR;
-                $stmt->bindParam($key, $val, $paramType); // Bind by reference
-            }
-            unset($val); // Break the reference
-            $stmt->execute();
+
+            // Combine all parameters needed for the main query
+            // Start with filter params (e.g., :query if it exists)
+            $queryParams = $params;
+
+            // Add limit and offset to the parameters array
+            // PDO requires integer values for LIMIT/OFFSET, ensure they are integers
+            // Use named placeholders matching the SQL query
+            $queryParams[':limit'] = (int)$limit;
+            $queryParams[':offset'] = (int)$offset;
+
+            // Execute the statement with the combined parameter array
+            // This array should contain keys for :query (if used), :limit, and :offset
+            $stmt->execute($queryParams);
             $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             foreach ($activities as &$activity) { // Corrected loop syntax
@@ -1062,9 +1065,6 @@ class ActivityController
                 }
             }
             unset($activity); // Break the reference after the loop
-
-
-            
 
             // --- Assemble Result ---
             $response = [
