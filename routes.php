@@ -28,7 +28,7 @@ get('/api/admin/hash', function() {
     AdminController::generatePasswordHash($input);
 });
 
-post('/api/filter/create', function() {
+post('/api/filter/create/create', function() {
     FilterController::createFilter();
 });
 
