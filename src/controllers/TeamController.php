@@ -39,7 +39,6 @@ class TeamController
         $secondColor = $data['second_color'] ?? null;
         $rating      = $data['rating']       ?? null;
 
-<<<<<<< HEAD
         if (!$activityID || !$name || !$description || $rating === null)
             self::sendJSON(false, "Champs 'activityID', 'name', 'description', 'rating' obligatoires.");
 
@@ -47,34 +46,13 @@ class TeamController
             INSERT INTO Team (ActivityID, Name, Description, Main_Color, Second_Color, Rating)
             VALUES (:a, :n, :d, :m, :s, :r)
         ");
-=======
-    public static function createTeam()
-    {
-        global $pdo;
-        $data = self::getInput();
-
-        $activityID  = $data['activityID']  ?? null;
-        $name        = $data['name']        ?? null;
-        $description = $data['description'] ?? null;
-        $mainColor   = $data['main_color']  ?? null;
-        $secondColor = $data['second_color']?? null;
-
-        if (!$activityID || !$name || !$description || !$mainColor || !$secondColor)
-            self::sendJSON(false, "Champs 'activityID', 'name', 'description', 'main_color', 'second_color' obligatoires.");
-
-        $stmt = $pdo->prepare("INSERT INTO Team (ActivityID, Name, Description, Main_Color, Second_Color) VALUES (:a,:n,:d,:m,:s)");
->>>>>>> parent of da59436 (Merge branch 'backend' of https://github.com/ChristianGibilaro/TCH099-project-de-session into backend)
         $stmt->execute([
             ':a' => $activityID,
             ':n' => $name,
             ':d' => $description,
             ':m' => $mainColor,
-<<<<<<< HEAD
             ':s' => $secondColor,
             ':r' => $rating
-=======
-            ':s' => $secondColor
->>>>>>> parent of da59436 (Merge branch 'backend' of https://github.com/ChristianGibilaro/TCH099-project-de-session into backend)
         ]);
 
         self::sendJSON(true, "Équipe créée avec succès.", ["team_id" => $pdo->lastInsertId()]);
@@ -346,7 +324,6 @@ class TeamController
         }
     }
 
-<<<<<<< HEAD
     public static function getUsersByTeam($teamID): void
     {
         global $pdo;
@@ -363,22 +340,5 @@ class TeamController
 
         self::sendJSON(true, "Utilisateurs de l'équipe $teamID récupérés avec succès.", ['users' => $users]);
     }
-=======
-    if (empty($updates)) {
-        self::sendJSON(false, "Aucun champ à mettre à jour.");
-    }
-
-    $sql = "UPDATE Team SET " . implode(", ", $updates) . " WHERE ID = :id";
-
-    try {
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute($params);
-        self::sendJSON(true, "Équipe mise à jour avec succès.");
-    } catch (PDOException $e) {
-        self::sendJSON(false, "Erreur DB : " . $e->getMessage());
-    }
-}
-
->>>>>>> parent of da59436 (Merge branch 'backend' of https://github.com/ChristianGibilaro/TCH099-project-de-session into backend)
 
 }
