@@ -1147,4 +1147,328 @@ class ActivityController
         // Return the response array for internal calls or testing
         return $response;
     }
+
+    /**
+     * Retrieves a paginated list of activities, optionally filtered and sorted.
+     * Expects a JSON body like:
+     * {
+     *   "filters": {
+     *     "languageID": 1,
+     *     "positionID": 5,
+     *     "environmentID": 2,
+     *     "typeID": 3
+     *   },
+     *   "fields": ["ID", "Title", ...], // Fields from Activity table
+     *   "activityDataFields": ["Player_Count", ...], // Fields from ActivityData table
+     *   "pagination": { "page": 1, "limit": 10 },
+     *   "sorting": { "orderBy": "Title", "order": "ASC" } // orderBy: Title, Team_Count, Player_Count, Active_Player_Count
+     * }
+     * @return array The response array (success/data/pagination or error).
+     */
+    public static function getAllActivity()
+    {
+        global $pdo;
+        $response = ['success' => false, 'message' => 'Erreur initiale getAllActivity'];
+        self::$outputSent = false; // Reset flag
+
+        // Set headers only if this function is the main entry point and headers not sent
+        if (php_sapi_name() !== 'cli' && !headers_sent()) {
+            header('Access-Control-Allow-Origin: *');
+            header('Content-Type: application/json; charset=utf-8');
+        }
+
+        try {
+            // --- Get Input from JSON body ---
+            $inputBody = json_decode(file_get_contents('php://input'), true);
+            if (json_last_error() !== JSON_ERROR_NONE && !empty(file_get_contents('php://input'))) {
+                 throw new Exception("Corps JSON invalide fourni.", 400);
+            }
+
+            // Extract parameters with defaults
+            $filters = $inputBody['filters'] ?? [];
+            $languageID = isset($filters['languageID']) ? filter_var($filters['languageID'], FILTER_VALIDATE_INT) : null;
+            $positionID = isset($filters['positionID']) ? filter_var($filters['positionID'], FILTER_VALIDATE_INT) : null;
+            $environmentID = isset($filters['environmentID']) ? filter_var($filters['environmentID'], FILTER_VALIDATE_INT) : null;
+            $typeID = isset($filters['typeID']) ? filter_var($filters['typeID'], FILTER_VALIDATE_INT) : null;
+
+            $activityFields = $inputBody['fields'] ?? '*';
+            $activityDataFields = $inputBody['activityDataFields'] ?? '*';
+
+            $pagination = $inputBody['pagination'] ?? [];
+            $page = isset($pagination['page']) ? max(1, (int)$pagination['page']) : 1;
+            $limit = isset($pagination['limit']) ? max(1, (int)$pagination['limit']) : 10;
+            $offset = ($page - 1) * $limit;
+
+            $sorting = $inputBody['sorting'] ?? [];
+            $orderBy = $sorting['orderBy'] ?? 'Title';
+            $order = strtoupper($sorting['order'] ?? 'ASC');
+
+            // --- Validate Input ---
+            if ($activityFields !== '*' && !is_array($activityFields)) {
+                 throw new Exception("Le paramètre 'fields' doit être '*' ou un tableau.", 400);
+            }
+             if ($activityDataFields !== '*' && !is_array($activityDataFields)) {
+                 throw new Exception("Le paramètre 'activityDataFields' doit être '*' ou un tableau.", 400);
+             }
+
+            // Validate sorting
+            $allowedOrderBy = [
+                'Title' => 'a.Title',
+                'Team_Count' => 'ad.Team_Count',
+                'Player_Count' => 'ad.Player_Count',
+                'Active_Player_Count' => 'ad.Active_Player_Count',
+                'Rating' => 'ad.Rating', // Added Rating
+                'Creation_Date' => 'a.Creation_Date' // Added Creation_Date
+            ];
+            $orderBySql = $allowedOrderBy[$orderBy] ?? 'a.Title';
+            $orderSql = ($order === 'DESC') ? 'DESC' : 'ASC';
+
+            // --- Build WHERE clause using EXISTS for filters ---
+            $whereClauses = [];
+            $params = [];
+
+            if ($languageID !== null && $languageID !== false && $languageID > 0) {
+                $whereClauses[] = 'EXISTS (SELECT 1 FROM LanguageArrayActivity laa WHERE laa.ActivityID = a.ID AND laa.LanguageID = :languageID)';
+                $params[':languageID'] = $languageID;
+            }
+            if ($positionID !== null && $positionID !== false && $positionID > 0) {
+                $whereClauses[] = 'EXISTS (SELECT 1 FROM PositionArrayActivity paa WHERE paa.ActivityID = a.ID AND paa.PositionID = :positionID)';
+                $params[':positionID'] = $positionID;
+            }
+            if ($environmentID !== null && $environmentID !== false && $environmentID > 0) {
+                $whereClauses[] = 'EXISTS (SELECT 1 FROM EnvironmentArrayActivity eaa WHERE eaa.ActivityID = a.ID AND eaa.EnvironmentID = :environmentID)';
+                $params[':environmentID'] = $environmentID;
+            }
+            if ($typeID !== null && $typeID !== false && $typeID > 0) {
+                $whereClauses[] = 'EXISTS (SELECT 1 FROM TypeArrayActivity taa WHERE taa.ActivityID = a.ID AND taa.TypeID = :typeID)';
+                $params[':typeID'] = $typeID;
+            }
+
+            $whereSql = !empty($whereClauses) ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+
+            // --- Count Total Matching Activities ---
+            $sqlCount = "SELECT COUNT(DISTINCT a.ID)
+                         FROM Activity a
+                         LEFT JOIN ActivityData ad ON a.ID = ad.ActivityID -- Join needed if filtering/sorting on ActivityData
+                         {$whereSql}";
+            $stmtCount = $pdo->prepare($sqlCount);
+            $stmtCount->execute($params); // Use the same params as the main query
+            $totalResults = (int)$stmtCount->fetchColumn();
+            $totalPages = ceil($totalResults / $limit);
+
+            // --- Fetch Paginated Activities and their Data ---
+            $results = [];
+            if ($totalResults > 0 && $offset < $totalResults) {
+                // Build SELECT clauses
+                if (is_array($activityFields) && !in_array('ID', $activityFields)) {
+                     $activityFieldsForSelect = array_merge(['ID'], $activityFields);
+                } else {
+                     $activityFieldsForSelect = $activityFields;
+                }
+                $activitySelectClause = self::buildSelectClause($activityFieldsForSelect, 'a');
+                $activityDataSelectClause = self::buildSelectClause($activityDataFields, 'ad');
+
+                $sqlSelect = "SELECT {$activitySelectClause}, {$activityDataSelectClause}
+                              FROM Activity a
+                              LEFT JOIN ActivityData ad ON a.ID = ad.ActivityID
+                              {$whereSql}
+                              ORDER BY {$orderBySql} {$orderSql}
+                              LIMIT :limit OFFSET :offset";
+
+                $stmtSelect = $pdo->prepare($sqlSelect);
+                // Bind filter parameters
+                foreach ($params as $key => $value) {
+                    $stmtSelect->bindValue($key, $value, PDO::PARAM_INT); // Assuming IDs are integers
+                }
+                // Bind pagination parameters
+                $stmtSelect->bindValue(':limit', $limit, PDO::PARAM_INT);
+                $stmtSelect->bindValue(':offset', $offset, PDO::PARAM_INT);
+                $stmtSelect->execute();
+
+                // Fetch and structure results
+                while ($row = $stmtSelect->fetch(PDO::FETCH_ASSOC)) {
+                    $activityDataResult = [];
+                    $activityResult = [];
+
+                    // Separate fields into activity and activityData
+                    foreach ($row as $key => $value) {
+                        if ($activityFields === '*' || in_array($key, $activityFields)) {
+                            if (($key === 'Main_Img' || $key === 'Logo_Img') && !empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
+                                 $activityResult[$key] = "http://localhost:9999/" . ltrim($value, '/'); // Adjust base URL if needed
+                            } else {
+                                 $activityResult[$key] = $value;
+                            }
+                        } else if ($key !== 'ID' && ($activityDataFields === '*' || in_array($key, $activityDataFields))) {
+                             $activityDataResult[$key] = $value;
+                        }
+                    }
+                     if ($activityDataFields === '*' && isset($activityDataResult['ActivityID'])) {
+                         unset($activityDataResult['ActivityID']);
+                     }
+
+                    $results[] = [
+                        'activity' => $activityResult,
+                        'activityData' => !empty($activityDataResult) ? $activityDataResult : null
+                    ];
+                }
+            }
+
+            // --- Prepare Success Response ---
+            $response = [
+                'success' => true,
+                'data' => $results,
+                'pagination' => [
+                    'currentPage' => $page,
+                    'limit' => $limit,
+                    'totalResults' => $totalResults,
+                    'totalPages' => $totalPages
+                ]
+            ];
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(200);
+
+        } catch (PDOException $e) {
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(500);
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Base de Données: ' . ($e->errorInfo[2] ?? $e->getMessage()),
+                'error_details' => [ /* ... error details ... */ ]
+            ];
+        } catch (Exception $e) {
+            $httpCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code($httpCode);
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Serveur: ' . $e->getMessage(),
+                 'error_details' => [ /* ... error details ... */ ]
+            ];
+        }
+
+        // --- Final Output Stage ---
+        if (php_sapi_name() !== 'cli' && !self::$outputSent && !headers_sent()) {
+            $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            if ($jsonOutput === false) {
+                http_response_code(500);
+                $jsonError = json_last_error_msg();
+                echo '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
+            } else {
+                echo $jsonOutput;
+            }
+            self::$outputSent = true;
+        } elseif (php_sapi_name() !== 'cli' && !self::$outputSent && headers_sent()) {
+            // error_log("getAllActivity: Headers already sent, cannot send JSON response.");
+        }
+
+        return $response;
+    }
+
+    /**
+     * Counts activities, optionally filtered.
+     * Expects a JSON body like:
+     * {
+     *   "filters": {
+     *     "languageID": 1,
+     *     "positionID": 5,
+     *     "environmentID": 2,
+     *     "typeID": 3
+     *   }
+     * }
+     * @return array The response array (success/count or error).
+     */
+    public static function countAllActivity()
+    {
+        global $pdo;
+        $response = ['success' => false, 'message' => 'Erreur initiale countAllActivity'];
+        self::$outputSent = false; // Reset flag
+
+        // Set headers only if this function is the main entry point and headers not sent
+        if (php_sapi_name() !== 'cli' && !headers_sent()) {
+            header('Access-Control-Allow-Origin: *');
+            header('Content-Type: application/json; charset=utf-8');
+        }
+
+        try {
+            // --- Get Input from JSON body ---
+            $inputBody = json_decode(file_get_contents('php://input'), true);
+             if (json_last_error() !== JSON_ERROR_NONE && !empty(file_get_contents('php://input'))) {
+                 throw new Exception("Corps JSON invalide fourni.", 400);
+             }
+
+            // Extract filters
+            $filters = $inputBody['filters'] ?? [];
+            $languageID = isset($filters['languageID']) ? filter_var($filters['languageID'], FILTER_VALIDATE_INT) : null;
+            $positionID = isset($filters['positionID']) ? filter_var($filters['positionID'], FILTER_VALIDATE_INT) : null;
+            $environmentID = isset($filters['environmentID']) ? filter_var($filters['environmentID'], FILTER_VALIDATE_INT) : null;
+            $typeID = isset($filters['typeID']) ? filter_var($filters['typeID'], FILTER_VALIDATE_INT) : null;
+
+            // --- Build WHERE clause using EXISTS for filters ---
+            $whereClauses = [];
+            $params = [];
+
+            if ($languageID !== null && $languageID !== false && $languageID > 0) {
+                $whereClauses[] = 'EXISTS (SELECT 1 FROM LanguageArrayActivity laa WHERE laa.ActivityID = a.ID AND laa.LanguageID = :languageID)';
+                $params[':languageID'] = $languageID;
+            }
+            if ($positionID !== null && $positionID !== false && $positionID > 0) {
+                $whereClauses[] = 'EXISTS (SELECT 1 FROM PositionArrayActivity paa WHERE paa.ActivityID = a.ID AND paa.PositionID = :positionID)';
+                $params[':positionID'] = $positionID;
+            }
+            if ($environmentID !== null && $environmentID !== false && $environmentID > 0) {
+                $whereClauses[] = 'EXISTS (SELECT 1 FROM EnvironmentArrayActivity eaa WHERE eaa.ActivityID = a.ID AND eaa.EnvironmentID = :environmentID)';
+                $params[':environmentID'] = $environmentID;
+            }
+            if ($typeID !== null && $typeID !== false && $typeID > 0) {
+                $whereClauses[] = 'EXISTS (SELECT 1 FROM TypeArrayActivity taa WHERE taa.ActivityID = a.ID AND taa.TypeID = :typeID)';
+                $params[':typeID'] = $typeID;
+            }
+
+            $whereSql = !empty($whereClauses) ? 'WHERE ' . implode(' AND ', $whereClauses) : '';
+
+            // --- Count Query ---
+            $sqlCount = "SELECT COUNT(DISTINCT a.ID) as total
+                         FROM Activity a
+                         {$whereSql}"; // No need to join ActivityData unless filtering on it
+
+            $stmtCount = $pdo->prepare($sqlCount);
+            $stmtCount->execute($params);
+            $countResult = $stmtCount->fetch(PDO::FETCH_ASSOC);
+            $totalCount = $countResult ? (int)$countResult['total'] : 0;
+
+            // --- Prepare Success Response ---
+            $response = ['success' => true, 'count' => $totalCount];
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(200);
+
+        } catch (PDOException $e) {
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(500);
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Base de Données: ' . ($e->errorInfo[2] ?? $e->getMessage()),
+                'error_details' => [ /* ... error details ... */ ]
+            ];
+        } catch (Exception $e) {
+            $httpCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code($httpCode);
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Serveur: ' . $e->getMessage(),
+                 'error_details' => [ /* ... error details ... */ ]
+            ];
+        }
+
+        // --- Final Output Stage ---
+        if (php_sapi_name() !== 'cli' && !self::$outputSent && !headers_sent()) {
+            $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            if ($jsonOutput === false) {
+                http_response_code(500);
+                $jsonError = json_last_error_msg();
+                echo '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
+            } else {
+                echo $jsonOutput;
+            }
+            self::$outputSent = true;
+        } elseif (php_sapi_name() !== 'cli' && !self::$outputSent && headers_sent()) {
+            // error_log("countAllActivity: Headers already sent, cannot send JSON response.");
+        }
+
+        return $response;
+    }
 } // End Class ActivityController
