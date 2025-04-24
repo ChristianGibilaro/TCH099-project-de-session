@@ -893,8 +893,8 @@ class ActivityController
                 ]
             ];
 
-            $result['activity']['Main_Img'] = "http://localhost:9999/" . $result['activity']['Main_Img'];
-            $result['activity']['Logo_Img'] = "http://localhost:9999/" . $result['activity']['Logo_Img'];
+            $result['activity']['Main_Img'] = "https://api.lunarcovenant.com/" . $result['activity']['Main_Img'];
+            $result['activity']['Logo_Img'] = "https://api.lunarcovenant.com/" . $result['activity']['Logo_Img'];
 
             // Prepare success response structure
             $response = ['success' => true, 'data' => $result];
@@ -1069,7 +1069,7 @@ class ActivityController
                         if ($activityFields === '*' || in_array($key, $activityFields)) {
                             // Prepend base URL to image paths if selected
                             if (($key === 'Main_Img' || $key === 'Logo_Img') && !empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
-                                 $activityResult[$key] = "http://localhost:9999/" . ltrim($value, '/');
+                                 $activityResult[$key] = "https://api.lunarcovenant.com/" . ltrim($value, '/');
                             } else {
                                  $activityResult[$key] = $value;
                             }
