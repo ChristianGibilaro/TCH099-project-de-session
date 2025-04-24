@@ -227,6 +227,10 @@ post('/api/team/title', function () {
     TeamController::getTeamByTitle($title);
 });
 
+get('/api/team/$id/users', function($id) {
+    TeamController::getUsersByTeam($id);
+});
+
 put('/api/team/$id', function ($id) {
     TeamController::updateTeam($id);                //  ← admin API‑Key requise -- fonctionelle
 });

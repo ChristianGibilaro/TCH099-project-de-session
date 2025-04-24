@@ -46,31 +46,37 @@ class TeamController
 }
 
 
-    public static function createTeam()
-    {
-        global $pdo;
-        $data = self::getInput();
+public static function createTeam()
+{
+    global $pdo;
+    $data = self::getInput();
 
-        $activityID  = $data['activityID']  ?? null;
-        $name        = $data['name']        ?? null;
-        $description = $data['description'] ?? null;
-        $mainColor   = $data['main_color']  ?? null;
-        $secondColor = $data['second_color']?? null;
+    $activityID  = $data['activityID']   ?? null;
+    $name        = $data['name']         ?? null;
+    $description = $data['description']  ?? null;
+    $mainColor   = $data['main_color']   ?? null;
+    $secondColor = $data['second_color'] ?? null;
+    $rating      = $data['rating']       ?? null;
 
-        if (!$activityID || !$name || !$description || !$mainColor || !$secondColor)
-            self::sendJSON(false, "Champs 'activityID', 'name', 'description', 'main_color', 'second_color' obligatoires.");
+    if (!$activityID || !$name || !$description || $rating === null)
+        self::sendJSON(false, "Champs 'activityID', 'name', 'description', 'rating' obligatoires.");
 
-        $stmt = $pdo->prepare("INSERT INTO Team (ActivityID, Name, Description, Main_Color, Second_Color) VALUES (:a,:n,:d,:m,:s)");
-        $stmt->execute([
-            ':a' => $activityID,
-            ':n' => $name,
-            ':d' => $description,
-            ':m' => $mainColor,
-            ':s' => $secondColor
-        ]);
+    $stmt = $pdo->prepare("
+        INSERT INTO Team (ActivityID, Name, Description, Main_Color, Second_Color, Rating)
+        VALUES (:a, :n, :d, :m, :s, :r)
+    ");
+    $stmt->execute([
+        ':a' => $activityID,
+        ':n' => $name,
+        ':d' => $description,
+        ':m' => $mainColor,
+        ':s' => $secondColor,
+        ':r' => $rating
+    ]);
 
-        self::sendJSON(true, "Équipe créée avec succès.", ["team_id" => $pdo->lastInsertId()]);
-    }
+    self::sendJSON(true, "Équipe créée avec succès.", ["team_id" => $pdo->lastInsertId()]);
+}
+
 
     public static function inviteUser(int $userID)
     {
@@ -389,5 +395,21 @@ public static function updateTeam($id): void
     }
 }
 
+    public static function getUsersByTeam($teamID): void
+    {
+        global $pdo;
+        header('Content-Type: application/json');
+
+        $stmt = $pdo->prepare("SELECT u.* FROM User u INNER JOIN UserTeam ut ON u.ID = ut.UserID WHERE ut.TeamID = :tid");
+        $stmt->execute(['tid' => $teamID]);
+        $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!$users) {
+            self::sendJSON(false, "Aucun utilisateur trouvé pour l'équipe $teamID.");
+            return;
+        }
+
+        self::sendJSON(true, "Utilisateurs de l'équipe $teamID récupérés avec succès.", ['users' => $users]);
+    }
 
 }
