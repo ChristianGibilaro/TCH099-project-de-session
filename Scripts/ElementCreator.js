@@ -412,7 +412,7 @@ CreateTableRows(elements, elementsType, elementsSize, colNumb, id, classes, extr
                 <a href="${elements[i][0]}"><img
                     src="${elements[i][1]}"
                     height="40px" style="border: solid var(--accent);"></a>
-                <a href="${elements[i][2]}"><img src="${elements[i][3]}" alt="Image produit"
+                <a href="${elements[i][2]}"><img src="${elements[i][3]}" alt=""
                     style="border: solid var(--accent);"></a>
                 <h3>${elements[i][4]}<br><span class="mainStats"> ${elements[i][5]}</span></h3>
                 <p>${elements[i][6]}</p>
