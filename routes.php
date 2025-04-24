@@ -48,6 +48,11 @@ get('/api/user_data_combined/${userID}', function($userID){
     AndroidController::getUserDataCombinedAndroid($userID);
 });
 
+
+get('/api/user_image_lib/${userID}', function($userID){
+    AndroidController::getUserImageLibForAndroid($userID);
+});
+
 //Router pour touver nombre de jeux d'un user
 get('/api/total_games/${userID}', function($userID){
     AndroidController::getUserTotalGameCountForAndroid($userID);
@@ -225,6 +230,10 @@ post('/api/team/title', function () {
     $input = json_decode(file_get_contents('php://input'), true); // fonctionelle
     $title = $input['title'] ?? '';
     TeamController::getTeamByTitle($title);
+});
+
+get('/api/team/$id/users', function($id) {
+    TeamController::getUsersByTeam($id);
 });
 
 put('/api/team/$id', function ($id) {

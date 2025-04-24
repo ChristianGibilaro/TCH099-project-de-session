@@ -163,6 +163,16 @@ class FilterController
         $positionFields = ['Name', 'Country', 'State', 'City', 'Street', 'Number', 'GPS', 'Local_Time'];
 
         try {
+            $pdo->beginTransaction(); // Start the transaction
+
+            // Check if filter name already exists for this type
+            $stmtCheck = $pdo->prepare("SELECT ID FROM `$filterTable` WHERE `Name` = ?");
+            $stmtCheck->execute([$filterName]);
+            if ($stmtCheck->fetch()) {
+                 $pdo->rollBack(); // Rollback before returning error
+                 echo json_encode(['success' => false, 'message' => "Un filtre de type '$type' avec le nom '$filterName' existe déjà."]);
+                 return;
+            }
 
             // 1. Insert options and collect their IDs
             $optionIDs = [];
@@ -200,10 +210,12 @@ class FilterController
                 $stmt2->execute([$oid, $filterID]);
             }
 
-            $pdo->commit();
+            $pdo->commit(); // Commit the transaction if everything was successful
             echo json_encode(['success' => true, 'filterID' => $filterID, 'optionIDs' => $optionIDs]);
         } catch (Exception $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) { // Check if a transaction is active before rolling back
+                $pdo->rollBack(); // Roll back the transaction on error
+            }
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
