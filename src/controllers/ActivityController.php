@@ -5,334 +5,158 @@ include_once(__DIR__ . '/../../config.php');
 class ActivityController
 {
 
-
-        public static function createActivite()
-        {
-            global $pdo;
-            header('Content-Type: application/json');
+    public static function createActivite()
+    {
+        global $pdo;
+        header('Content-Type: application/json');
     
-            if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-                http_response_code(405); // Method Not Allowed
-                echo json_encode(['success' => false, 'message' => 'Utilisez POST pour créer une activité.']);
-                return;
-            }
-    
-            // Support both JSON and form-data (form-data is expected based on example)
-            $data = $_POST; // Directly use $_POST for form-data
-    
-            // --- Basic Data Extraction ---
-            $title        = $data['title']        ?? null;
-            $isSport      = isset($data['isSport']) ? ($data['isSport'] === 'on' || $data['isSport'] === 'true' || $data['isSport'] === '1') : null; // Handle 'on' from checkbox
-            $mainImg      = $data['main_img']     ?? null;
-            $mainImgUrl   = $data['main_img_url'] ?? null;
-            $logoImg      = $data['logo_img']     ?? null;
-            $logoImgUrl   = $data['logo_img_url'] ?? null;
-            $description  = $data['description']  ?? null;
-            // Ensure pointValue is treated as an integer or null
-            $pointValue     = isset($data['point_value']) ? (filter_var($data['point_value'], FILTER_VALIDATE_INT) !== false ? (int)$data['point_value'] : null) : null;
-            $word4player    = $data['word_4_player']   ?? null;
-            $word4teammate  = $data['word_4_teammate'] ?? null;
-            $word4playing   = $data['word_4_playing']  ?? null;
-            $liveUrl        = $data['live_url']        ?? null;
-            $liveDesc       = $data['live_desc']       ?? null;
-            $mainColor      = $data['main_color']      ?? null;
-            $secondColor    = $data['second_color']    ?? null;
-            $friendMain     = $data['friend_main_color']   ?? null;
-            $friendSecond   = $data['friend_second_color'] ?? null;
-            $apiKey         = $data['apiKey']          ?? null;
-    
-            // --- Array Data Extraction ---
-            // Ensure they are arrays even if only one value is sent and trim whitespace
-            $trimArray = function ($arr) {
-                return array_map('trim', $arr);
-            };
-            $positionNames    = isset($data['positionIDs']) ? (is_array($data['positionIDs']) ? $trimArray($data['positionIDs']) : [trim($data['positionIDs'])]) : [];
-            $languageNames    = isset($data['languageIDs']) ? (is_array($data['languageIDs']) ? $trimArray($data['languageIDs']) : [trim($data['languageIDs'])]) : [];
-            $typeNames        = isset($data['TypeIDs'])     ? (is_array($data['TypeIDs'])     ? $trimArray($data['TypeIDs'])     : [trim($data['TypeIDs'])])     : [];
-            $environmentNames = isset($data['EnvironmentIDs'])? (is_array($data['EnvironmentIDs'])? $trimArray($data['EnvironmentIDs']): [trim($data['EnvironmentIDs'])]): [];
-    
-    
-            // --- Validation ---
-            if (!$apiKey) {
-                 http_response_code(401); // Unauthorized
-                 echo json_encode(['success' => false, 'message' => "Clé API ('apiKey') manquante."]);
-                 return;
-            }
-    
-            // Accept either file upload, URL, or value in body for main_img
-            $hasMainImg = (isset($_FILES['main_img']) && $_FILES['main_img']['error'] === UPLOAD_ERR_OK) || !empty($mainImg) || !empty($mainImgUrl);
-            // Logo is optional now based on schema, but let's keep the check consistent if needed
-            // $hasLogoImg = (isset($_FILES['logo_img']) && $_FILES['logo_img']['error'] === UPLOAD_ERR_OK) || !empty($logoImg) || !empty($logoImgUrl);
-    
-            if (empty($title) || $isSport === null || !$hasMainImg || empty($description)) {
-                http_response_code(400); // Bad Request
-                echo json_encode([
-                    'success' => false,
-                    'message' => "Champs obligatoires manquants ou invalides: 'title', 'isSport', 'main_img' (fichier, URL ou valeur), 'description'."
-                ]);
-                return;
-            }
-    
-            // --- Image Handling ---
-            $imageFolder = __DIR__ . '/../../ressources/images/activity/'; // Use absolute path
-            if (!file_exists($imageFolder)) {
-                 if (!mkdir($imageFolder, 0755, true)) {
-                     http_response_code(500);
-                     error_log("Failed to create image directory: " . $imageFolder);
-                     echo json_encode(['success' => false, 'message' => "Impossible de créer le dossier d'images."]);
-                     return;
-                 }
-            }
-            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']; // Added webp
-    
-            // Function to handle image processing (upload or URL)
-            $processImage = function($fileKey, $urlKey, $baseName, $imageFolder, $allowedTypes) use ($data) {
-                $imagePath = $data[$fileKey] ?? null; // Check if path/value is directly in body
-                $imageUrl = $data[$urlKey] ?? null;
-    
-                if (isset($_FILES[$fileKey]) && $_FILES[$fileKey]['error'] === UPLOAD_ERR_OK) {
-                    $fileTmpPath = $_FILES[$fileKey]['tmp_name'];
-                    $originalFileName = basename($_FILES[$fileKey]['name']);
-                    // Use finfo for more reliable MIME type detection
-                    $finfo = finfo_open(FILEINFO_MIME_TYPE);
-                    $fileType = finfo_file($finfo, $fileTmpPath);
-                    finfo_close($finfo);
-    
-                    if (in_array($fileType, $allowedTypes)) {
-                        // Sanitize filename more robustly
-                        $safeFileName = preg_replace('/[^A-Za-z0-9\._-]/', '_', $originalFileName);
-                        $extension = pathinfo($safeFileName, PATHINFO_EXTENSION);
-                        $destinationPath = $imageFolder . uniqid($baseName . '_', true) . '.' . ($extension ?: 'png'); // Add default extension if missing
-    
-                        if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
-                            throw new Exception("Impossible de déplacer le fichier '$originalFileName' téléchargé.");
-                        }
-                        // Return relative path from web root if needed for URLs, or keep absolute for file system access
-                        // Assuming 'ressources' is accessible from web root
-                        return 'ressources/images/activity/' . basename($destinationPath);
-                    } else {
-                        throw new Exception("Type de fichier '$originalFileName' non pris en charge: $fileType");
-                    }
-                } elseif (!empty($imageUrl)) {
-                     // Basic URL validation
-                     if (filter_var($imageUrl, FILTER_VALIDATE_URL)) {
-                         return trim($imageUrl);
-                     } else {
-                         throw new Exception("URL fournie pour '$urlKey' est invalide.");
-                     }
-                } elseif (!empty($imagePath)) {
-                    // If a non-URL string was provided in the body (less common for images)
-                    return trim($imagePath);
-                }
-                return null; // No image provided or handled
-            };
-    
-            // --- Database Operations ---
-            try {
-                // Process images before transaction starts
-                $mainImgPath = $processImage('main_img', 'main_img_url', 'activity', $imageFolder, $allowedImageTypes);
-                $logoImgPath = $processImage('logo_img', 'logo_img_url', 'activity_logo', $imageFolder, $allowedImageTypes);
-    
-                // Re-validate after image processing
-                 if ($mainImgPath === null) {
-                     throw new Exception("L'image principale ('main_img' ou 'main_img_url') est requise et n'a pas pu être traitée.");
-                 }
-    
-    
-                $pdo->beginTransaction();
-    
-                // 1. Find User by API Key
-                $stmtUser = $pdo->prepare("SELECT ID, Password FROM User WHERE ApiKey = :apiKey");
-                $stmtUser->execute([':apiKey' => $apiKey]);
-                $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
-    
-                if (!$user) {
-                    // No rollback needed yet
-                    http_response_code(401); // Unauthorized
-                    echo json_encode(['success' => false, 'message' => "Clé API invalide."]);
-                    return; // Exit before transaction starts
-                }
-                $userId = $user['ID'];
-                $userPassword = $user['Password']; // Get the user's password hash
-    
-                // 2. Insert into Activity table
-                $bitValue = $isSport ? 1 : 0; // Use integer 1 or 0 for BIT/BOOLEAN
-    
-                $sqlActivity = "
-                    INSERT INTO Activity
-                      (Title, IsSport, Main_Img, Description,
-                       Logo_Img, Point_Value, Word_4_Player, Word_4_Teammate,
-                       Word_4_Playing, Live_url, Live_Desc, Main_Color,
-                       Second_Color, Friend_Main_Color, Friend_Second_Color)
-                    VALUES
-                      (:title, :isSport, :mainImg, :descr,
-                       :logoImg, :pVal, :wPlayer, :wTeammate,
-                       :wPlaying, :lUrl, :lDesc, :mColor,
-                       :sColor, :fMain, :fSecond)
-                ";
-                $stmtActivity = $pdo->prepare($sqlActivity);
-    
-                // Bind parameters, ensuring correct types
-                $stmtActivity->bindValue(':title',    $title);
-                $stmtActivity->bindValue(':isSport',  $bitValue, PDO::PARAM_INT); // Bind as integer
-                $stmtActivity->bindValue(':mainImg',  $mainImgPath); // Use processed path/URL
-                $stmtActivity->bindValue(':descr',    $description);
-                $stmtActivity->bindValue(':logoImg',  $logoImgPath, $logoImgPath === null ? PDO::PARAM_NULL : PDO::PARAM_STR); // Use processed path/URL
-                $stmtActivity->bindValue(':pVal',     $pointValue, $pointValue === null ? PDO::PARAM_NULL : PDO::PARAM_INT); // Bind as integer or null
-                $stmtActivity->bindValue(':wPlayer',  $word4player);
-                $stmtActivity->bindValue(':wTeammate',$word4teammate);
-                $stmtActivity->bindValue(':wPlaying', $word4playing);
-                $stmtActivity->bindValue(':lUrl',     $liveUrl);
-                $stmtActivity->bindValue(':lDesc',    $liveDesc);
-                $stmtActivity->bindValue(':mColor',   $mainColor);
-                $stmtActivity->bindValue(':sColor',   $secondColor);
-                $stmtActivity->bindValue(':fMain',    $friendMain);
-                $stmtActivity->bindValue(':fSecond',  $friendSecond);
-    
-                $stmtActivity->execute();
-                $newActivityId = $pdo->lastInsertId();
-    
-                // Helper function to get IDs from names (Corrected)
-                $getIdsFromNames = function(array $names, string $tableName, string $columnName = 'Name') use ($pdo): array {
-                    if (empty($names)) return [];
-
-                    // Filter out empty strings that might result from trimming
-                    $names = array_filter($names, function($value) { return $value !== ''; });
-                    if (empty($names)) return [];
-
-                    $placeholders = implode(',', array_fill(0, count($names), '?'));
-                    // Ensure correct quoting for column name
-                    $safeColumnName = '`' . str_replace('`', '', $columnName) . '`';
-                    $safeTableName = '`' . str_replace('`', '', $tableName) . '`';
-
-                    // ***** CORRECTED SQL: Select Name first, then ID *****
-                    $sql = "SELECT $safeColumnName, ID FROM $safeTableName WHERE $safeColumnName IN ($placeholders)";
-
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute($names);
-                    // PDO::FETCH_KEY_PAIR now correctly creates [Name => ID] map
-                    $results = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
-
-                    $ids = [];
-                    $notFound = [];
-                    foreach ($names as $name) {
-                        // This check should now work correctly
-                        if (isset($results[$name])) {
-                            $ids[] = $results[$name];
-                        } else {
-                            $notFound[] = $name;
-                        }
-                    }
-
-                    if (!empty($notFound)) {
-                        // Log detailed error
-                        error_log("Warning: Names not found in table '$tableName': " . implode(', ', $notFound));
-                        // Optionally, throw an exception to halt the process and rollback
-                        // throw new Exception("Certains éléments n'ont pas été trouvés dans '$tableName': " . implode(', ', $notFound));
-                    }
-                    return $ids;
-                };
-
-    
-                // 3. Get IDs and Insert into Array Tables
-                $positionIDs    = $getIdsFromNames($positionNames, 'Position');
-                $languageIDs    = $getIdsFromNames($languageNames, 'Language');
-                $typeIDs        = $getIdsFromNames($typeNames, 'Type');
-                $environmentIDs = $getIdsFromNames($environmentNames, 'Environment');
-    
-                // Log fetched IDs for debugging
-                error_log("--- Activity Creation (ID: $newActivityId) ---");
-                error_log("Input Position Names: " . print_r($positionNames, true));
-                error_log("Fetched Position IDs: " . print_r($positionIDs, true));
-                error_log("Input Language Names: " . print_r($languageNames, true));
-                error_log("Fetched Language IDs: " . print_r($languageIDs, true));
-                error_log("Input Type Names: " . print_r($typeNames, true));
-                error_log("Fetched Type IDs: " . print_r($typeIDs, true));
-                error_log("Input Environment Names: " . print_r($environmentNames, true));
-                error_log("Fetched Environment IDs: " . print_r($environmentIDs, true));
-                error_log("------------------------------------------");
-    
-    
-                // Helper function to insert into junction tables
-                $insertIntoJunction = function(int $activityId, array $foreignIds, string $junctionTable, string $foreignKeyColumn) use ($pdo) {
-                    if (empty($foreignIds)) return; // Do nothing if no IDs were found/provided
-    
-                    // Prepare the statement once outside the loop
-                    $sql = "INSERT INTO `$junctionTable` (ActivityID, `$foreignKeyColumn`) VALUES (:activityId, :foreignId)";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->bindValue(':activityId', $activityId, PDO::PARAM_INT);
-    
-                    foreach ($foreignIds as $foreignId) {
-                        // Ensure foreignId is an integer before binding
-                        if (filter_var($foreignId, FILTER_VALIDATE_INT) !== false) {
-                            $stmt->bindValue(':foreignId', (int)$foreignId, PDO::PARAM_INT);
-                            try {
-                                $stmt->execute();
-                            } catch (PDOException $e) {
-                                // Log error if a specific insert fails (e.g., duplicate entry, FK violation)
-                                error_log("Failed to insert into $junctionTable (ActivityID: $activityId, $foreignKeyColumn: $foreignId): " . $e->getMessage());
-                                // Decide if this should halt the entire process or just skip this entry
-                                // throw $e; // Re-throw to cause rollback
-                            }
-                        } else {
-                            error_log("Skipping invalid foreign ID '$foreignId' for table '$junctionTable'");
-                        }
-                    }
-                };
-    
-                // Insert into junction tables
-                $insertIntoJunction($newActivityId, $positionIDs,    'PositionArrayActivity',    'PositionID');
-                $insertIntoJunction($newActivityId, $languageIDs,    'LanguageArrayActivity',    'LanguageID');
-                $insertIntoJunction($newActivityId, $typeIDs,        'TypeArrayActivity',        'TypeID');
-                $insertIntoJunction($newActivityId, $environmentIDs, 'EnvironmentArrayActivity', 'EnvironmentID');
-    
-                // 4. Insert into AdminActivity
-                $sqlAdmin = "INSERT INTO AdminActivity (UserID, ActivityID, Password) VALUES (:userId, :activityId, :password)";
-                $stmtAdmin = $pdo->prepare($sqlAdmin);
-                $stmtAdmin->execute([
-                    ':userId' => $userId,
-                    ':activityId' => $newActivityId,
-                    ':password' => $userPassword // Use the fetched password hash
-                ]);
-    
-                // If all successful, commit
-                $pdo->commit();
-    
-                http_response_code(201); // Created
-                echo json_encode([
-                    'success' => true,
-                    'message' => "Activité créée avec succès.",
-                    'activity_id' => $newActivityId
-                ]);
-    
-            } catch (PDOException $e) {
-                // Rollback transaction on database error
-                if ($pdo->inTransaction()) {
-                    $pdo->rollBack();
-                }
-                http_response_code(500); // Internal Server Error
-                error_log("DB Error creating activity: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine()); // Log detailed error
-                echo json_encode([
-                    'success' => false,
-                    'message' => "Erreur interne du serveur lors de la création de l'activité (DB)."
-                    // 'debug_message' => "Erreur DB : " . $e->getMessage() // Optional: for debugging only
-                ]);
-            } catch (Exception $e) {
-                 // Rollback transaction on general error (e.g., file upload, validation)
-                 if ($pdo->inTransaction()) {
-                     $pdo->rollBack();
-                 }
-                 // Determine appropriate HTTP status code based on exception type if needed
-                 $statusCode = ($e->getMessage() === "Clé API invalide.") ? 401 : (($e->getMessage() === "URL fournie pour 'main_img_url' est invalide." || strpos($e->getMessage(), 'non pris en charge') !== false || strpos($e->getMessage(), 'requis') !== false) ? 400 : 500);
-                 http_response_code($statusCode);
-                 error_log("General Error creating activity: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
-                 echo json_encode([
-                     'success' => false,
-                     'message' => $e->getMessage() // Provide more specific error message from the exception
-                     // 'debug_message' => "Erreur : " . $e->getMessage() // Optional: for debugging only
-                 ]);
-            }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'message' => 'Utilisez POST pour créer une activité.']);
+            return;
         }
+    
+        // Support both JSON and form-data
+        $data = [];
+        if (isset($_POST) && !empty($_POST)) {
+            $data = $_POST;
+        } else {
+            $inputJSON = file_get_contents('php://input');
+            $data = json_decode($inputJSON, true);
+        }
+    
+        if (!is_array($data)) {
+            echo json_encode(['success' => false, 'message' => 'Corps de requête invalide (JSON ou formulaire attendu).']);
+            return;
+        }
+    
+        $title        = $data['title']        ?? null;
+        $isSport      = $data['isSport']      ?? null;
+        $mainImg      = $data['main_img']     ?? null;
+        $mainImgUrl   = $data['main_img_url'] ?? null;
+        $logoImg      = $data['logo_img']     ?? null;
+        $logoImgUrl   = $data['logo_img_url'] ?? null;
+        $description  = $data['description']  ?? null;
+        $pointValue     = $data['point_value']     ?? null;
+        $word4player    = $data['word_4_player']   ?? null;
+        $word4teammate  = $data['word_4_teammate'] ?? null;
+        $word4playing   = $data['word_4_playing']  ?? null;
+        $liveUrl        = $data['live_url']        ?? null;
+        $liveDesc       = $data['live_desc']       ?? null;
+        $mainColor      = $data['main_color']      ?? null;
+        $secondColor    = $data['second_color']    ?? null;
+        $friendMain     = $data['friend_main_color']   ?? null;
+        $friendSecond   = $data['friend_second_color'] ?? null;
+    
+        // Accept either file upload, URL, or value in body for main_img
+        $hasMainImg = (isset($_FILES['main_img']) && $_FILES['main_img']['error'] === UPLOAD_ERR_OK) || $mainImg || $mainImgUrl;
+        $hasLogoImg = (isset($_FILES['logo_img']) && $_FILES['logo_img']['error'] === UPLOAD_ERR_OK) || $logoImg || $logoImgUrl;
+    
+        if (!$title || $isSport === null || !$hasMainImg || !$description) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Champs 'title', 'isSport', 'main_img' (fichier, URL ou valeur), 'description' obligatoires."
+            ]);
+            return;
+        }
+    
+        // Handle main_img: file upload, URL, or value
+        if (isset($_FILES['main_img']) && $_FILES['main_img']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['main_img']['tmp_name'];
+            $originalFileName = basename($_FILES['main_img']['name']);
+            $fileType = mime_content_type($fileTmpPath);
+    
+            $imageFolder = 'ressources/images/activity/';
+            if (!file_exists($imageFolder)) mkdir($imageFolder, 0755, true);
+    
+            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (in_array($fileType, $allowedImageTypes)) {
+                $destinationPath = $imageFolder . uniqid('activity_', true) . '_' . $originalFileName;
+                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
+                    echo json_encode(['success' => false, 'message' => 'Impossible de déplacer le fichier téléchargé.']);
+                    return;
+                }
+                $mainImg = $destinationPath;
+            } else {
+                echo json_encode(['success' => false, 'message' => "Type de fichier non pris en charge: $fileType"]);
+                return;
+            }
+        } elseif ($mainImgUrl) {
+            $mainImg = trim($mainImgUrl);
+        } // else keep $mainImg as is (from body)
+    
+        // Handle logo_img: file upload, URL, or value
+        if (isset($_FILES['logo_img']) && $_FILES['logo_img']['error'] === UPLOAD_ERR_OK) {
+            $fileTmpPath = $_FILES['logo_img']['tmp_name'];
+            $originalFileName = basename($_FILES['logo_img']['name']);
+            $fileType = mime_content_type($fileTmpPath);
+    
+            $imageFolder = 'ressources/images/activity/';
+            if (!file_exists($imageFolder)) mkdir($imageFolder, 0755, true);
+    
+            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (in_array($fileType, $allowedImageTypes)) {
+                $destinationPath = $imageFolder . uniqid('activity_logo_', true) . '_' . $originalFileName;
+                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
+                    echo json_encode(['success' => false, 'message' => 'Impossible de déplacer le fichier logo téléchargé.']);
+                    return;
+                }
+                $logoImg = $destinationPath;
+            } else {
+                echo json_encode(['success' => false, 'message' => "Type de fichier logo non pris en charge: $fileType"]);
+                return;
+            }
+        } elseif ($logoImgUrl) {
+            $logoImg = trim($logoImgUrl);
+        } // else keep $logoImg as is (from body)
+    
+        $bitValue = ($isSport) ? "b'1'" : "b'0'";
+    
+        try {
+            $sql = "
+                INSERT INTO Activity
+                  (Title, IsSport, Main_Img, Description,
+                   Logo_Img, Point_Value, Word_4_Player, Word_4_Teammate,
+                   Word_4_Playing, Live_url, Live_Desc, Main_Color,
+                   Second_Color, Friend_Main_Color, Friend_Second_Color)
+                VALUES
+                  (:title, $bitValue, :mainImg, :descr,
+                   :logoImg, :pVal, :wPlayer, :wTeammate,
+                   :wPlaying, :lUrl, :lDesc, :mColor,
+                   :sColor, :fMain, :fSecond)
+            ";
+            $stmt = $pdo->prepare($sql);
+    
+            $stmt->bindValue(':title',    $title);
+            $stmt->bindValue(':mainImg',  $mainImg);
+            $stmt->bindValue(':descr',    $description);
+            $stmt->bindValue(':logoImg',  $logoImg);
+            $stmt->bindValue(':pVal',     $pointValue);
+            $stmt->bindValue(':wPlayer',  $word4player);
+            $stmt->bindValue(':wTeammate',$word4teammate);
+            $stmt->bindValue(':wPlaying', $word4playing);
+            $stmt->bindValue(':lUrl',     $liveUrl);
+            $stmt->bindValue(':lDesc',    $liveDesc);
+            $stmt->bindValue(':mColor',   $mainColor);
+            $stmt->bindValue(':sColor',   $secondColor);
+            $stmt->bindValue(':fMain',    $friendMain);
+            $stmt->bindValue(':fSecond',  $friendSecond);
+    
+            $stmt->execute();
+            $newId = $pdo->lastInsertId();
+    
+            echo json_encode([
+                'success' => true,
+                'message' => "Activité créée avec succès.",
+                'activity_id' => $newId
+            ]);
+    
+        } catch (PDOException $e) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Erreur DB : " . $e->getMessage()
+            ]);
+        }
+    }
 
     public static function getActivite($id)
     {

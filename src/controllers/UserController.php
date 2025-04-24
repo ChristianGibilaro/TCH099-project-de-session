@@ -330,6 +330,9 @@ class UserController{
    public static function getUserById($userID) {
     global $pdo;
 
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Type: application/json; charset=utf-8');
+
     if (!$userID) {
         http_response_code(400); // Bad request if ID is missing
         echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
@@ -349,7 +352,7 @@ class UserController{
         }
 
         // Basic validation against known columns (optional but recommended)
-        $allowedFields = ['ID', 'Img', 'Backg_Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+        $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
         $selectFields = '*';
         if (is_array($fields)) {
             $validFields = array_intersect($fields, $allowedFields);
@@ -377,17 +380,17 @@ class UserController{
         }
     } catch (PDOException $e) {
         http_response_code(500);
-        error_log("PDOException in getUserById (UserID: $userID): " . $e->getMessage());
+        error_log("PDOException in getUserById: " . $e->getMessage());
         echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
     } catch (Exception $e) {
          http_response_code(500);
-         error_log("Exception in getUserById (UserID: $userID): " . $e->getMessage());
+         error_log("Exception in getUserById: " . $e->getMessage());
          echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
     }
 
     }
 
-    public static function getUserByUsername($username) {
+    public static function getUserByUsername($username) { // Removed $input, read from body
         global $pdo;
     
         header('Access-Control-Allow-Origin: *');
@@ -400,29 +403,54 @@ class UserController{
         }
     
         try {
-            $sql = "SELECT ID FROM User WHERE User.Pseudo = :username";
+             // Parse the JSON body to get the desired fields
+            $input = json_decode(file_get_contents('php://input'), true);
+            $fields = isset($input['fields']) ? $input['fields'] : '*';
+    
+            // Validate fields input
+            if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' dans le body doit être '*' ou un tableau non vide."]);
+                return;
+            }
+    
+             // Basic validation against known columns (optional but recommended)
+            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+            $selectFields = '*';
+            if (is_array($fields)) {
+                $validFields = array_intersect($fields, $allowedFields);
+                if (empty($validFields)) {
+                     http_response_code(400);
+                     echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
+                     return;
+                }
+                $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
+            }
+    
+            $sql = "SELECT $selectFields FROM User WHERE User.Pseudo = :username";
+    
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['username' => $username]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
     
-            if ($user && isset($user['ID'])) {
-                self::getUserById($user['ID']);
+            if ($userData) {
+                echo json_encode(['success' => true, 'data' => $userData]);
             } else {
                 http_response_code(404);
                 echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec le nom d'utilisateur fourni."]);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            error_log("PDOException finding user ID in getUserByUsername (Username: $username): " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Erreur Database lors de la recherche de l\'utilisateur.']);
+            error_log("PDOException in getUserByUsername: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
         } catch (Exception $e) {
              http_response_code(500);
-             error_log("Exception in getUserByUsername (Username: $username): " . $e->getMessage());
+             error_log("Exception in getUserByUsername: " . $e->getMessage());
              echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
         }
     }
 
-    public static function getUserByApiKey($apiKey) {
+    public static function getUserByApiKey($apiKey) { // Removed $input, read from body
         global $pdo;
     
         header('Access-Control-Allow-Origin: *');
@@ -435,21 +463,46 @@ class UserController{
         }
     
         try {
-            $sql = "SELECT ID FROM User WHERE User.ApiKey = :apiKey";
+            // Parse the JSON body to get the desired fields
+            $input = json_decode(file_get_contents('php://input'), true);
+            $fields = isset($input['fields']) ? $input['fields'] : '*';
+    
+            // Validate fields input
+            if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
+                 http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' dans le body doit être '*' ou un tableau non vide."]);
+                return;
+            }
+    
+            // Basic validation against known columns (optional but recommended)
+            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+            $selectFields = '*';
+            if (is_array($fields)) {
+                $validFields = array_intersect($fields, $allowedFields);
+                if (empty($validFields)) {
+                     http_response_code(400);
+                     echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
+                     return;
+                }
+                $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
+            }
+    
+            $sql = "SELECT $selectFields FROM User WHERE User.ApiKey = :apiKey";
+    
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['apiKey' => $apiKey]);
-            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
     
-            if ($user && isset($user['ID'])) {
-                self::getUserById($user['ID']);
+            if ($userData) {
+                echo json_encode(['success' => true, 'data' => $userData]);
             } else {
                  http_response_code(404);
                 echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'apiKey fourni."]);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            error_log("PDOException finding user ID in getUserByApiKey: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Erreur Database lors de la recherche de l\'utilisateur.']);
+            error_log("PDOException in getUserByApiKey: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
         } catch (Exception $e) {
              http_response_code(500);
              error_log("Exception in getUserByApiKey: " . $e->getMessage());
@@ -490,7 +543,7 @@ class UserController{
             }
     
             // Basic validation against known columns (optional but recommended)
-            $allowedFields = ['ID', 'Img', 'Backg_Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
             $selectFields = '*';
             if (is_array($fields)) {
                 $validFields = array_intersect($fields, $allowedFields);
@@ -614,7 +667,7 @@ class UserController{
         $data = $input['data']; // Associative array of fields to update
     
         // --- Whitelist fields that can be modified ---
-        $allowedUpdateFields = ['Pseudo', 'Name', 'Email', 'Description', 'Birth', 'LanguageID', 'PositionID', 'Img', 'Backg_Img']; // Added Backg_Img
+        $allowedUpdateFields = ['Pseudo', 'Name', 'Email', 'Description', 'Birth', 'LanguageID', 'PositionID', 'Img']; // Add/remove fields as needed
         // Password should likely have a separate endpoint/process
     
         try {
@@ -652,9 +705,8 @@ class UserController{
                              continue;
                          }
                      }
-                     // Validate Img and Backg_Img as URLs (allow empty/null to remove)
-                     if (($key === 'Img' || $key === 'Backg_Img') && !empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
-                         $updateErrors[$key] = "Format d'URL invalide pour $key.";
+                     if ($key === 'Img' && !filter_var($value, FILTER_VALIDATE_URL) && !empty($value)) { // Allow empty Img?
+                         $updateErrors['Img'] = 'Format d\'URL invalide pour Img.';
                          continue;
                      }
 
@@ -662,8 +714,7 @@ class UserController{
                     $safeKey = "`" . str_replace("`", "``", $key) . "`";
                     $fields[] = "$safeKey = :$key";
                     // Sanitize value before adding to params (htmlspecialchars or type casting)
-                    // Allow null values
-                    $params[$key] = ($value === null) ? null : (is_string($value) ? htmlspecialchars($value) : $value);
+                    $params[$key] = is_string($value) ? htmlspecialchars($value) : $value;
                 } else {
                     // Optionally log or ignore attempts to update disallowed fields
                      error_log("Attempt to update disallowed field '$key' by user ID {$user['ID']}");
