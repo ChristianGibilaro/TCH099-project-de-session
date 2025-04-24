@@ -290,6 +290,10 @@ put('/api/match/$id', function ($id) {
     MatchController::updateMatch($id);             // fonctionelle
 });
 
+get('/api/team/$id/users', function($id) {
+    TeamController::getUsersByTeam($id);
+});
+
 delete('/api/match/${id}', function ($id) {
     MatchController::deleteMatch($id);             // fonctionelle
 }); 
