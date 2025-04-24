@@ -70,6 +70,7 @@ class UserController{
         // Initialize response structure
         $response = ['success' => false, 'message' => '', 'errors' => []];
         $tempImagePath = null; // Initialize here for cleanup in catch blocks
+        $tempBackgImagePath = null; // For background image
         $baseDir = __DIR__ . '/../../'; // Define base directory early
     
         try {
@@ -79,6 +80,7 @@ class UserController{
             }
     
             // === Validate fields ===
+            // 'backg_image' and 'backg_imageLink' are optional, so not in requiredFields
             $requiredFields = ['pseudonym', 'nom', 'email', 'password', 'password2', 'description', 'language_name', 'age', 'agreement'];
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
@@ -105,7 +107,9 @@ class UserController{
                 $languageName = htmlspecialchars($_POST['language_name']);
                 $positionName = isset($_POST['position_name']) ? htmlspecialchars($_POST['position_name']) : null;
                 $imagePath = null;
+                $backgImagePath = null; // Initialize background image path
                 $originalFileName = null;
+                $originalBackgFileName = null; // For background image
                 $languageID = null;
                 $positionID = null;
 
@@ -127,7 +131,6 @@ class UserController{
                     if ($positionResult) {
                         $positionID = $positionResult['ID'];
                     } else {
-                        // $response['errors']['position_name'] = "Position '$positionName' non trouvée."; // Optional: Treat as error
                         $positionID = null;
                     }
                 } else {
@@ -142,52 +145,84 @@ class UserController{
                 throw new Exception('Champs manquants ou invalides.'); // Throw to trigger catch block
             }
     
-            // === Handle file upload ===
+            // === Handle file upload for profile image ===
             if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
                 $fileTmpPath = $_FILES['image']['tmp_name'];
                 $originalFileName = basename($_FILES['image']['name']);
                 $fileType = mime_content_type($fileTmpPath);
     
                 $imageFolder = $baseDir . 'ressources/images/profile/';
-                $videoFolder = $baseDir . 'ressources/videos/';
+                $videoFolder = $baseDir . 'ressources/videos/'; // Consider if videos are profile or background
     
                 if (!is_dir($imageFolder)) mkdir($imageFolder, 0775, true);
-                if (!is_dir($videoFolder)) mkdir($videoFolder, 0775, true);
     
                 $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
-                $allowedVideoTypes = ['video/mp4', 'video/x-msvideo', 'video/webm', 'video/quicktime'];
     
                 $targetFolder = null;
                 if (in_array($fileType, $allowedImageTypes)) {
                     $targetFolder = $imageFolder;
-                } elseif (in_array($fileType, $allowedVideoTypes)) {
-                    $targetFolder = $imageFolder; // Or $videoFolder;
                 } else {
-                    throw new Exception("Type de fichier non pris en charge: $fileType");
+                    throw new Exception("Type de fichier non pris en charge pour l'image de profil: $fileType");
                 }
     
-                $tempFileName = uniqid('temp_', true) . '_' . preg_replace('/[^a-zA-Z0-9.\-]/', '_', $originalFileName);
+                $tempFileName = uniqid('temp_profile_', true) . '_' . preg_replace('/[^a-zA-Z0-9.\-]/', '_', $originalFileName);
                 $destinationPath = $targetFolder . $tempFileName;
     
                 if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
-                    throw new Exception('Impossible de déplacer le fichier téléchargé. Vérifiez les permissions.');
+                    throw new Exception('Impossible de déplacer le fichier image de profil téléchargé. Vérifiez les permissions.');
                 }
-                $tempImagePath = $destinationPath;
+                $tempImagePath = $destinationPath; // Store temp path for later rename/cleanup
     
             } elseif (!empty($_POST['imageLink'])) {
                 $imagePath = filter_var(trim($_POST['imageLink']), FILTER_VALIDATE_URL) ? trim($_POST['imageLink']) : null;
                 if (!$imagePath) {
-                     throw new Exception('Lien d\'image fourni invalide.');
+                     throw new Exception('Lien d\'image de profil fourni invalide.');
                 }
             } else {
-                 throw new Exception('Aucune image téléchargée ou lien fourni.');
+                 $imagePath = null; // Or set a default path
+            }
+
+            // === Handle file upload for background image (Optional) ===
+            if (isset($_FILES['backg_image']) && $_FILES['backg_image']['error'] === UPLOAD_ERR_OK) {
+                $backgFileTmpPath = $_FILES['backg_image']['tmp_name'];
+                $originalBackgFileName = basename($_FILES['backg_image']['name']);
+                $backgFileType = mime_content_type($backgFileTmpPath);
+
+                $backgImageFolder = $baseDir . 'ressources/images/background/'; // Separate folder recommended
+
+                if (!is_dir($backgImageFolder)) mkdir($backgImageFolder, 0775, true);
+
+                $allowedBackgImageTypes = ['image/jpeg', 'image/png', 'image/gif']; // Can be same or different
+
+                if (!in_array($backgFileType, $allowedBackgImageTypes)) {
+                    throw new Exception("Type de fichier non pris en charge pour l'image de fond: $backgFileType");
+                }
+
+                $tempBackgFileName = uniqid('temp_backg_', true) . '_' . preg_replace('/[^a-zA-Z0-9.\-]/', '_', $originalBackgFileName);
+                $backgDestinationPath = $backgImageFolder . $tempBackgFileName;
+
+                if (!move_uploaded_file($backgFileTmpPath, $backgDestinationPath)) {
+                    throw new Exception('Impossible de déplacer le fichier image de fond téléchargé. Vérifiez les permissions.');
+                }
+                $tempBackgImagePath = $backgDestinationPath; // Store temp path
+
+            } elseif (!empty($_POST['backg_imageLink'])) {
+                $backgImagePath = filter_var(trim($_POST['backg_imageLink']), FILTER_VALIDATE_URL) ? trim($_POST['backg_imageLink']) : null;
+                if (!$backgImagePath) {
+                     error_log('Lien d\'image de fond fourni invalide.');
+                     $backgImagePath = null;
+                }
+            } else {
+                $backgImagePath = null;
             }
     
             // === Insert user ===
-            $stmtUser = $pdo->prepare('INSERT INTO User (Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
-                                       VALUES (:img, :pseudo, :nom, :email, :passwordd, :last_login, :language_id, :creation_date, :position_id, :description, :age)');
+            // Use 'pending' or null placeholders for images that will be updated after getting the ID
+            $stmtUser = $pdo->prepare('INSERT INTO User (Img, Backg_Img, Pseudo, Name, Email, Password, Last_Login, LanguageID, Creation_Date, PositionID, Description, Birth)
+                                       VALUES (:img, :backg_img, :pseudo, :nom, :email, :passwordd, :last_login, :language_id, :creation_date, :position_id, :description, :age)');
             $stmtUser->execute([
-                ':img' => $imagePath ?? 'pending',
+                ':img' => $imagePath ?? 'pending', // Use link if provided, else 'pending' if file upload
+                ':backg_img' => $backgImagePath ?? ($tempBackgImagePath ? 'pending_backg' : null), // Use link, 'pending' for upload, or null
                 ':pseudo' => $pseudonym,
                 ':nom' => $nom,
                 ':email' => $email,
@@ -205,32 +240,57 @@ class UserController{
                 throw new Exception("Impossible de récupérer l'ID de l'utilisateur après l'insertion.");
             }
     
-            // === Rename uploaded file and update user record ===
+            // === Rename uploaded profile file and update user record ===
             if ($tempImagePath) {
                 $extension = pathinfo($originalFileName, PATHINFO_EXTENSION);
                 $safePseudonym = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $pseudonym);
-                $newFileName = "{$safePseudonym}_{$userID}." . ($extension ? strtolower($extension) : 'jpg');
+                $newFileName = "profile_{$safePseudonym}_{$userID}." . ($extension ? strtolower($extension) : 'jpg'); // Added 'profile_' prefix
                 
                 $finalRelativePath = 'ressources/images/profile/' . $newFileName;
                 $finalAbsolutePath = $baseDir . $finalRelativePath;
 
                 if (!rename($tempImagePath, $finalAbsolutePath)) {
                     error_log("Échec du renommage de '$tempImagePath' vers '$finalAbsolutePath'");
-                    // Optionally: Set a default image path or leave as 'pending'
-                    $imagePath = null; // Indicate failure to finalize image path
+                    $imagePath = null; // Indicate failure
+                    $tempImagePath = null; // Prevent deletion attempt in catch block
                 } else {
                     $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
-                    $imagePath = $baseUrl . '/' . $finalRelativePath;
+                    $imagePath = $baseUrl . '/' . str_replace('\\', '/', $finalRelativePath); // Ensure forward slashes for URL
 
                     $stmtUpdate = $pdo->prepare('UPDATE User SET Img = :img WHERE ID = :id');
                     $stmtUpdate->execute([':img' => $imagePath, ':id' => $userID]);
+                    $tempImagePath = null; // Successfully renamed, don't delete temp file
+                }
+            }
+
+            // === Rename uploaded background file and update user record ===
+            if ($tempBackgImagePath) {
+                $backgExtension = pathinfo($originalBackgFileName, PATHINFO_EXTENSION);
+                $safePseudonym = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $pseudonym);
+                $newBackgFileName = "backg_{$safePseudonym}_{$userID}." . ($backgExtension ? strtolower($backgExtension) : 'jpg'); // Added 'backg_' prefix
+
+                $finalBackgRelativePath = 'ressources/images/background/' . $newBackgFileName;
+                $finalBackgAbsolutePath = $baseDir . $finalBackgRelativePath;
+
+                if (!rename($tempBackgImagePath, $finalBackgAbsolutePath)) {
+                    error_log("Échec du renommage de '$tempBackgImagePath' vers '$finalBackgAbsolutePath'");
+                    $backgImagePath = null; // Indicate failure
+                    $tempBackgImagePath = null; // Prevent deletion attempt
+                } else {
+                    $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'];
+                    $backgImagePath = $baseUrl . '/' . str_replace('\\', '/', $finalBackgRelativePath); // Ensure forward slashes for URL
+
+                    $stmtUpdateBackg = $pdo->prepare('UPDATE User SET Backg_Img = :backg_img WHERE ID = :id');
+                    $stmtUpdateBackg->execute([':backg_img' => $backgImagePath, ':id' => $userID]);
+                    $tempBackgImagePath = null; // Successfully renamed
                 }
             }
     
             $response['success'] = true;
             $response['message'] = 'Compte créé avec succès !';
             $response['userID'] = $userID;
-            $response['imagePath'] = $imagePath; // Final image path/URL or null/link
+            $response['imagePath'] = $imagePath; // Final profile image path/URL or null/link
+            $response['backgImagePath'] = $backgImagePath; // Final background image path/URL or null/link
     
         } catch (PDOException $e) {
             http_response_code(500);
@@ -238,6 +298,9 @@ class UserController{
             error_log("PDOException in creerUser: " . $e->getMessage() . " SQLSTATE: " . $e->getCode());
              if ($tempImagePath && file_exists($tempImagePath)) {
                  unlink($tempImagePath);
+             }
+             if ($tempBackgImagePath && file_exists($tempBackgImagePath)) { // Cleanup background temp file
+                 unlink($tempBackgImagePath);
              }
         }
         catch (Exception $e) {
@@ -247,9 +310,6 @@ class UserController{
                 $response['message'] = $exceptionMessage;
             } elseif ($exceptionMessage === 'Champs manquants ou invalides.') {
                 http_response_code(400); // Bad Request
-                // The message was already set before throwing
-                // $response['message'] is already 'Erreur de validation...'
-                // $response['errors'] contains the specific errors
             } else {
                 http_response_code(500); // Internal Server Error for other exceptions
                 $response['message'] = $exceptionMessage; // Use the specific error message
@@ -257,6 +317,9 @@ class UserController{
             }
              if ($tempImagePath && file_exists($tempImagePath)) { // Cleanup temp file on any exception
                  unlink($tempImagePath);
+             }
+             if ($tempBackgImagePath && file_exists($tempBackgImagePath)) { // Cleanup background temp file on any exception
+                 unlink($tempBackgImagePath);
              }
         }
     
@@ -266,9 +329,6 @@ class UserController{
 
    public static function getUserById($userID) {
     global $pdo;
-
-    header('Access-Control-Allow-Origin: *');
-    header('Content-Type: application/json; charset=utf-8');
 
     if (!$userID) {
         http_response_code(400); // Bad request if ID is missing
@@ -289,7 +349,7 @@ class UserController{
         }
 
         // Basic validation against known columns (optional but recommended)
-        $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+        $allowedFields = ['ID', 'Img', 'Backg_Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
         $selectFields = '*';
         if (is_array($fields)) {
             $validFields = array_intersect($fields, $allowedFields);
@@ -317,17 +377,17 @@ class UserController{
         }
     } catch (PDOException $e) {
         http_response_code(500);
-        error_log("PDOException in getUserById: " . $e->getMessage());
+        error_log("PDOException in getUserById (UserID: $userID): " . $e->getMessage());
         echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
     } catch (Exception $e) {
          http_response_code(500);
-         error_log("Exception in getUserById: " . $e->getMessage());
+         error_log("Exception in getUserById (UserID: $userID): " . $e->getMessage());
          echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
     }
 
     }
 
-    public static function getUserByUsername($username) { // Removed $input, read from body
+    public static function getUserByUsername($username) {
         global $pdo;
     
         header('Access-Control-Allow-Origin: *');
@@ -340,54 +400,29 @@ class UserController{
         }
     
         try {
-             // Parse the JSON body to get the desired fields
-            $input = json_decode(file_get_contents('php://input'), true);
-            $fields = isset($input['fields']) ? $input['fields'] : '*';
-    
-            // Validate fields input
-            if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-                http_response_code(400);
-                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' dans le body doit être '*' ou un tableau non vide."]);
-                return;
-            }
-    
-             // Basic validation against known columns (optional but recommended)
-            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
-            $selectFields = '*';
-            if (is_array($fields)) {
-                $validFields = array_intersect($fields, $allowedFields);
-                if (empty($validFields)) {
-                     http_response_code(400);
-                     echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
-                     return;
-                }
-                $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
-            }
-    
-            $sql = "SELECT $selectFields FROM User WHERE User.Pseudo = :username";
-    
+            $sql = "SELECT ID FROM User WHERE User.Pseudo = :username";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['username' => $username]);
-            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
-            if ($userData) {
-                echo json_encode(['success' => true, 'data' => $userData]);
+            if ($user && isset($user['ID'])) {
+                self::getUserById($user['ID']);
             } else {
                 http_response_code(404);
                 echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec le nom d'utilisateur fourni."]);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            error_log("PDOException in getUserByUsername: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
+            error_log("PDOException finding user ID in getUserByUsername (Username: $username): " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database lors de la recherche de l\'utilisateur.']);
         } catch (Exception $e) {
              http_response_code(500);
-             error_log("Exception in getUserByUsername: " . $e->getMessage());
+             error_log("Exception in getUserByUsername (Username: $username): " . $e->getMessage());
              echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
         }
     }
 
-    public static function getUserByApiKey($apiKey) { // Removed $input, read from body
+    public static function getUserByApiKey($apiKey) {
         global $pdo;
     
         header('Access-Control-Allow-Origin: *');
@@ -400,46 +435,21 @@ class UserController{
         }
     
         try {
-            // Parse the JSON body to get the desired fields
-            $input = json_decode(file_get_contents('php://input'), true);
-            $fields = isset($input['fields']) ? $input['fields'] : '*';
-    
-            // Validate fields input
-            if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-                 http_response_code(400);
-                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' dans le body doit être '*' ou un tableau non vide."]);
-                return;
-            }
-    
-            // Basic validation against known columns (optional but recommended)
-            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
-            $selectFields = '*';
-            if (is_array($fields)) {
-                $validFields = array_intersect($fields, $allowedFields);
-                if (empty($validFields)) {
-                     http_response_code(400);
-                     echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
-                     return;
-                }
-                $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
-            }
-    
-            $sql = "SELECT $selectFields FROM User WHERE User.ApiKey = :apiKey";
-    
+            $sql = "SELECT ID FROM User WHERE User.ApiKey = :apiKey";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['apiKey' => $apiKey]);
-            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
-            if ($userData) {
-                echo json_encode(['success' => true, 'data' => $userData]);
+            if ($user && isset($user['ID'])) {
+                self::getUserById($user['ID']);
             } else {
                  http_response_code(404);
                 echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'apiKey fourni."]);
             }
         } catch (PDOException $e) {
             http_response_code(500);
-            error_log("PDOException in getUserByApiKey: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
+            error_log("PDOException finding user ID in getUserByApiKey: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database lors de la recherche de l\'utilisateur.']);
         } catch (Exception $e) {
              http_response_code(500);
              error_log("Exception in getUserByApiKey: " . $e->getMessage());
@@ -480,7 +490,7 @@ class UserController{
             }
     
             // Basic validation against known columns (optional but recommended)
-            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+            $allowedFields = ['ID', 'Img', 'Backg_Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
             $selectFields = '*';
             if (is_array($fields)) {
                 $validFields = array_intersect($fields, $allowedFields);
@@ -604,7 +614,7 @@ class UserController{
         $data = $input['data']; // Associative array of fields to update
     
         // --- Whitelist fields that can be modified ---
-        $allowedUpdateFields = ['Pseudo', 'Name', 'Email', 'Description', 'Birth', 'LanguageID', 'PositionID', 'Img']; // Add/remove fields as needed
+        $allowedUpdateFields = ['Pseudo', 'Name', 'Email', 'Description', 'Birth', 'LanguageID', 'PositionID', 'Img', 'Backg_Img']; // Added Backg_Img
         // Password should likely have a separate endpoint/process
     
         try {
@@ -642,8 +652,9 @@ class UserController{
                              continue;
                          }
                      }
-                     if ($key === 'Img' && !filter_var($value, FILTER_VALIDATE_URL) && !empty($value)) { // Allow empty Img?
-                         $updateErrors['Img'] = 'Format d\'URL invalide pour Img.';
+                     // Validate Img and Backg_Img as URLs (allow empty/null to remove)
+                     if (($key === 'Img' || $key === 'Backg_Img') && !empty($value) && !filter_var($value, FILTER_VALIDATE_URL)) {
+                         $updateErrors[$key] = "Format d'URL invalide pour $key.";
                          continue;
                      }
 
@@ -651,7 +662,8 @@ class UserController{
                     $safeKey = "`" . str_replace("`", "``", $key) . "`";
                     $fields[] = "$safeKey = :$key";
                     // Sanitize value before adding to params (htmlspecialchars or type casting)
-                    $params[$key] = is_string($value) ? htmlspecialchars($value) : $value;
+                    // Allow null values
+                    $params[$key] = ($value === null) ? null : (is_string($value) ? htmlspecialchars($value) : $value);
                 } else {
                     // Optionally log or ignore attempts to update disallowed fields
                      error_log("Attempt to update disallowed field '$key' by user ID {$user['ID']}");
