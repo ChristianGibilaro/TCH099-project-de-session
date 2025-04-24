@@ -135,26 +135,31 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fields: ["Pseudo", "Email", "Img", "Id", "CreatedAt", "LastLogin"]
+          fields: ["Pseudo", "Email", "Img", "ID", "CreatedAt", "LastLogin"]
         })
       });
       const result = await res.json();
-      if (result.success && result.data && result.data.user) {
-        const u = result.data.user;
+      console.log(`User details response for ID ${userId}:`, result);
+
+      if (result.success && result.data) {
+        const u = result.data;
+        console.log('User data found:', u);
         detailsBox.innerHTML = `
           <div class="details-content">
             <img src="${u.Img}" alt="Profile" class="profile-img">
             <div class="title">${u.Pseudo}</div>
             <div class="desc">${u.Email || ""}</div>
-            <div class="info-row"><strong>User ID:</strong> ${u.Id}</div>
+            <div class="info-row"><strong>User ID:</strong> ${u.ID}</div>
             <div class="info-row"><strong>Created:</strong> ${u.CreatedAt ? new Date(u.CreatedAt).toLocaleDateString() : "N/A"}</div>
             <div class="info-row"><strong>Last Login:</strong> ${u.LastLogin ? new Date(u.LastLogin).toLocaleString() : "N/A"}</div>
           </div>
         `;
       } else {
+        console.warn(`Condition failed for user details ID ${userId}. Success: ${result.success}, Data: ${result.data}`);
         detailsBox.innerHTML = '<div class="error">User not found.</div>';
       }
-    } catch {
+    } catch (error) {
+      console.error(`Error fetching user details for ID ${userId}:`, error);
       detailsBox.innerHTML = '<div class="error">Error loading user.</div>';
     }
   }
@@ -193,7 +198,7 @@
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fields: ["Pseudo", "Email", "Img", "Id"],
+          fields: ["Pseudo", "Email", "Img", "ID"],
           limit: 10
         })
       }).then(res => res.json());
@@ -212,12 +217,12 @@
 
       const [playerResult, activityResult] = await Promise.all([playerPromise, activityPromise]);
       if (currentToken !== _searchToken) return;
-
+      console.log(playerResult, activityResult);
       // Players
       let players = [];
       if (playerResult.success && Array.isArray(playerResult.data)) {
         players = playerResult.data.slice(0, 3).map(
-          user => `<a href="Profile.html?${user.Id}" data-type="user" data-id="${user.Id}">${user.Pseudo}</a>`
+          user => `<a href="Profile.html?${user.ID}" data-type="user" data-id="${user.ID}">${user.Pseudo}</a>`
         );
       }
 

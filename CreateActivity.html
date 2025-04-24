@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Create Activity</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
+  <script src="Scripts/mainScript.js"></script>
+
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
+
+</head>
+
+<script>
+  var creator = new ElementCreator(document.title);
+  var API = new mainScript(document.title);
+  console.log(document.title);
+</script>
+
+<body>
+  <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
+  <header onclick="toggleMenu()">
+    <script>
+      document.write(creator.PrefabMenu);
+    </script>
+  </header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <div id="contenu">
+
+    <div id="head">
+      <script>
+        document.write(creator.CreateHero("ressources/Final/Main/moonDarkSign.png", "ressources/Commun/logo_example.png"));
+      </script>
+    </div>
+
+    <!------------------------------------------------ SECTION 5 - FORM ---------------------------------------------->
+
+    <script>
+
+      // --- Configuration Object for the Dynamic Form ---
+      const dynamicFormConfig = {
+        formTitle: "Create an activity",
+        formId: "form_new_user_id",
+        formMethod: "POST",
+        formEnctype: "multipart/form-data", // Essential for file uploads
+        inputConfig: [
+          { type: 'text', label: 'title', name: 'title', required: true },
+          { type: 'checkbox', label: 'is Sport', name: 'isSport', required: true },
+          { // --- Switchable Image Input (URL or File) ---
+            type: 'switchable',
+            label: 'Main image',         // Translated label for the group
+            name: 'mainImg',      // Base name for the group (used for IDs)
+
+            type1: { // Configuration for the URL input option
+              type: 'url',
+              label: 'URL',        // Translated label specific to this mode
+              name: 'main_img_url',       // Name the backend expects for URL
+              placeholder: 'https://example.com/image.png',
+              required: true                 // Image is required if URL mode is active (set false if optional)
+            },
+            type2: { // Configuration for the File input option
+              type: 'file',
+              label: 'Upload',    // Translated label specific to this mode
+              name: 'main_img',      // Name the backend expects for File
+              required: true                 // Image is required if File mode is active (set false if optional)
+            },
+            defaultType: 'type2', // Show the URL input first by default
+            switchButtonText: "Or %typeLabel%" // Custom text for the switch button (uses other type's label)
+          },
+          { // --- Switchable Image Input (URL or File) ---
+            type: 'switchable',
+            label: 'Logo image',         // Translated label for the group
+            name: 'logoimg_',      // Base name for the group (used for IDs)
+
+            type1: { // Configuration for the URL input option
+              type: 'url',
+              label: 'URL',        // Translated label specific to this mode
+              name: 'logo_img',       // Name the backend expects for URL
+              placeholder: 'https://example.com/image.png',
+              required: true                 // Image is required if URL mode is active (set false if optional)
+            },
+            type2: { // Configuration for the File input option
+              type: 'file',
+              label: 'Upload',    // Translated label specific to this mode
+              name: 'logo_img_url',      // Name the backend expects for File
+              required: true                 // Image is required if File mode is active (set false if optional)
+            },
+            defaultType: 'type2', // Show the URL input first by default
+            switchButtonText: "Or %typeLabel%" // Custom text for the switch button (uses other type's label)
+          },
+          { type: 'textarea', label: 'Description', name: 'description', required: true }, // Assuming description is required
+          { type: 'text', label: 'word for a player', name: 'word_4_player', required: false },
+          { type: 'text', label: 'word for a team (to add to the db)', name: 'word_4_team', required: false },
+          { type: 'text', label: 'word for a teammate', name: 'word_4_teammate', required: false },
+          { type: 'text', label: 'word for playing', name: 'word_4_playing', required: false },
+          { type: 'text', label: 'Value of a point', name: 'point_value', required: false },
+          { type: 'color', label: 'main color', name: 'main_color', required: false },
+          { type: 'color', label: 'secondary color', name: 'second_color', required: false }, 
+          { type: 'color', label: 'main friend color', name: 'friend_main_color', required: false }, 
+          { type: 'color', label: 'secondary friend color', name: 'friend_second_color', required: false },
+          { type: 'text', label: 'location', name: 'positionID', required: false },
+          { type: 'text', label: 'language', name: 'languageID', required: false },
+          { type: 'text', label: 'Type', name: 'TypeID', required: false },
+          { type: 'text', label: 'Platform', name: 'EnvironementID', required: false },
+
+          {
+        type: 'hidden', // Specify the type
+        label: 'Create Language Filters', // Label for the whole section
+        name: 'CreateLanguageFilters', // Base name for IDs
+        initiallyHidden: true, // Optional: Start hidden (default)
+        buttonTextShow: 'Show Advanced', // Optional: Custom button text
+        buttonTextHide: 'Hide Advanced', // Optional: Custom button text
+        inputs: [ // Array of inputs to hide/show
+        { type: 'text', label: 'Language Filter Name', name: 'Languagefilter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
+        { type: 'textarea', label: 'Language Options (one per line)', name: 'Languagefilter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
+        ]
+    },
+          
+
+
+    {
+        type: 'hidden', // Specify the type
+        label: 'Create Type Filters', // Label for the whole section
+        name: 'CreateTypeFilters', // Base name for IDs
+        initiallyHidden: true, // Optional: Start hidden (default)
+        buttonTextShow: 'Show Advanced', // Optional: Custom button text
+        buttonTextHide: 'Hide Advanced', // Optional: Custom button text
+        inputs: [ // Array of inputs to hide/show
+        { type: 'text', label: 'Type Filter Name', name: 'Typefilter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
+        { type: 'textarea', label: 'Type Options (one per line)', name: 'fTypeilter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
+        ]
+    },
+    {
+        type: 'hidden', // Specify the type
+        label: 'Create Environment Filters', // Label for the whole section
+        name: 'CreateEnvironmentFilters', // Base name for IDs
+        initiallyHidden: true, // Optional: Start hidden (default)
+        buttonTextShow: 'Show Advanced', // Optional: Custom button text
+        buttonTextHide: 'Hide Advanced', // Optional: Custom button text
+        inputs: [ // Array of inputs to hide/show
+
+        { type: 'text', label: 'EnvironmentFilter Name', name: 'Environmentfilter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
+          { type: 'textarea', label: 'EnvironmentOptions (one per line)', name: 'Environmentfilter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
+        ]
+    },
+    {
+        type: 'hidden', // Specify the type
+        label: 'Create Position Filters', // Label for the whole section
+        name: 'CreatePositionFilters', // Base name for IDs
+        initiallyHidden: true, // Optional: Start hidden (default)
+        buttonTextShow: 'Show Advanced', // Optional: Custom button text
+        buttonTextHide: 'Hide Advanced', // Optional: Custom button text
+        inputs: [ // Array of inputs to hide/show
+
+
+        { type: 'text', label: 'PositionFilter Name', name: 'Positionfilter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
+          { type: 'textarea', label: 'PositionOptions (one per line)', name: 'Positionfilter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
+        ]
+    },
+
+
+
+        ],
+        submitButtonText: "Create an account",
+        loginLink: "Sign-in.html", // URL for the login page link
+        loginLinkText: "Already have an account ? Connect " // Text for the login link (<a> tag added by CreateDynamicForm)
+      };
+
+      // --- Generate the Form HTML ---
+      // Assuming 'creator.CreateDynamicForm' function exists and is defined as previously discussed
+      const generatedDynamicFormHTML = creator.CreateDynamicForm(
+        dynamicFormConfig.formTitle,
+        dynamicFormConfig.formId,
+        dynamicFormConfig.formMethod,
+        dynamicFormConfig.formEnctype,
+        dynamicFormConfig.inputConfig,
+        dynamicFormConfig.submitButtonText,
+        dynamicFormConfig.loginLink,
+        dynamicFormConfig.loginLinkText
+      );
+
+      document.write(generatedDynamicFormHTML);
+      document.getElementById('soummission_btn').addEventListener('click', API.creerActivity);
+      document.addEventListener('DOMContentLoaded', function() {
+        initializeSwitchableInputs();
+
+      });
+
+      async function fetchFilterOptions(filterType, id,name,placeholder) {
+          const response = await fetch(`http://localhost:9999/api/filter/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "filterType": filterType })
+          });
+          const data = await response.json();
+          if (!data.elements || !Array.isArray(data.elements)) return [[], []];
+
+          const names = ["--Clear--"];
+          names.push(...data.elements.map(e => e.Name));
+          const ids = data.elements.map(e => e.ID);
+          console.log(names, ids);
+          var out = creator.CreateCheckList(names,placeholder,name);
+          console.log(out);
+          document.getElementById(name).replaceWith(...out.children);
+          return [names, ids];
+        }   
+        fetchFilterOptions('PositionFilter',1,"positionID","Position");
+        fetchFilterOptions('LanguageFilter',1,"languageID","Language");
+        fetchFilterOptions('TypeFilter',1,"TypeID","Type");
+        fetchFilterOptions('EnvironmentFilter',1,"EnvironementID","Platform");
+
+        
+    </script>
+
+  </div>
+</body>
+
+</html>
