@@ -37,7 +37,7 @@
       // Récupération de l'ID de l'activité depuis l'URL
       const urlParams = new URLSearchParams(window.location.search);
       let activityID = parseInt(urlParams.get('activityID'), 10);
-      if (isNaN(activityID)) activityID = 1; // valeur par défaut
+      if (isNaN(activityID)) activityID = 9; // valeur par défaut
 
       // Header visuel
       document.getElementById('head').innerHTML =
