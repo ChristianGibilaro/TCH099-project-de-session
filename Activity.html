@@ -26,58 +26,136 @@
     const activityId = urlParams.get('id') || urlParams.keys().next().value;
     if (!activityId) return;
 
-    const response = await fetch(`https://api.lunarcovenant.com/api/activity/id/${activityId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fields: {
-          activity: [
-            "ID",
-            "Title",
-            "Description",
-            "Main_Img",
-            "Logo_Img",
-            "Point_Value",
-            "Word_4_Player",
-            "Main_Color",
-            "Second_Color"
-          ],
-          activityData: [
-            "ActivityID",
-            "Player_Count",
-            "Active_Player_Count",
-            "Rating"
-          ]
-        }
-      })
-    });
-    const result = await response.json();
-    if (result.success && result.data) {
-      const activity = result.data.activity || {};
-      const activityData = result.data.activityData || {};
-      document.title = activity.Title || "Activity";
+    // Fetch Activity Details
+    try {
+      const response = await fetch(`https://api.lunarcovenant.com/api/activity/id/${activityId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fields: {
+            activity: [
+              "ID",
+              "Title",
+              "Description",
+              "Main_Img",
+              "Logo_Img",
+              "Point_Value",
+              "Word_4_Player",
+              "Word_4_Playing", // Added Word_4_Playing
+              "Main_Color",
+              "Second_Color"
+            ],
+            activityData: [
+              "ActivityID",
+              "Player_Count",
+              "Active_Player_Count",
+              "Rating",
+              "Team_Count" // Added Team_Count
+            ]
+          }
+        })
+      });
+      const result = await response.json();
+      if (result.success && result.data) {
+        const activity = result.data.activity || {};
+        const activityData = result.data.activityData || {};
+        document.title = activity.Title || "Activity";
 
-      // Fill variables
-      const title = activity.Title || "";
-      const MainImg = activity.Main_Img || "";
-      const LogoImg = activity.Logo_Img || "";
-      const Description = activity.Description || "";
-      const playerCount = activityData.Player_Count || 0;
-      const word4player = activity.Word_4_Player || "Player";
-      const activePlayerCount = activityData.Active_Player_Count || 0;
-      const word4Playing = activity.Word_4_Playing || "Playing";
-      const teamCount = activityData.Team_Count || 0;
+        // Fill variables
+        const title = activity.Title || "";
+        const MainImg = activity.Main_Img || "";
+        const LogoImg = activity.Logo_Img || "";
+        const Description = activity.Description || "";
+        const playerCount = activityData.Player_Count || 0;
+        const word4player = activity.Word_4_Player || "Player";
+        const activePlayerCount = activityData.Active_Player_Count || 0;
+        const word4Playing = activity.Word_4_Playing || "Playing";
+        const teamCount = activityData.Team_Count || 0;
 
-      document.getElementById('head').innerHTML =
-        creator.CreateHero(MainImg, LogoImg) +
-        creator.CreateDesc(
-          Description,
-          `<strong>${playerCount}</strong> ${word4player}<br>
-           <strong>${activePlayerCount}</strong> ${word4Playing}<br>
-           <strong>${teamCount}</strong> Teams<br>`
-        );
+        document.getElementById('head').innerHTML =
+          creator.CreateHero(MainImg, LogoImg) +
+          creator.CreateDesc(
+            Description,
+            `<strong>${playerCount}</strong> ${word4player}<br>
+             <strong>${activePlayerCount}</strong> ${word4Playing}<br>
+             <strong>${teamCount}</strong> Teams<br>`
+          );
+
+        // Fetch and render teams for this activity
+        await fetchAndRenderTeams(activityId);
+
+      } else {
+        console.error("Failed to fetch activity data:", result.message);
+        document.getElementById('head').innerHTML = "<p>Error loading activity details.</p>";
+      }
+    } catch (error) {
+      console.error("Error fetching activity:", error);
+      document.getElementById('head').innerHTML = "<p>Error loading activity details.</p>";
     }
   }
+
+  async function fetchAndRenderTeams(activityId) {
+    const target = document.getElementById("fatherland");
+    target.innerHTML = '<div style="text-align:center; padding: 20px;">Loading teams...</div>'; // Loading indicator
+
+    try {
+      const response = await fetch("https://api.lunarcovenant.com/api/team/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        // Assuming the API doesn't support filtering in the body, fetch all and filter client-side
+        // If filtering is supported, add: body: JSON.stringify({ filter: { ActivityID: activityId } })
+      });
+      const result = await response.json();
+      let allTeams = Array.isArray(result.data) ? result.data : [];
+
+      // Filter teams for the current activity ID
+      // Use == for potential type mismatch (string vs number) or parseInt(activityId)
+      let activityTeams = allTeams.filter(team => team.ActivityID == activityId);
+
+      // Sort teams by ID descending (optional, matches Teams.html)
+      activityTeams = activityTeams.sort((a, b) => (b.ID || 0) - (a.ID || 0));
+
+      if (activityTeams.length > 0) {
+        const teamList = creator.superScrollableList({
+          mode: "post",
+          items: activityTeams,
+          width: "100%",
+          height: "100%", // Adjust height as needed or remove for auto height
+          renderItem: (team, idx) => {
+            const teamId = team.ID || team.Id || team.id || "";
+            const teamName = team.Name || "Équipe";
+            const teamDescription = team.Description || ""; // Get team description
+
+            return `
+              <div class="activity-card"
+                   style="background:var(--bg-dark2);border-radius:14px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;cursor:pointer;transition:box-shadow 0.15s;"
+                   onclick="window.location.href='TeamsInfo.html?id=${teamId}'"> 
+                   <!-- Changed link to use team ID -->
+                <div style="display:flex;align-items:center;gap:18px;padding:18px 24px;">
+                  <div style="flex:0 0 60px;font-size:1.3em;color:var(--accent2);font-weight:bold;">
+                    #${teamId}
+                  </div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:1.2em;font-weight:bold;color:var(--accent2);">${teamName}</div>
+                    <div style="font-size:1em;color:#bfc9d1;margin-top:4px;">${teamDescription}</div>
+                    <!-- Removed Activity Title as it's redundant here -->
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        });
+        target.innerHTML = ""; // Clear loading indicator
+        target.append(teamList);
+      } else {
+        target.innerHTML = '<div style="text-align:center; padding: 20px; color: #8a8a8a;">No teams found for this activity.</div>';
+      }
+    } catch (error) {
+      console.error("Error fetching teams:", error);
+      target.innerHTML = '<div style="text-align:center; padding: 20px; color: red;">Error loading teams.</div>';
+    }
+  }
+
 
   document.addEventListener('DOMContentLoaded', fetchAndRenderActivity);
 </script>
@@ -93,7 +171,10 @@
 
   <div id="contenu" style="height: 100%;">
     <div id="head"></div>
-    <div id="fatherland" class="contenu-onglet"></div>
+    <!-- Target container for the team list -->
+    <div id="fatherland" class="contenu-onglet" style="max-width:900px;margin:20px auto 0 auto;">
+        <!-- Team list will be rendered here by fetchAndRenderTeams -->
+    </div>
   </div>
 </body>
 
