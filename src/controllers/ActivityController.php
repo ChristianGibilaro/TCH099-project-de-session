@@ -1,620 +1,1123 @@
 <?php
+// --- DEBUGGING ONLY: Force display errors ---
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 //include_once("/../../config.php");
 include_once(__DIR__ . '/../../config.php');
+// Assuming UserController might have the apiKey lookup, or we implement it here/in a utility
+// include_once(__DIR__ . '/UserController.php'); // Or a dedicated Auth/User utility class
 
 class ActivityController
 {
+    // Flag to indicate if output was successfully sent
+    private static $outputSent = false;
+
+    // Shutdown handler function - MODIFIED to send JSON errors
+    public static function handleShutdown()
+    {
+        // Check if output was already sent successfully by the main script logic
+        if (self::$outputSent) {
+            return;
+        }
+
+        $error = error_get_last();
+        $response = null; // Initialize response variable
+
+        // Check if there was a fatal error
+        if ($error !== null && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR, E_PARSE])) {
+            // Prepare JSON error response with details
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Serveur Interne (Shutdown Handler).',
+                'error_details' => [
+                    'type' => $error['type'],
+                    'message' => $error['message'],
+                    'file' => basename($error['file']), // Keep path short for security
+                    'line' => $error['line']
+                ]
+            ];
+        } else if (!self::$outputSent) {
+             // If no fatal error occurred but output wasn't marked as sent by main logic,
+             // it implies the script finished without explicit output.
+             $response = [
+                 'success' => false,
+                 'message' => 'Erreur Serveur: Réponse inattendue (Script terminé sans sortie explicite).'
+             ];
+        }
+
+        // Try to send the JSON error response if one was prepared and headers haven't been sent
+        if ($response !== null && !headers_sent()) {
+            http_response_code(500); // Ensure error status
+            header('Access-Control-Allow-Origin: *');
+            header('Content-Type: application/json; charset=utf-8');
+            // Use flags to handle potential encoding issues even in error response
+            echo json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+            self::$outputSent = true; // Mark output as sent by handler
+        } else if ($response !== null) {
+             // Cannot send JSON, maybe log internally as a last resort if logging is ever re-enabled
+             // error_log("Shutdown Handler: Headers already sent, cannot send JSON error response: " . print_r($response, true));
+        }
+    }
+
+    /**
+     * Handles image upload or URL input. Prioritizes file upload.
+     * (Helper function remains the same as previous versions)
+     */
+    private static function handleImageUploadOrUrl(
+        string $fileKey,
+        string $urlKey,
+        array $filesArray,
+        array $postArray,
+        string $prefix,
+        string $subFolder = 'activity/',
+        bool $isRequired = false,
+        ?int $index = null
+    ): ?string {
+        $imagePath = null;
+        $fileProvided = false;
+        $fileError = UPLOAD_ERR_NO_FILE;
+        $fileTmpPath = null;
+        $originalFileName = null;
+
+        // Check if dealing with an array of files/urls (like levels)
+        if ($index !== null) {
+            $fileProvided = isset($filesArray[$fileKey]['tmp_name'][$index]) && $filesArray[$fileKey]['error'][$index] !== UPLOAD_ERR_NO_FILE;
+            if ($fileProvided) {
+                $fileError = $filesArray[$fileKey]['error'][$index];
+                $fileTmpPath = $filesArray[$fileKey]['tmp_name'][$index];
+                $originalFileName = basename($filesArray[$fileKey]['name'][$index]);
+            }
+            $urlValue = (isset($postArray[$urlKey]) && is_array($postArray[$urlKey]) && isset($postArray[$urlKey][$index]))
+                        ? trim($postArray[$urlKey][$index])
+                        : null;
+        } else {
+            $fileProvided = isset($filesArray[$fileKey]['tmp_name']) && $filesArray[$fileKey]['error'] !== UPLOAD_ERR_NO_FILE;
+            if ($fileProvided) {
+                $fileError = $filesArray[$fileKey]['error'];
+                $fileTmpPath = $filesArray[$fileKey]['tmp_name'];
+                $originalFileName = basename($filesArray[$fileKey]['name']);
+            }
+            $urlValue = isset($postArray[$urlKey]) ? trim($postArray[$urlKey]) : null;
+        }
+
+        // --- Prioritize File Upload ---
+        if ($fileProvided && $fileError === UPLOAD_ERR_OK) {
+            $fileType = mime_content_type($fileTmpPath);
+            $imageFolder = __DIR__ . '/../../ressources/images/' . $subFolder;
+
+            if (!file_exists($imageFolder)) {
+                if (!mkdir($imageFolder, 0777, true)) {
+                    throw new Exception("Impossible de créer le dossier d'images: " . $imageFolder);
+                }
+            }
+
+            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (in_array($fileType, $allowedImageTypes)) {
+                $safeFileName = preg_replace('/[^A-Za-z0-9_\-\.]/', '_', $originalFileName);
+                $destinationPath = $imageFolder . uniqid($prefix, true) . '_' . $safeFileName;
+                $relativePath = 'ressources/images/' . $subFolder . basename($destinationPath);
+
+                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
+                    throw new Exception("Impossible de déplacer le fichier téléchargé ($fileKey" . ($index !== null ? "[$index]" : "") . ").");
+                }
+                $imagePath = $relativePath;
+            } else {
+                 // Optionally throw an exception if the file type is invalid but provided
+                 throw new Exception("Type de fichier non pris en charge pour $fileKey" . ($index !== null ? "[$index]" : "") . ": $fileType.");
+            }
+        } elseif ($fileProvided && $fileError !== UPLOAD_ERR_OK && $fileError !== UPLOAD_ERR_NO_FILE) {
+             throw new Exception("Erreur lors du téléchargement du fichier ($fileKey" . ($index !== null ? "[$index]" : "") . "). Code: " . $fileError);
+        }
+
+        // --- Fallback to URL ---
+        if ($imagePath === null && !empty($urlValue)) {
+            if (filter_var($urlValue, FILTER_VALIDATE_URL)) {
+                $imagePath = $urlValue;
+            } else {
+                 // Optionally throw an exception for invalid URL format
+                 throw new Exception("URL invalide fournie pour $urlKey" . ($index !== null ? "[$index]" : "") . ".");
+            }
+        }
+
+        // --- Check if required ---
+        if ($isRequired && $imagePath === null) {
+            throw new Exception("Image requise manquante ou invalide pour '$fileKey' ou '$urlKey'" . ($index !== null ? " index $index" : "") . ".");
+        }
+
+        return $imagePath;
+    }
+
+    /**
+     * Finds a User ID based on the provided API Key.
+     * Returns null if the key is invalid or not found.
+     */
+    private static function getUserIdByApiKey(PDO $pdo, ?string $apiKey): ?int
+    {
+        if (empty($apiKey)) {
+            return null;
+        }
+        try {
+            $stmt = $pdo->prepare("SELECT ID FROM User WHERE ApiKey = :apiKey LIMIT 1");
+            $stmt->execute([':apiKey' => $apiKey]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $user ? (int)$user['ID'] : null;
+        } catch (PDOException $e) {
+            // Re-throw exception to be caught by the main handler which sends JSON
+            throw $e;
+        }
+    }
+
+    /**
+     * Finds a User ID and Password Hash based on the provided API Key.
+     * Returns null if the key is invalid or not found.
+     * @return array{ID: int, PasswordHash: string}|null
+     */
+    private static function getUserDataByApiKey(PDO $pdo, ?string $apiKey): ?array
+    {
+        if (empty($apiKey)) {
+            return null;
+        }
+        try {
+            // Fetch both ID and Password hash
+            $stmt = $pdo->prepare("SELECT ID, Password FROM User WHERE ApiKey = :apiKey LIMIT 1");
+            $stmt->execute([':apiKey' => $apiKey]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Return ID and Password hash if user found
+            return $user ? ['ID' => (int)$user['ID'], 'PasswordHash' => $user['Password']] : null;
+        } catch (PDOException $e) {
+             // Re-throw exception to be caught by the main handler which sends JSON
+            throw $e;
+        }
+    }
+
+    /**
+     * Helper to build SELECT clause, handling '*' and specific fields.
+     */
+    private static function buildSelectClause(mixed $fields, string $alias, array $specialMappings = []): string
+    {
+        if ($fields === '*' || empty($fields)) {
+            return $alias . '.*';
+        }
+        if (is_string($fields)) {
+            $fields = explode(',', $fields);
+        }
+        if (!is_array($fields)) {
+            return $alias . '.*'; // Fallback
+        }
+
+        $selects = [];
+        foreach ($fields as $field) {
+            $field = trim($field);
+            if (empty($field)) continue;
+
+            // Check for special mappings (like 'Index' needing backticks)
+            if (isset($specialMappings[$field])) {
+                 $selects[] = $specialMappings[$field];
+            } else {
+                // Basic sanitization: allow alphanumeric and underscore
+                if (preg_match('/^[a-zA-Z0-9_]+$/', $field)) {
+                    $selects[] = $alias . '.`' . $field . '`';
+                }
+            }
+        }
+
+        return !empty($selects) ? implode(', ', $selects) : $alias . '.*'; // Fallback if no valid fields
+    }
+
+    /**
+     * Helper to find Element ID by Name in a given table.
+     */
+    private static function getElementIdByName(PDO $pdo, string $tableName, string $elementName): ?int
+    {
+        try {
+            // Basic table name validation (prevent injection)
+            if (!preg_match('/^[a-zA-Z_]+$/', $tableName)) {
+                throw new Exception("Invalid table name provided: $tableName");
+            }
+            $stmt = $pdo->prepare("SELECT ID FROM `$tableName` WHERE Name = :name LIMIT 1");
+            $stmt->execute([':name' => $elementName]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ? (int)$result['ID'] : null;
+        } catch (PDOException $e) {
+            // Log internally or re-throw to send JSON? Re-throwing for consistency.
+            throw new Exception("PDO Error finding element '$elementName' in table '$tableName': " . $e->getMessage(), 0, $e);
+        } catch (Exception $e) {
+             // Re-throw to send JSON
+             throw $e;
+        }
+    }
+
+    /**
+     * Helper to find or create an Element by Name in a given table and return its ID.
+     */
+    private static function getOrCreateElementIdByName(PDO $pdo, string $tableName, string $elementName): ?int
+    {
+        try {
+            // Basic table name validation
+            if (!preg_match('/^[a-zA-Z_]+$/', $tableName)) {
+                throw new Exception("Invalid table name provided: $tableName");
+            }
+            $elementName = trim($elementName);
+            if (empty($elementName)) {
+                return null;
+            }
+
+            // Check if exists
+            $stmtSelect = $pdo->prepare("SELECT ID FROM `$tableName` WHERE Name = :name LIMIT 1");
+            $stmtSelect->execute([':name' => $elementName]);
+            $result = $stmtSelect->fetch(PDO::FETCH_ASSOC);
+
+            if ($result) {
+                return (int)$result['ID'];
+            } else {
+                // Create if not exists
+                // Note: Assumes 'Name' is the only required column for creation. Adjust if needed.
+                $stmtInsert = $pdo->prepare("INSERT INTO `$tableName` (Name) VALUES (:name)");
+                $stmtInsert->execute([':name' => $elementName]);
+                $newId = $pdo->lastInsertId();
+                return $newId ? (int)$newId : null; // Return null if insert failed unexpectedly
+            }
+        } catch (PDOException $e) {
+            // Re-throw to ensure transaction rollback and send JSON error
+            throw $e;
+        } catch (Exception $e) {
+             // Re-throw to ensure transaction rollback and send JSON error
+             throw $e;
+        }
+    }
+
+    /**
+     * Helper to create an individual filter, link elements, and return the filter ID.
+     */
+    private static function createIndividualFilter(
+        PDO $pdo,
+        string $filterTable, // e.g., 'PositionFilter'
+        string $filterName,
+        string $baseTable, // e.g., 'Position'
+        array $elementNames, // e.g., ['mun', 'duna'] from PositionName[]
+        string $linkTable, // e.g., 'PositionArray'
+        string $baseFkCol, // e.g., 'PositionID'
+        string $filterFkCol // e.g., 'PositionFilterID'
+    ): ?int {
+        try {
+            // Basic table name validation
+            if (!preg_match('/^[a-zA-Z_]+$/', $filterTable) || !preg_match('/^[a-zA-Z_]+$/', $linkTable)) {
+                throw new Exception("Invalid table name provided for filter creation.");
+            }
+            $filterName = trim($filterName);
+            if (empty($filterName)) {
+                 throw new Exception("Filter name cannot be empty for $filterTable.");
+            }
+
+            // 1. Create the individual filter record
+            // Note: Assumes 'Name' and 'Count' are the columns. Adjust if needed. Count defaults to 0 initially.
+            $sqlCreateFilter = "INSERT INTO `$filterTable` (Name, Count) VALUES (:name, 0)";
+            $stmtCreateFilter = $pdo->prepare($sqlCreateFilter);
+            $stmtCreateFilter->execute([':name' => $filterName]);
+            $filterID = $pdo->lastInsertId();
+
+            if (!$filterID) {
+                throw new Exception("Failed to create filter record in $filterTable for name: $filterName");
+            }
+            $filterID = (int)$filterID;
+
+            // 2. Get/Create base elements and link them to the filter
+            $elementIDs = [];
+            if (!empty($elementNames)) {
+                $sqlLink = "INSERT INTO `$linkTable` (`$baseFkCol`, `$filterFkCol`) VALUES (:baseID, :filterID)";
+                $stmtLink = $pdo->prepare($sqlLink);
+
+                foreach ($elementNames as $elementName) {
+                    $baseElementID = self::getOrCreateElementIdByName($pdo, $baseTable, $elementName);
+                    if ($baseElementID !== null) {
+                        $elementIDs[] = $baseElementID; // Collect IDs for potential count update
+                        try {
+                             $stmtLink->execute([
+                                 ':baseID' => $baseElementID,
+                                 ':filterID' => $filterID
+                             ]);
+                        } catch (PDOException $linkError) {
+                             // Handle potential duplicate links if UNIQUE constraint exists
+                             if ($linkError->getCode() == '23000') {
+                                 // Ignore duplicate link error
+                             } else {
+                                 throw $linkError; // Re-throw other linking errors
+                             }
+                        }
+                    } else {
+                        // Log or throw? Throwing for consistency, indicates data issue.
+                        throw new Exception("Could not get/create base element '$elementName' in table '$baseTable' while creating filter '$filterName'.");
+                    }
+                }
+            }
+
+            // 3. Update the count in the filter table (optional, but good practice)
+            if (!empty($elementIDs)) {
+                $sqlUpdateCount = "UPDATE `$filterTable` SET Count = :count WHERE ID = :id";
+                $stmtUpdateCount = $pdo->prepare($sqlUpdateCount);
+                $stmtUpdateCount->execute([':count' => count($elementIDs), ':id' => $filterID]);
+            }
+
+            return $filterID;
+
+        } catch (PDOException $e) {
+            // Re-throw to send JSON
+            throw $e;
+        } catch (Exception $e) {
+            // Re-throw to send JSON
+            throw $e;
+        }
+    }
+
+     /**
+      * Helper to find or create a composite filter record and return its ID.
+      * Assumes the composite table has columns: ID, PositionFilterID, TypeFilterID, LanguageFilterID, EnvironmentFilterID
+      */
+    private static function getOrCreateCompositeFilter(
+        PDO $pdo,
+        string $compositeTable, // e.g., 'TeamFilter'
+        int $posFilterId,
+        int $typeFilterId,
+        int $langFilterId,
+        int $envFilterId
+    ): ?int {
+         try {
+             // Basic table name validation
+             if (!preg_match('/^[a-zA-Z_]+$/', $compositeTable)) {
+                 throw new Exception("Invalid composite table name provided: $compositeTable");
+             }
+
+             // Check if this combination already exists
+             $sqlSelect = "SELECT ID FROM `$compositeTable` WHERE
+                           PositionFilterID = :posID AND TypeFilterID = :typeID AND
+                           LanguageFilterID = :langID AND EnvironmentFilterID = :envID
+                           LIMIT 1";
+             $stmtSelect = $pdo->prepare($sqlSelect);
+             $stmtSelect->execute([
+                 ':posID' => $posFilterId,
+                 ':typeID' => $typeFilterId,
+                 ':langID' => $langFilterId,
+                 ':envID' => $envFilterId
+             ]);
+             $result = $stmtSelect->fetch(PDO::FETCH_ASSOC);
+
+             if ($result) {
+                 return (int)$result['ID'];
+             } else {
+                 // Create if not exists
+                 $sqlInsert = "INSERT INTO `$compositeTable`
+                               (PositionFilterID, TypeFilterID, LanguageFilterID, EnvironmentFilterID)
+                               VALUES
+                               (:posID, :typeID, :langID, :envID)";
+                 $stmtInsert = $pdo->prepare($sqlInsert);
+                 $stmtInsert->execute([
+                     ':posID' => $posFilterId,
+                     ':typeID' => $typeFilterId,
+                     ':langID' => $langFilterId,
+                     ':envID' => $envFilterId
+                 ]);
+                 $newId = $pdo->lastInsertId();
+                 return $newId ? (int)$newId : null;
+             }
+         } catch (PDOException $e) {
+             // Re-throw to send JSON
+             throw $e;
+         } catch (Exception $e) {
+              // Re-throw to send JSON
+              throw $e;
+         }
+    }
+
+    /**
+     * Helper to link directly provided element names to an activity via *ArrayActivity tables.
+     */
+    private static function linkDirectElements(PDO $pdo, int $activityID, array $postData)
+    {
+        // Define mappings: POST key => [Junction Table, Element Table, Element FK Column]
+        $linkMappings = [
+            'positionIDs' => ['table' => 'PositionArrayActivity', 'elementTable' => 'Position', 'column' => 'PositionID'],
+            'languageIDs' => ['table' => 'LanguageArrayActivity', 'elementTable' => 'Language', 'column' => 'LanguageID'],
+            'TypeIDs' => ['table' => 'TypeArrayActivity', 'elementTable' => 'Type', 'column' => 'TypeID'],
+            'EnvironmentIDs' => ['table' => 'EnvironmentArrayActivity', 'elementTable' => 'Environment', 'column' => 'EnvironmentID']
+            // Add more mappings here if other direct links are needed
+        ];
+
+        // error_log("linkDirectElements: Starting for ActivityID $activityID"); // Removed log
+
+        foreach ($linkMappings as $postKey => $mapping) {
+            // Check if the key exists and is an array in the POST data
+            if (isset($postData[$postKey]) && is_array($postData[$postKey])) {
+                $elementNames = $postData[$postKey];
+                $linkTable = $mapping['table'];
+                $elementTable = $mapping['elementTable'];
+                $elementColumn = $mapping['column'];
+
+                // Basic validation of table/column names from config
+                if (!preg_match('/^[a-zA-Z_]+$/', $linkTable) || !preg_match('/^[a-zA-Z_]+$/', $elementColumn)) {
+                     // error_log("linkDirectElements: Invalid table/column name configuration for key $postKey. Skipping."); // Removed log
+                     continue; // Skip this mapping if config is wrong
+                }
+
+                // error_log("linkDirectElements: Processing key '$postKey' for table '$linkTable'. Names: " . implode(', ', $elementNames)); // Removed log
+
+                // Prepare the insert statement for the junction table
+                $sql = "INSERT INTO `$linkTable` (ActivityID, `$elementColumn`) VALUES (:activityID, :elementID)";
+                $stmt = $pdo->prepare($sql);
+
+                foreach ($elementNames as $elementName) {
+                    $elementName = trim($elementName);
+                    if (empty($elementName)) continue; // Skip empty names
+
+                    // Find the ID of the element by its name in the base table
+                    // This might throw an exception which will be caught by the main handler
+                    $elementID = self::getElementIdByName($pdo, $elementTable, $elementName);
+
+                    if ($elementID !== null) {
+                        try {
+                            // Execute the insert into the junction table
+                            $stmt->execute([':activityID' => $activityID, ':elementID' => $elementID]);
+                            // error_log("linkDirectElements: Linked ActivityID=$activityID to Element=$elementName (ID=$elementID) in table $linkTable."); // Removed log
+                        } catch (PDOException $e) {
+                            // Handle potential duplicate entries gracefully
+                            if ($e->getCode() == '23000') { // Integrity constraint violation (likely duplicate)
+                                // error_log("linkDirectElements: Duplicate entry skipped for ActivityID=$activityID, Element=$elementName (ID=$elementID) in table $linkTable."); // Removed log
+                            } else {
+                                // Re-throw other PDO errors to be sent as JSON
+                                throw $e;
+                            }
+                        }
+                    } else {
+                        // Element not found - throw an exception to indicate failure
+                        throw new Exception("Element '$elementName' not found in table '$elementTable'. Cannot link to ActivityID $activityID.");
+                    }
+                }
+            } else {
+                 // Log if the expected array key is missing from POST data
+                 // error_log("linkDirectElements: Key '$postKey' not found or not an array in POST data."); // Removed log
+            }
+        }
+         // error_log("linkDirectElements: Finished for ActivityID $activityID"); // Removed log
+    }
+
 
     public static function createActivite()
     {
-        global $pdo;
-        header('Content-Type: application/json');
-    
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'message' => 'Utilisez POST pour créer une activité.']);
-            return;
-        }
-    
-        // Support both JSON and form-data
-        $data = [];
-        if (isset($_POST) && !empty($_POST)) {
-            $data = $_POST;
-        } else {
-            $inputJSON = file_get_contents('php://input');
-            $data = json_decode($inputJSON, true);
-        }
-    
-        if (!is_array($data)) {
-            echo json_encode(['success' => false, 'message' => 'Corps de requête invalide (JSON ou formulaire attendu).']);
-            return;
-        }
-    
-        $title        = $data['title']        ?? null;
-        $isSport      = $data['isSport']      ?? null;
-        $mainImg      = $data['main_img']     ?? null;
-        $mainImgUrl   = $data['main_img_url'] ?? null;
-        $logoImg      = $data['logo_img']     ?? null;
-        $logoImgUrl   = $data['logo_img_url'] ?? null;
-        $description  = $data['description']  ?? null;
-        $pointValue     = $data['point_value']     ?? null;
-        $word4player    = $data['word_4_player']   ?? null;
-        $word4teammate  = $data['word_4_teammate'] ?? null;
-        $word4playing   = $data['word_4_playing']  ?? null;
-        $liveUrl        = $data['live_url']        ?? null;
-        $liveDesc       = $data['live_desc']       ?? null;
-        $mainColor      = $data['main_color']      ?? null;
-        $secondColor    = $data['second_color']    ?? null;
-        $friendMain     = $data['friend_main_color']   ?? null;
-        $friendSecond   = $data['friend_second_color'] ?? null;
-    
-        // Accept either file upload, URL, or value in body for main_img
-        $hasMainImg = (isset($_FILES['main_img']) && $_FILES['main_img']['error'] === UPLOAD_ERR_OK) || $mainImg || $mainImgUrl;
-        $hasLogoImg = (isset($_FILES['logo_img']) && $_FILES['logo_img']['error'] === UPLOAD_ERR_OK) || $logoImg || $logoImgUrl;
-    
-        if (!$title || $isSport === null || !$hasMainImg || !$description) {
-            echo json_encode([
-                'success' => false,
-                'message' => "Champs 'title', 'isSport', 'main_img' (fichier, URL ou valeur), 'description' obligatoires."
-            ]);
-            return;
-        }
-    
-        // Handle main_img: file upload, URL, or value
-        if (isset($_FILES['main_img']) && $_FILES['main_img']['error'] === UPLOAD_ERR_OK) {
-            $fileTmpPath = $_FILES['main_img']['tmp_name'];
-            $originalFileName = basename($_FILES['main_img']['name']);
-            $fileType = mime_content_type($fileTmpPath);
-    
-            $imageFolder = 'ressources/images/activity/';
-            if (!file_exists($imageFolder)) mkdir($imageFolder, 0755, true);
-    
-            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
-            if (in_array($fileType, $allowedImageTypes)) {
-                $destinationPath = $imageFolder . uniqid('activity_', true) . '_' . $originalFileName;
-                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
-                    echo json_encode(['success' => false, 'message' => 'Impossible de déplacer le fichier téléchargé.']);
-                    return;
-                }
-                $mainImg = $destinationPath;
-            } else {
-                echo json_encode(['success' => false, 'message' => "Type de fichier non pris en charge: $fileType"]);
-                return;
-            }
-        } elseif ($mainImgUrl) {
-            $mainImg = trim($mainImgUrl);
-        } // else keep $mainImg as is (from body)
-    
-        // Handle logo_img: file upload, URL, or value
-        if (isset($_FILES['logo_img']) && $_FILES['logo_img']['error'] === UPLOAD_ERR_OK) {
-            $fileTmpPath = $_FILES['logo_img']['tmp_name'];
-            $originalFileName = basename($_FILES['logo_img']['name']);
-            $fileType = mime_content_type($fileTmpPath);
-    
-            $imageFolder = 'ressources/images/activity/';
-            if (!file_exists($imageFolder)) mkdir($imageFolder, 0755, true);
-    
-            $allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
-            if (in_array($fileType, $allowedImageTypes)) {
-                $destinationPath = $imageFolder . uniqid('activity_logo_', true) . '_' . $originalFileName;
-                if (!move_uploaded_file($fileTmpPath, $destinationPath)) {
-                    echo json_encode(['success' => false, 'message' => 'Impossible de déplacer le fichier logo téléchargé.']);
-                    return;
-                }
-                $logoImg = $destinationPath;
-            } else {
-                echo json_encode(['success' => false, 'message' => "Type de fichier logo non pris en charge: $fileType"]);
-                return;
-            }
-        } elseif ($logoImgUrl) {
-            $logoImg = trim($logoImgUrl);
-        } // else keep $logoImg as is (from body)
-    
-        $bitValue = ($isSport) ? "b'1'" : "b'0'";
-    
-        try {
-            $sql = "
-                INSERT INTO Activity
-                  (Title, IsSport, Main_Img, Description,
-                   Logo_Img, Point_Value, Word_4_Player, Word_4_Teammate,
-                   Word_4_Playing, Live_url, Live_Desc, Main_Color,
-                   Second_Color, Friend_Main_Color, Friend_Second_Color)
-                VALUES
-                  (:title, $bitValue, :mainImg, :descr,
-                   :logoImg, :pVal, :wPlayer, :wTeammate,
-                   :wPlaying, :lUrl, :lDesc, :mColor,
-                   :sColor, :fMain, :fSecond)
-            ";
-            $stmt = $pdo->prepare($sql);
-    
-            $stmt->bindValue(':title',    $title);
-            $stmt->bindValue(':mainImg',  $mainImg);
-            $stmt->bindValue(':descr',    $description);
-            $stmt->bindValue(':logoImg',  $logoImg);
-            $stmt->bindValue(':pVal',     $pointValue);
-            $stmt->bindValue(':wPlayer',  $word4player);
-            $stmt->bindValue(':wTeammate',$word4teammate);
-            $stmt->bindValue(':wPlaying', $word4playing);
-            $stmt->bindValue(':lUrl',     $liveUrl);
-            $stmt->bindValue(':lDesc',    $liveDesc);
-            $stmt->bindValue(':mColor',   $mainColor);
-            $stmt->bindValue(':sColor',   $secondColor);
-            $stmt->bindValue(':fMain',    $friendMain);
-            $stmt->bindValue(':fSecond',  $friendSecond);
-    
-            $stmt->execute();
-            $newId = $pdo->lastInsertId();
-    
-            echo json_encode([
-                'success' => true,
-                'message' => "Activité créée avec succès.",
-                'activity_id' => $newId
-            ]);
-    
-        } catch (PDOException $e) {
-            echo json_encode([
-                'success' => false,
-                'message' => "Erreur DB : " . $e->getMessage()
-            ]);
-        }
-    }
+        // Register the shutdown handler at the very beginning
+        register_shutdown_function(['ActivityController', 'handleShutdown']);
+        // Reset the flag at the start of each request
+        self::$outputSent = false;
 
-    public static function getActivite($id)
+        // Removed PHP settings log
+
+        global $pdo;
+        // --- Set headers early ---
+        if (!headers_sent()) {
+             header('Access-Control-Allow-Origin: *');
+             header('Content-Type: application/json; charset=utf-8');
+        } else {
+             // Cannot send headers, maybe log internally if needed
+             // error_log("createActivite Warning: Headers already sent at the beginning of the function.");
+        }
+
+
+        $postData = $_POST;
+        $filesData = $_FILES;
+        // Initialize response with default failure state
+        $response = ['success' => false, 'message' => 'Erreur serveur initiale.', 'activityId' => null];
+        // Default error code
+        if (!headers_sent()) {
+             http_response_code(500);
+        }
+
+
+        // 1. Authentication & Authorization
+        try {
+            $apiKey = $postData['apiKey'] ?? null;
+            $userData = self::getUserDataByApiKey($pdo, $apiKey);
+            if ($userData === null) {
+                 throw new Exception("Clé API invalide ou manquante.", 401); // Use exception for flow control
+            }
+            $userID = $userData['ID'];
+            $userPasswordHash = $userData['PasswordHash'];
+
+            // 2. Input Validation
+            $requiredFields = ['title', 'description'];
+            foreach ($requiredFields as $field) {
+                 if (!isset($postData[$field]) || trim($postData[$field]) === '') {
+                     throw new Exception("Champ requis manquant ou vide: '$field'.", 400);
+                 }
+            }
+
+            // --- Start Transaction ---
+            $pdo->beginTransaction();
+
+            // 3. Handle Image Uploads/URLs
+            $mainImgPath = self::handleImageUploadOrUrl('main_img', 'main_img_url', $filesData, $postData, 'act_main_', 'activity/', true);
+            $logoImgPath = self::handleImageUploadOrUrl('logo_img_url', 'logo_img_url', $filesData, $postData, 'act_logo_', 'activity/', false);
+
+            // --- Dynamic Filter Creation Logic ---
+            $createdPositionFilterID = null;
+            $createdTypeFilterID = null;
+            $createdLanguageFilterID = null;
+            $createdEnvironmentFilterID = null;
+            $newFilterCreated = false; // Flag to track if any new individual filter was made
+
+            // Process Position Filter
+            $positionFilterTitle = $postData['title'] . "-" .trim($postData['positionFiltersTitle'] ?? '');
+            if (!empty($positionFilterTitle)) {
+                $positionNames = $postData['PositionName']  ?? [];
+                $createdPositionFilterID = self::createIndividualFilter(
+                    $pdo, 'PositionFilter', $positionFilterTitle, 'Position', $positionNames,
+                    'PositionArray', 'PositionID', 'PositionFilterID'
+                );
+                if ($createdPositionFilterID) $newFilterCreated = true;
+            }
+
+            // Process Type Filter
+            $typeFilterTitle = $postData['title'] . "-" .trim($postData['typeFiltersTitle'] ?? '');
+            if (!empty($typeFilterTitle)) {
+                $typeNames = $postData['typeName'] ?? [];
+                $createdTypeFilterID = self::createIndividualFilter(
+                    $pdo, 'TypeFilter', $typeFilterTitle, 'Type', $typeNames,
+                    'TypeArray', 'TypeID', 'TypeFilterID'
+                );
+                 if ($createdTypeFilterID) $newFilterCreated = true;
+            }
+
+            // Process Language Filter
+            $languageFilterTitle = $postData['title'] . "-" .trim($postData['languageFiltersTitle'] ?? '');
+            if (!empty($languageFilterTitle)) {
+                $languageNames = $postData['languageName'] ?? [];
+                $createdLanguageFilterID = self::createIndividualFilter(
+                    $pdo, 'LanguageFilter', $languageFilterTitle, 'Language', $languageNames,
+                    'LanguageArray', 'LanguageID', 'LanguageFilterID'
+                );
+                 if ($createdLanguageFilterID) $newFilterCreated = true;
+            }
+
+            // Process Environment Filter
+            $environmentFilterTitle = $postData['title'] . "-" .trim($postData['environmentFiltersTitle'] ?? '');
+            if (!empty($environmentFilterTitle)) {
+                $environmentNames = $postData['environmentName'] ?? [];
+                $createdEnvironmentFilterID = self::createIndividualFilter(
+                    $pdo, 'EnvironmentFilter', $environmentFilterTitle, 'Environment', $environmentNames,
+                    'EnvironmentArray', 'EnvironmentID', 'EnvironmentFilterID'
+                );
+                 if ($createdEnvironmentFilterID) $newFilterCreated = true;
+            }
+
+            // Determine final composite filter IDs (MODIFIED LOGIC)
+            $activityFilterID = 1; // Always 1 as per new requirement
+            $matchFilterID = 1;    // Default
+            $teamFilterID = 1;     // Default
+
+            if ($newFilterCreated) {
+                $finalPosFilterId = $createdPositionFilterID ?? 1;
+                $finalTypeFilterId = $createdTypeFilterID ?? 1;
+                $finalLangFilterId = $createdLanguageFilterID ?? 1;
+                $finalEnvFilterId = $createdEnvironmentFilterID ?? 1;
+
+                $teamFilterID = self::getOrCreateCompositeFilter($pdo, 'TeamFilter', $finalPosFilterId, $finalTypeFilterId, $finalLangFilterId, $finalEnvFilterId);
+                $matchFilterID = self::getOrCreateCompositeFilter($pdo, 'MatchFilter', $finalPosFilterId, $finalTypeFilterId, $finalLangFilterId, $finalEnvFilterId);
+
+                if ($teamFilterID === null || $matchFilterID === null) {
+                     throw new Exception("Failed to get or create composite Team/Match filter IDs.");
+                }
+            }
+
+            // 4. Insert into Activity Table
+            $sqlActivity = "INSERT INTO Activity (
+                                Title, IsSport, Main_Img, Description, ActivityFilterID,
+                                MatchFilterID, TeamFilterID, Logo_Img, Point_Value, Word_4_Player,
+                                Word_4_Teammate, Word_4_Playing, Live_url, Live_Desc, Main_Color,
+                                Second_Color, Friend_Main_Color, Friend_Second_Color
+                            ) VALUES (
+                                :title, :isSport, :mainImg, :description, :activityFilterID,
+                                :matchFilterID, :teamFilterID, :logoImg, :pointValue, :word4Player,
+                                :word4Teammate, :word4Playing, :liveUrl, :liveDesc, :mainColor,
+                                :secondColor, :friendMainColor, :friendSecondColor
+                            )";
+            $stmtActivity = $pdo->prepare($sqlActivity);
+            $isSportValue = isset($postData['isSport']) ? (int)(bool)$postData['isSport'] : 0;
+            $stmtActivity->bindValue(':title', $postData['title']);
+            $stmtActivity->bindValue(':isSport', $isSportValue, PDO::PARAM_INT);
+            $stmtActivity->bindValue(':mainImg', $mainImgPath);
+            $stmtActivity->bindValue(':description', $postData['description']);
+            $stmtActivity->bindValue(':activityFilterID', $activityFilterID, PDO::PARAM_INT);
+            $stmtActivity->bindValue(':matchFilterID', $matchFilterID, PDO::PARAM_INT);
+            $stmtActivity->bindValue(':teamFilterID', $teamFilterID, PDO::PARAM_INT);
+            $stmtActivity->bindValue(':logoImg', $logoImgPath);
+            $stmtActivity->bindValue(':pointValue', $postData['point_value'] ?? null);
+            $stmtActivity->bindValue(':word4Player', $postData['word_4_player'] ?? null);
+            $stmtActivity->bindValue(':word4Teammate', $postData['word_4_teammate'] ?? null);
+            $stmtActivity->bindValue(':word4Playing', $postData['word_4_playing'] ?? null);
+            $stmtActivity->bindValue(':liveUrl', $postData['live_url'] ?? null);
+            $stmtActivity->bindValue(':liveDesc', $postData['live_desc'] ?? null);
+            $stmtActivity->bindValue(':mainColor', $postData['main_color'] ?? null);
+            $stmtActivity->bindValue(':secondColor', $postData['second_color'] ?? null);
+            $stmtActivity->bindValue(':friendMainColor', $postData['friend_main_color'] ?? null);
+            $stmtActivity->bindValue(':friendSecondColor', $postData['friend_second_color'] ?? null);
+
+            $stmtActivity->execute();
+            $activityID = $pdo->lastInsertId();
+
+            if (!$activityID) {
+                 throw new Exception("Failed to insert activity or retrieve last insert ID.");
+            }
+
+            // 5. Insert into ActivityData Table
+            $sqlActivityData = "INSERT INTO ActivityData (ActivityID, Team_Count, QuickTeam_Count, Player_Count, Active_Player_Count, Rating) VALUES (:activityID, 0, 0, 0, 0, NULL)";
+            $stmtActivityData = $pdo->prepare($sqlActivityData);
+            $stmtActivityData->execute([':activityID' => $activityID]);
+
+            
+
+
+            // 8. Insert into AdminActivity
+            // WARNING: Still includes Password hash insertion as per previous request. Reconsider if necessary.
+            $sqlAdmin = "INSERT INTO AdminActivity (UserID, ActivityID, Password) VALUES (:userID, :activityID, :password)";
+            $stmtAdmin = $pdo->prepare($sqlAdmin);
+            $stmtAdmin->execute([
+                ':userID' => $userID,
+                ':activityID' => $activityID,
+                ':password' => $userPasswordHash
+            ]);
+
+            // --- Commit Transaction ---
+            $pdo->commit();
+
+            // --- Prepare Success Response ---
+            $response['success'] = true;
+            $response['message'] = "Activité créée avec succès.";
+            $response['activityId'] = $activityID;
+             if (!headers_sent()) {
+                 http_response_code(201); // Set success code
+             }
+
+        } catch (PDOException $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            $response['message'] = "Erreur Base de Données: " . ($e->errorInfo[2] ?? $e->getMessage());
+            $response['error_details'] = [ // Add details for frontend
+                 'type' => 'PDOException',
+                 'code' => $e->getCode(),
+                 'sqlstate' => $e->errorInfo[0] ?? null,
+                 'driver_code' => $e->errorInfo[1] ?? null,
+                 'file' => basename($e->getFile()),
+                 'line' => $e->getLine()
+            ];
+            if (!headers_sent()) {
+                 if ($e->getCode() == '23000') {
+                      http_response_code(409); // Conflict
+                      if (strpos($response['message'], 'Activity.Title') !== false) {
+                          $response['message'] = 'Erreur: Le titre de cette activité existe déjà.';
+                      }
+                 } else {
+                      http_response_code(500); // Internal Server Error
+                 }
+            }
+
+        } catch (Exception $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            $response['message'] = "Erreur Serveur: " . $e->getMessage();
+             $response['error_details'] = [ // Add details for frontend
+                 'type' => get_class($e),
+                 'code' => $e->getCode(),
+                 'file' => basename($e->getFile()),
+                 'line' => $e->getLine()
+            ];
+            if (!headers_sent()) {
+                 // Use exception code for HTTP status if it's a standard HTTP code
+                 $httpCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
+                 http_response_code($httpCode);
+            }
+        }
+
+        // --- Final Output Stage ---
+        // Removed diagnostic logs
+
+        // Attempt to encode
+        $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+
+        // Check for encoding errors
+        if ($jsonOutput === false) {
+            $jsonError = json_last_error_msg();
+            $jsonErrorCode = json_last_error();
+            // Removed log
+
+            // UTF-8 cleanup attempt (same as before)
+            if ($jsonErrorCode === JSON_ERROR_UTF8) {
+                 array_walk_recursive($response, function (&$item, $key) {
+                     if (is_string($item) && !mb_check_encoding($item, 'UTF-8')) {
+                         $item = mb_convert_encoding($item, 'UTF-8', 'UTF-8');
+                     }
+                 });
+                 $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+                 // Removed log
+            }
+
+            // If still failing, prepare minimal error JSON *but don't echo yet*
+            if ($jsonOutput === false) {
+                 $jsonError = json_last_error_msg(); // Get latest error
+                 // Removed log
+                 if (!headers_sent()) {
+                      if (http_response_code() < 400) http_response_code(500);
+                 }
+                 // Use a known-good JSON structure, include JSON error details
+                 $jsonOutput = '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
+            }
+        }
+
+        // --- Try to send the final output ---
+        try {
+             if (headers_sent()) {
+                  // Cannot output JSON, maybe output was already sent or there was an earlier error with output.
+                  // The shutdown handler might catch the reason if it was a fatal error.
+                  // Removed log
+             } else {
+                  // Set final headers if not set
+                  header('Access-Control-Allow-Origin: *');
+                  header('Content-Type: application/json; charset=utf-8');
+                  // Ensure status code reflects final state
+                  if ($response['success'] && http_response_code() < 300) {
+                       if (http_response_code() !== 201) http_response_code(200);
+                  } elseif (!$response['success'] && http_response_code() < 400) {
+                       http_response_code(500);
+                  }
+                  // Removed log
+
+                  // Flush output buffers before echoing
+                  while (ob_get_level() > 0) {
+                      ob_end_flush();
+                  }
+                  flush();
+                  // Removed log
+
+                  echo $jsonOutput;
+                  self::$outputSent = true; // Mark output as successfully sent
+                  // Removed log
+             }
+        } catch (Exception $outputEx) {
+             // Catch potential errors during final output/flush
+             // Removed log
+             self::$outputSent = false; // Mark as failed if exception occurs here
+             // The shutdown handler will likely take over now.
+        }
+
+        // Removed final log
+        // exit; // Keep commented unless absolutely needed
+
+    } // End createActivite method
+
+    /**
+     * Retrieves activity details based on ID from URL and optional fields from JSON body.
+     *
+     * @param int $id The ID of the activity from the URL path.
+     * @return array The response array (success/data or error).
+     */
+    public static function getActivite(int $id) // Changed signature to accept ID directly
     {
         global $pdo;
-    
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json; charset=utf-8');
-    
-        $input = json_decode(file_get_contents('php://input'), true);
-    
-        try {
-            // Activity fields
-            $fields = isset($input['fields']) ? $input['fields'] : '*';
-            if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' doit être '*' ou un tableau non vide."]);
-                return;
-            }
-            $selectFields = $fields === '*' ? '*' : implode(', ', array_map('htmlspecialchars', $fields));
-            $sql = "SELECT $selectFields FROM Activity WHERE ID = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(['id' => $id]);
-            $activity = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$activity) {
-                echo json_encode(['success' => false, 'message' => "Activité introuvable avec l'ID fourni."]);
-                return;
-            }
-    
-            
-            // ActivityData fields
-            $activityDataFields = isset($input['activityDataFields']) ? $input['activityDataFields'] : '*';
+        $response = ['success' => false, 'message' => 'Erreur initiale getActivite']; // Default error
+        self::$outputSent = false; // Reset flag for this request
 
-            if ($activityDataFields !== '*' && (!is_array($activityDataFields) || empty($activityDataFields))) {
-                echo json_encode(['success' => false, 'message' => "Paramètre 'activityDataFields' doit être '*' ou un tableau non vide."]);
-                return;
+        // Set headers only if this function is the main entry point and headers not sent
+        if (php_sapi_name() !== 'cli' && !headers_sent()) {
+            header('Access-Control-Allow-Origin: *');
+            header('Content-Type: application/json; charset=utf-8');
+        }
+
+        try {
+            // --- Get optional fields from JSON body ---
+            $inputBody = json_decode(file_get_contents('php://input'), true);
+            // Handle potential JSON decoding errors
+            if (json_last_error() !== JSON_ERROR_NONE && !empty(file_get_contents('php://input'))) {
+                 throw new Exception("Corps JSON invalide fourni.", 400);
             }
-            $selectActivityDataFields = $activityDataFields === '*' ? '*' : implode(', ', array_map('htmlspecialchars', $activityDataFields));
-            $sql = "SELECT $selectActivityDataFields FROM ActivityData WHERE ActivityID = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(['id' => $id]);
-            $activityData = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            // Level fields
-            $levelFields = isset($input['levelFields']) ? $input['levelFields'] : '*';
-            if ($levelFields !== '*' && (!is_array($levelFields) || empty($levelFields))) {
-                echo json_encode(['success' => false, 'message' => "Paramètre 'levelFields' doit être '*' ou un tableau non vide."]);
-                return;
+            $fieldParams = $inputBody['fields'] ?? null; // Expect 'fields' key in the JSON body
+
+            // --- Validate ID (already received as int) ---
+            if ($id <= 0) {
+                // This check might be redundant if the routing enforces numeric ID, but good for safety
+                throw new Exception("ID d'activité invalide fourni dans l'URL.", 400);
             }
-            $selectLevelFields = $levelFields === '*' ? 'Level.*' : implode(', ', array_map(function ($field) {
-                return $field === 'Index' ? 'Level.`Index`' : 'Level.' . htmlspecialchars($field);
-            }, $levelFields));
-            $sql = "SELECT $selectLevelFields FROM ActivityLevel 
-                    INNER JOIN Level ON ActivityLevel.LevelID = Level.ID 
-                    WHERE ActivityLevel.ActivityID = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(['id' => $id]);
-            $levels = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-            // Filter fields
-            $filterFields = isset($input['filterFields']) ? $input['filterFields'] : '*';
-            if ($filterFields !== '*' && (!is_array($filterFields) || empty($filterFields))) {
-                echo json_encode(['success' => false, 'message' => "Paramètre 'filterFields' doit être '*' ou un tableau non vide."]);
-                return;
+
+            // --- Fetch Activity ---
+            // Define fields to select for Activity, default to all if not specified
+            $activityFields = $fieldParams['activity'] ?? '*';
+            $activitySelectClause = self::buildSelectClause($activityFields, 'a');
+
+            $sqlActivity = "SELECT {$activitySelectClause} FROM Activity a WHERE a.ID = :id";
+            $stmtActivity = $pdo->prepare($sqlActivity);
+            $stmtActivity->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmtActivity->execute();
+            $activity = $stmtActivity->fetch(PDO::FETCH_ASSOC);
+
+            if (!$activity) {
+                 // Throw exception to be caught and formatted as JSON error
+                 throw new Exception("Activité introuvable avec l'ID fourni.", 404);
             }
-            $filterFieldMap = [
-                'PositionFilterID'      => 'pf.ID AS PositionFilterID',
-                'PositionFilterName'    => 'pf.Name AS PositionFilterName',
-                'PositionName'          => 'p.Name AS PositionName',
-                'TypeFilterID'          => 'tf.ID AS TypeFilterID',
-                'TypeFilterName'        => 'tf.Name AS TypeFilterName',
-                'TypeName'              => 't.Name AS TypeName',
-                'LanguageFilterID'      => 'lf.ID AS LanguageFilterID',
-                'LanguageFilterName'    => 'lf.Name AS LanguageFilterName',
-                'LanguageName'          => 'l.Name AS LanguageName',
-                'EnvironmentFilterID'   => 'ef.ID AS EnvironmentFilterID',
-                'EnvironmentFilterName' => 'ef.Name AS EnvironmentFilterName',
-                'EnvironmentName'       => 'e.Name AS EnvironmentName'
-            ];
-            if ($filterFields === '*') {
-                $selectFilterFields = implode(', ', $filterFieldMap);
-            } else {
-                $selectFilterFieldsArr = array_filter(array_map(function ($field) use ($filterFieldMap) {
-                    return $filterFieldMap[$field] ?? '';
-                }, $filterFields));
-                if (empty($selectFilterFieldsArr)) {
-                    echo json_encode(['success' => false, 'message' => "Aucun champ valide dans 'filterFields'."]);
-                    return;
-                }
-                $selectFilterFields = implode(', ', $selectFilterFieldsArr);
-            }
-            $sql = "
-                SELECT $selectFilterFields
-                FROM ActivityFilter af
-                LEFT JOIN PositionFilter pf ON af.PositionFilterID = pf.ID
-                LEFT JOIN PositionArray pa ON pf.ID = pa.PositionFilterID
-                LEFT JOIN Position p ON pa.PositionID = p.ID
-                LEFT JOIN TypeFilter tf ON af.TypeFilterID = tf.ID
-                LEFT JOIN Type t ON tf.ID = t.ID
-                LEFT JOIN LanguageFilter lf ON af.LanguageFilterID = lf.ID
-                LEFT JOIN Language l ON lf.ID = l.ID
-                LEFT JOIN EnvironmentFilter ef ON af.EnvironmentFilterID = ef.ID
-                LEFT JOIN Environment e ON ef.ID = e.ID
-                WHERE af.ID = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(['id' => $id]);
-            $filters = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-            $positionFilters = [];
-            $typeFilters = [];
-            $languageFilters = [];
-            $environmentFilters = [];
-            
-            foreach ($filters as $filter) {
-                if (isset($filter['PositionFilterID']) || isset($filter['PositionFilterName'])) {
-                    $entry = [];
-                    if (isset($filter['PositionFilterID'])) $entry['ID'] = $filter['PositionFilterID'];
-                    if (isset($filter['PositionFilterName'])) $entry['Name'] = $filter['PositionFilterName'];
-                    if ($entry && !in_array($entry, $positionFilters, true)) $positionFilters[] = $entry;
-                }
-                if (isset($filter['TypeFilterID']) || isset($filter['TypeFilterName'])) {
-                    $entry = [];
-                    if (isset($filter['TypeFilterID'])) $entry['ID'] = $filter['TypeFilterID'];
-                    if (isset($filter['TypeFilterName'])) $entry['Name'] = $filter['TypeFilterName'];
-                    if ($entry && !in_array($entry, $typeFilters, true)) $typeFilters[] = $entry;
-                }
-                if (isset($filter['LanguageFilterID']) || isset($filter['LanguageFilterName'])) {
-                    $entry = [];
-                    if (isset($filter['LanguageFilterID'])) $entry['ID'] = $filter['LanguageFilterID'];
-                    if (isset($filter['LanguageFilterName'])) $entry['Name'] = $filter['LanguageFilterName'];
-                    if ($entry && !in_array($entry, $languageFilters, true)) $languageFilters[] = $entry;
-                }
-                if (isset($filter['EnvironmentFilterID']) || isset($filter['EnvironmentFilterName'])) {
-                    $entry = [];
-                    if (isset($filter['EnvironmentFilterID'])) $entry['ID'] = $filter['EnvironmentFilterID'];
-                    if (isset($filter['EnvironmentFilterName'])) $entry['Name'] = $filter['EnvironmentFilterName'];
-                    if ($entry && !in_array($entry, $environmentFilters, true)) $environmentFilters[] = $entry;
-                }
-            }
-            
-            // Add associated entities for each filter
-            foreach ($positionFilters as &$pf) {
-                if (isset($pf['ID'])) {
-                    $sql = "SELECT p.* FROM PositionArray pa INNER JOIN Position p ON pa.PositionID = p.ID WHERE pa.PositionFilterID = :pfid";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute(['pfid' => $pf['ID']]);
-                    $pf['Positions'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                }
-            }
-            unset($pf);
-            
-            foreach ($typeFilters as &$tf) {
-                if (isset($tf['ID'])) {
-                    $sql = "SELECT t.* FROM TypeArray ta INNER JOIN Type t ON ta.TypeID = t.ID WHERE ta.TypeFilterID = :tfid";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute(['tfid' => $tf['ID']]);
-                    $tf['Types'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                }
-            }
-            unset($tf);
-            
-            foreach ($languageFilters as &$lf) {
-                if (isset($lf['ID'])) {
-                    $sql = "SELECT l.* FROM LanguageArray la INNER JOIN Language l ON la.LanguageID = l.ID WHERE la.LanguageFilterID = :lfid";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute(['lfid' => $lf['ID']]);
-                    $lf['Languages'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                }
-            }
-            unset($lf);
-            
-            foreach ($environmentFilters as &$ef) {
-                if (isset($ef['ID'])) {
-                    $sql = "SELECT e.* FROM EnvironmentArray ea INNER JOIN Environment e ON ea.EnvironmentID = e.ID WHERE ea.EnvironmentFilterID = :efid";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute(['efid' => $ef['ID']]);
-                    $ef['Environments'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                }
-            }
-            unset($ef);
-            
-            // Combine activity data with related data
+
+            // --- Fetch ActivityData ---
+            // Define fields to select for ActivityData, default to all if not specified
+            $activityDataFields = $fieldParams['activityData'] ?? '*';
+            $activityDataSelectClause = self::buildSelectClause($activityDataFields, 'ad');
+
+            $sqlActivityData = "SELECT {$activityDataSelectClause} FROM ActivityData ad WHERE ad.ActivityID = :activityID";
+            $stmtActivityData = $pdo->prepare($sqlActivityData);
+            $stmtActivityData->bindParam(':activityID', $id, PDO::PARAM_INT); // Use the same ID
+            $stmtActivityData->execute();
+            $activityData = $stmtActivityData->fetch(PDO::FETCH_ASSOC);
+
+            // --- Fetch Related Data (Levels, Positions, etc. - Assuming this logic exists below) ---
+            // Example placeholder for fetching related data (adapt based on your actual implementation)
+            // This logic should use the $id variable
+            $levels = []; // Replace with actual fetch logic using $id
+            $positions = []; // Replace with actual fetch logic using $id
+            $types = []; // Replace with actual fetch logic using $id
+            $languages = []; // Replace with actual fetch logic using $id
+            $environments = []; // Replace with actual fetch logic using $id
+            // ... (Your existing logic to fetch related data based on $id) ...
+
+
+            // --- Assemble Result ---
             $result = [
                 'activity' => $activity,
-                'activityData' => $activityData,
-                'relatedData' => [
+                'activityData' => $activityData ?: null, // Return null if no data found
+                'relatedData' => [ // Include related data if fetched
                     'levels' => $levels,
-                    'positionFilters' => $positionFilters,
-                    'typeFilters' => $typeFilters,
-                    'languageFilters' => $languageFilters,
-                    'environmentFilters' => $environmentFilters
+                    'positions' => $positions,
+                    'types' => $types,
+                    'languages' => $languages,
+                    'environments' => $environments
                 ]
             ];
-            
-            echo json_encode(['success' => true, 'data' => $result]);
+
+            $result['activity']['Main_Img'] = "http://localhost:9999/" . $result['activity']['Main_Img'];
+            $result['activity']['Logo_Img'] = "http://localhost:9999/" . $result['activity']['Logo_Img'];
+
+            // Prepare success response structure
+            $response = ['success' => true, 'data' => $result];
+            if (php_sapi_name() !== 'cli' && !headers_sent()) {
+                 http_response_code(200);
+            }
+
         } catch (PDOException $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur Database: ' . $e->getMessage()]);
+            // Handle PDO Exceptions (Database Errors)
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(500);
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Base de Données: ' . ($e->errorInfo[2] ?? $e->getMessage()),
+                'error_details' => [
+                    'type' => 'PDOException',
+                    'code' => $e->getCode(),
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'driver_code' => $e->errorInfo[1] ?? null,
+                    'file' => basename($e->getFile()),
+                    'line' => $e->getLine()
+                ]
+            ];
         } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+            // Handle other Exceptions (e.g., invalid ID, not found, invalid JSON)
+             $httpCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
+             if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code($httpCode);
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Serveur: ' . $e->getMessage(),
+                'error_details' => [
+                    'type' => get_class($e),
+                    'code' => $e->getCode(),
+                    'file' => basename($e->getFile()),
+                    'line' => $e->getLine()
+                ]
+            ];
         }
-    }
 
-    public static function getActiviteByTitle()
-{
-    global $pdo;
-
-    header('Access-Control-Allow-Origin: *');
-    header('Content-Type: application/json; charset=utf-8');
-
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    if (!isset($input['title']) || empty($input['title'])) {
-        echo json_encode(['success' => false, 'message' => "Paramètre 'title' manquant ou vide dans le corps de la requête."]);
-        return;
-    }
-
-    $title = $input['title'];
-
-    // Find the activity ID by title
-    $stmt = $pdo->prepare("SELECT ID FROM Activity WHERE Title = :title");
-    $stmt->execute(['title' => $title]);
-    $activity = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    if (!$activity) {
-        echo json_encode(['success' => false, 'message' => "Activité introuvable avec le titre fourni."]);
-        return;
-    }
-
-    // Call the same controller with the found ID
-    self::getActivite($activity['ID']);
-}
-
-public static function searchActivities($title)
-{
-    global $pdo;
-
-    header('Access-Control-Allow-Origin: *');
-    header('Content-Type: application/json; charset=utf-8');
-
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    $query = $title;
-    $limit = isset($input['limit']) ? intval($input['limit']) : 10;
-    $fields = isset($input['fields']) ? $input['fields'] : '*';
-    $activityDataFields = isset($input['activityDataFields']) ? $input['activityDataFields'] : '*';
-    $levelFields = isset($input['levelFields']) ? $input['levelFields'] : '*';
-    $filterFields = isset($input['filterFields']) ? $input['filterFields'] : '*';
-
-    if ($limit <= 0) $limit = 10;
-
-    // Validate fields input
-    if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-        echo json_encode(['success' => false, 'message' => "Paramètre 'fields' doit être '*' ou un tableau non vide."]);
-        return;
-    }
-
-    // Build the SELECT clause
-    $selectFields = $fields === '*' ? '*' : implode(', ', array_map('htmlspecialchars', $fields));
-
-    // Query to find activities matching the title, ordered by similarity
-    $sql = "SELECT $selectFields, LOCATE(:query, Title) AS similarity
-            FROM Activity
-            WHERE Title LIKE :queryPattern
-            ORDER BY similarity ASC, Title ASC
-            LIMIT :limit";
-
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindValue(':query', $query, PDO::PARAM_STR);
-    $stmt->bindValue(':queryPattern', '%' . $query . '%', PDO::PARAM_STR);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->execute();
-
-    $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    $results = [];
-    foreach ($activities as $activity) {
-        // For each activity, call getActivite with the same params
-        // Simulate the input for getActivite
-        $_POST = [];
-        $activityID = $activity['ID'];
-        // Build a fake input for getActivite
-        $fakeInput = [
-            'fields' => $fields,
-            'activityDataFields' => $activityDataFields,
-            'levelFields' => $levelFields,
-            'filterFields' => $filterFields
-        ];
-        // Use output buffering to capture the output of getActivite
-        ob_start();
-        self::getActivite($activityID);
-        $json = ob_get_clean();
-        $decoded = json_decode($json, true);
-        if ($decoded && isset($decoded['data'])) {
-            $results[] = $decoded['data'];
+        // --- Final Output Stage ---
+        // Output JSON only if called as the main script entry point and output not already sent
+        if (php_sapi_name() !== 'cli' && !self::$outputSent && !headers_sent()) {
+             $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+             if ($jsonOutput === false) {
+                  // Handle JSON encoding error
+                  http_response_code(500);
+                  $jsonError = json_last_error_msg();
+                  echo '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
+             } else {
+                  echo $jsonOutput;
+             }
+             self::$outputSent = true; // Mark output sent
+        } elseif (php_sapi_name() !== 'cli' && !self::$outputSent && headers_sent()) {
+             // Headers already sent, cannot output JSON. Maybe log this situation.
+             // error_log("getActivite: Headers already sent, cannot send JSON response for ID {$id}.");
         }
+
+        // Return the response array for internal calls or testing
+        return $response;
     }
 
-    echo json_encode(['success' => true, 'data' => $results]);
-}
+    /**
+     * Searches for activities based on criteria provided in the JSON body.
+     * Supports filtering, field selection, and pagination.
+     *
+     * @return array The response array (success/data or error).
+     */
+    public static function searchActivites() // Simplified signature
+    {
+        global $pdo;
+        $response = ['success' => false, 'message' => 'Erreur initiale searchActivites']; // Default error
+        self::$outputSent = false; // Reset flag
 
-public static function getAllActivity()
-{
-    global $pdo;
-
-    header('Access-Control-Allow-Origin: *');
-    header('Content-Type: application/json; charset=utf-8');
-
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    // Filters (all optional, can be omitted or partially provided)
-    $languageID    = $input['languageID']    ?? null;
-    $positionID    = $input['positionID']    ?? null;
-    $environmentID = $input['environmentID'] ?? null;
-    $typeID        = $input['typeID']        ?? null;
-    $limit         = isset($input['limit']) ? intval($input['limit']) : 10;
-    $start         = isset($input['start']) ? intval($input['start']) : 0; // <-- NEW
-
-    // Sorting
-    $orderBy = $input['orderBy'] ?? 'Title'; // Title, Team_Count, Player_Count, Active_Player_Count
-    $order   = strtoupper($input['order'] ?? 'ASC'); // ASC or DESC
-
-    // Fields for each section
-    $fields             = $input['fields'] ?? '*';
-    $activityDataFields = $input['activityDataFields'] ?? '*';
-    $levelFields        = $input['levelFields'] ?? '*';
-    $filterFields       = $input['filterFields'] ?? '*';
-
-    // Validate order
-    $allowedOrderBy = [
-        'Title' => 'a.Title',
-        'Team_Count' => 'ad.Team_Count',
-        'Player_Count' => 'ad.Player_Count',
-        'Active_Player_Count' => 'ad.Active_Player_Count'
-    ];
-    $orderBySql = $allowedOrderBy[$orderBy] ?? 'a.Title';
-    $order = ($order === 'DESC') ? 'DESC' : 'ASC';
-
-    // Build WHERE clause (all filters optional)
-    $where = [];
-    $params = [];
-
-    if ($languageID !== null && $languageID !== '') {
-        $where[] = 'ad.LanguageID = :languageID';
-        $params[':languageID'] = $languageID;
-    }
-    if ($positionID !== null && $positionID !== '') {
-        $where[] = 'ad.PositionID = :positionID';
-        $params[':positionID'] = $positionID;
-    }
-    if ($environmentID !== null && $environmentID !== '') {
-        $where[] = 'ad.EnvironmentID = :environmentID';
-        $params[':environmentID'] = $environmentID;
-    }
-    if ($typeID !== null && $typeID !== '') {
-        $where[] = 'ad.TypeID = :typeID';
-        $params[':typeID'] = $typeID;
-    }
-
-    $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
-
-    // Select fields
-    $selectFields = $fields === '*' ? 'a.*' : 'a.' . implode(', a.', array_map('htmlspecialchars', $fields));
-    $selectActivityDataFields = $activityDataFields === '*' ? 'ad.*' : 'ad.' . implode(', ad.', array_map('htmlspecialchars', $activityDataFields));
-
-    // Main query with OFFSET
-    $sql = "SELECT a.ID
-            FROM Activity a
-            LEFT JOIN ActivityData ad ON ad.ActivityID = a.ID
-            $whereSql
-            GROUP BY a.ID
-            ORDER BY $orderBySql $order
-            LIMIT :limit OFFSET :start";
-
-    $stmt = $pdo->prepare($sql);
-    foreach ($params as $k => $v) {
-        $stmt->bindValue($k, $v);
-    }
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->bindValue(':start', $start, PDO::PARAM_INT); // <-- NEW
-    $stmt->execute();
-
-    $activityIDs = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-    $results = [];
-    foreach ($activityIDs as $activityID) {
-        // Prepare input for getActivite
-        $fakeInput = [
-            'fields' => $fields,
-            'activityDataFields' => $activityDataFields,
-            'levelFields' => $levelFields,
-            'filterFields' => $filterFields
-        ];
-        // Use output buffering to capture the output of getActivite
-        ob_start();
-        self::getActivite($activityID);
-        $json = ob_get_clean();
-        $decoded = json_decode($json, true);
-        if ($decoded && isset($decoded['data'])) {
-            $results[] = $decoded['data'];
+        // Set headers only if this function is the main entry point and headers not sent
+        if (php_sapi_name() !== 'cli' && !headers_sent()) {
+            header('Access-Control-Allow-Origin: *');
+            header('Content-Type: application/json; charset=utf-8');
         }
+
+        try {
+            // --- Get parameters from JSON body ---
+            $inputBody = json_decode(file_get_contents('php://input'), true);
+            // Handle potential JSON decoding errors
+            if (json_last_error() !== JSON_ERROR_NONE && !empty(file_get_contents('php://input'))) {
+                 throw new Exception("Corps JSON invalide fourni.", 400);
+            }
+
+            // Extract search query term
+            $queryTerm = $inputBody['query'] ?? null;
+
+            // Extract field selection (expecting an array directly)
+            $activityFields = $inputBody['fields'] ?? '*';
+            if (!is_array($activityFields) && $activityFields !== '*') {
+                 // If 'fields' is provided but not an array or '*', treat as invalid/default to '*'
+                 $activityFields = '*';
+            }
+
+            // Extract pagination from the 'pagination' object
+            $paginationData = $inputBody['pagination'] ?? [];
+            $page = filter_var($paginationData['page'] ?? 1, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            $limit = filter_var($paginationData['limit'] ?? 10, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if ($page === false) $page = 1;
+            if ($limit === false) $limit = 10;
+            $offset = ($page - 1) * $limit;
+
+            // --- Build Query ---
+            $params = [];
+            $joins = []; // Keep joins array in case future filters need it
+            $whereClauses = [];
+
+            // Define fields to select for Activity
+            // Pass the array directly to buildSelectClause
+            $activitySelectClause = self::buildSelectClause($activityFields, 'a');
+
+            // Base query
+            $sqlBase = "FROM Activity a";
+
+            // Query term filter (searching Title and Description)
+            if (!empty($queryTerm)) {
+                // Add OR condition for searching in multiple fields
+                $whereClauses[] = "(a.Title LIKE :query OR a.Description LIKE :query)";
+                $params[':query'] = '%' . $queryTerm . '%';
+            }
+
+            // --- Construct Final SQL ---
+            $sqlSelect = "SELECT DISTINCT {$activitySelectClause} "; // Use DISTINCT if joins are ever added back
+            $sqlCount = "SELECT COUNT(DISTINCT a.ID) "; // Count distinct activities
+
+            $sqlJoins = !empty($joins) ? ' ' . implode(' ', $joins) : '';
+            $sqlWhere = !empty($whereClauses) ? ' WHERE ' . implode(' AND ', $whereClauses) : ''; // Use AND if other filters are added
+            $sqlOrder = " ORDER BY a.ID DESC"; // Example ordering
+            $sqlLimit = " LIMIT :limit OFFSET :offset";
+
+            $sql = $sqlSelect . $sqlBase . $sqlJoins . $sqlWhere . $sqlOrder . $sqlLimit;
+            $sqlTotal = $sqlCount . $sqlBase . $sqlJoins . $sqlWhere;
+
+            // --- Execute Count Query ---
+            $stmtTotal = $pdo->prepare($sqlTotal);
+            // Execute count query with only the filter params (not limit/offset)
+            $stmtTotal->execute($params);
+            $totalRecords = $stmtTotal->fetchColumn();
+            $totalPages = ceil($totalRecords / $limit);
+
+            // --- Execute Search Query ---
+            $stmt = $pdo->prepare($sql);
+            // Bind limit and offset separately as they are integers
+            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+            // Bind other parameters (e.g., :query)
+            foreach ($params as $key => &$val) {
+                // Determine param type (simple check for now)
+                $paramType = is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR;
+                $stmt->bindParam($key, $val, $paramType); // Bind by reference
+            }
+            unset($val); // Break the reference
+            $stmt->execute();
+            $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($activities as &$activity) { // Corrected loop syntax
+                // Assuming Main_Img and Logo_Img are in the result set
+                if (isset($activity['Main_Img']) && !empty($activity['Main_Img']) && !filter_var($activity['Main_Img'], FILTER_VALIDATE_URL)) { // Check if the key exists, not empty, and not already a URL
+                    $activity['Main_Img'] = "http://localhost:9999/" . $activity['Main_Img'];
+                }
+                if (isset($activity['Logo_Img']) && !empty($activity['Logo_Img']) && !filter_var($activity['Logo_Img'], FILTER_VALIDATE_URL)) { // Check if the key exists, not empty, and not already a URL
+                    $activity['Logo_Img'] = "http://localhost:9999/" . $activity['Logo_Img'];
+                }
+            }
+            unset($activity); // Break the reference after the loop
+
+
+            
+
+            // --- Assemble Result ---
+            $response = [
+                'success' => true,
+                'data' => $activities,
+                'pagination' => [
+                    'currentPage' => $page,
+                    'totalPages' => (int)$totalPages,
+                    'totalRecords' => (int)$totalRecords,
+                    'limit' => $limit
+                ]
+            ];
+            if (php_sapi_name() !== 'cli' && !headers_sent()) {
+                 http_response_code(200);
+            }
+
+        } catch (PDOException $e) {
+            // Handle PDO Exceptions
+            if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code(500);
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Base de Données: ' . ($e->errorInfo[2] ?? $e->getMessage()),
+                'error_details' => [ /* ... details ... */ ] // Add details like in getActivite
+            ];
+        } catch (Exception $e) {
+            // Handle other Exceptions
+             $httpCode = ($e->getCode() >= 400 && $e->getCode() < 600) ? $e->getCode() : 500;
+             if (php_sapi_name() !== 'cli' && !headers_sent()) http_response_code($httpCode);
+            $response = [
+                'success' => false,
+                'message' => 'Erreur Serveur: ' . $e->getMessage(),
+                'error_details' => [ /* ... details ... */ ] // Add details like in getActivite
+            ];
+        }
+
+        // --- Final Output Stage ---
+        // (Identical output logic as in getActivite)
+        if (php_sapi_name() !== 'cli' && !self::$outputSent && !headers_sent()) {
+             $jsonOutput = json_encode($response, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
+             if ($jsonOutput === false) {
+                  http_response_code(500);
+                  $jsonError = json_last_error_msg();
+                  echo '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
+             } else {
+                  echo $jsonOutput;
+             }
+             self::$outputSent = true;
+        } elseif (php_sapi_name() !== 'cli' && !self::$outputSent && headers_sent()) {
+             // error_log("searchActivites: Headers already sent, cannot send JSON response.");
+        }
+
+        return $response; // Return for internal use/testing
     }
 
-    echo json_encode(['success' => true, 'data' => $results]);
-}
-
-public static function countAllActivity()
-{
-    global $pdo;
-
-    header('Access-Control-Allow-Origin: *');
-    header('Content-Type: application/json; charset=utf-8');
-
-    $input = json_decode(file_get_contents('php://input'), true);
-
-    // Filters (all optional, can be omitted or partially provided)
-    $languageID    = $input['languageID']    ?? null;
-    $positionID    = $input['positionID']    ?? null;
-    $environmentID = $input['environmentID'] ?? null;
-    $typeID        = $input['typeID']        ?? null;
-
-    // Build WHERE clause (all filters optional)
-    $where = [];
-    $params = [];
-
-    if ($languageID !== null && $languageID !== '') {
-        $where[] = 'ad.LanguageID = :languageID';
-        $params[':languageID'] = $languageID;
-    }
-    if ($positionID !== null && $positionID !== '') {
-        $where[] = 'ad.PositionID = :positionID';
-        $params[':positionID'] = $positionID;
-    }
-    if ($environmentID !== null && $environmentID !== '') {
-        $where[] = 'ad.EnvironmentID = :environmentID';
-        $params[':environmentID'] = $environmentID;
-    }
-    if ($typeID !== null && $typeID !== '') {
-        $where[] = 'ad.TypeID = :typeID';
-        $params[':typeID'] = $typeID;
-    }
-
-    $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
-
-    // Count query
-    $sql = "SELECT COUNT(DISTINCT a.ID) as total
-            FROM Activity a
-            LEFT JOIN ActivityData ad ON ad.ActivityID = a.ID
-            $whereSql";
-
-    $stmt = $pdo->prepare($sql);
-    foreach ($params as $k => $v) {
-        $stmt->bindValue($k, $v);
-    }
-    $stmt->execute();
-
-    $count = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    echo json_encode(['success' => true, 'count' => intval($count['total'])]);
-}
-}
+} // End Class ActivityController
 

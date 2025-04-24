@@ -38,7 +38,7 @@ VALUES
   (
     'Football',
     b'1',
-    'https://api.lunarcovenant.com/ressources/images/profile/imgSportArerien.png',
+    'http://localhost:9999/ressources/images/profile/imgSportArerien.png',
     'Activity for playing football matches.'
   );
 
@@ -60,7 +60,7 @@ INSERT INTO `User`
   (`Img`, `Pseudo`, `Name`, `Email`, `Password`, `Last_Login`, `LanguageID`, `PositionID`)
 VALUES
   (
-    'https://api.lunarcovenant.com/ressources/images/profile/home.png',
+    'http://localhost:9999/ressources/images/profile/home.png',
     'Alice88',
     'Alice Martin',
     'alice@example.com',
@@ -70,7 +70,7 @@ VALUES
     1
   ),
   (
-    'https://api.lunarcovenant.com/ressources/images/profile/home.png',
+    'http://localhost:9999/ressources/images/profile/home.png',
     'Boby',
     'Bob Marley',
     'bob@example.com',
@@ -80,7 +80,7 @@ VALUES
     2
   ),
   (
-    'https://api.lunarcovenant.com/ressources/images/profile/home.png',
+    'http://localhost:9999/ressources/images/profile/home.png',
     'CharlieC',
     'Charlie Cole',
     'charlie@example.com',
@@ -90,7 +90,7 @@ VALUES
     1
   ),
   (
-    'https://api.lunarcovenant.com/ressources/images/profile/home.png',
+    'http://localhost:9999/ressources/images/profile/home.png',
     'DanaD',
     'Dana Davis',
     'dana@example.com',
@@ -100,7 +100,7 @@ VALUES
     2
   ),
   (
-    'https://api.lunarcovenant.com/ressources/images/profile/home.png',
+    'http://localhost:9999/ressources/images/profile/home.png',
     'EveE',
     'Eve Evans',
     'eve@example.com',
@@ -177,9 +177,9 @@ VALUES
 -- Ranks
 INSERT INTO `Rank` (`Name`, `Img`, `Index`)
 VALUES
-  ('Captain',   'https://api.lunarcovenant.com/ressources/images/profile/home.png',   1),
-  ('Lieutenant','https://api.lunarcovenant.com/ressources/images/profile/home.png',2),
-  ('Member',    'https://api.lunarcovenant.com/ressources/images/profile/home.png',   3);
+  ('Captain',   'http://localhost:9999/ressources/images/profile/home.png',   1),
+  ('Lieutenant','http://localhost:9999/ressources/images/profile/home.png',2),
+  ('Member',    'http://localhost:9999/ressources/images/profile/home.png',   3);
 
 -- =========================
 -- 7) Liaison UserTeam (User=2, Team=1, Rank=1)
@@ -332,7 +332,7 @@ VALUES
     1,
     1,
     1,
-    'https://api.lunarcovenant.com/ressources/images/profile/home.png',
+    'http://localhost:9999/ressources/images/profile/home.png',
     1,
     'souvenir.jpg'
   );

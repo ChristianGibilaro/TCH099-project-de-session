@@ -3,7 +3,8 @@ include_once(__DIR__ . '/../../config.php');
 
 class ChatController
 {
-    public static function getMessageOnly($msgID){
+    public static function getMessageOnly($msgID)
+    {
         global $pdo;
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
@@ -11,15 +12,14 @@ class ChatController
             echo json_encode(['success' => false, 'message' => "Paramètre 'msgID' manquant."]);
             return;
         }
+
         try {
             $sql = 'SELECT Message.*
                     FROM Message 
                     WHERE Message.ID = :msgID';
-
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['msgID' => $msgID]);
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-
             echo json_encode($userData);
         } catch (PDOException $e) {
             http_response_code(500);
@@ -27,9 +27,103 @@ class ChatController
         }
     }
 
-    // ... autres méthodes getMessageSelonUserID, getMessageSelonChatID, getChatOnly, getChatSelonMessageID ...
+    public static function getMessageSelonChatID($chatID)
+    {
+        global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+        if (!$chatID) {
+            echo json_encode(['success' => false, 'message' => "Paramètre 'chatID' manquant."]);
+            return;
+        }
 
-    public static function creerChat(){
+        try {
+            $sql = <<<SQL
+SELECT
+    m.ID       AS messageID,
+    m.UserID   AS senderID,
+    m.Content  AS content,
+    m.Date     AS sentAt
+FROM ChatMessage cm
+JOIN Message     m  ON m.ID = cm.MessageID
+WHERE cm.ChatID = :chatID
+ORDER BY m.Date ASC
+SQL;
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['chatID' => $chatID]);
+            $msgs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($msgs);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'DB getMessageSelonChatID', 'details' => $e->getMessage()]);
+        }
+    }
+
+    public static function envoyerMessage()
+    {
+        global $pdo;
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Origin: *');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['success' => false, 'message' => 'Utilisez POST.']);
+            return;
+        }
+
+        $chatID  = $_POST['chatID']  ?? null;
+        $apiKey  = $_POST['apiKey']  ?? null;
+        $content = $_POST['message'] ?? null;
+        if (!$chatID || !$apiKey || !$content) {
+            echo json_encode(['success' => false, 'message' => 'chatID, apiKey et message obligatoires.']);
+            return;
+        }
+
+        // validate apiKey and get userID
+        $stmt = $pdo->prepare('SELECT ID FROM `User` WHERE ApiKey = :k');
+        $stmt->execute(['k' => $apiKey]);
+        $u = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$u) {
+            echo json_encode(['success' => false, 'message' => 'apiKey invalide']);
+            return;
+        }
+        $userID = $u['ID'];
+
+        try {
+            $pdo->beginTransaction();
+
+            // 1) insert into Message
+            $ins1 = $pdo->prepare(
+                'INSERT INTO Message (UserID, Content, Date)
+                 VALUES (:user, :cont, NOW())'
+            );
+            $ins1->execute([
+                'user' => $userID,
+                'cont' => $content
+            ]);
+            $messageID = $pdo->lastInsertId();
+
+            // 2) link into ChatMessage
+            $ins2 = $pdo->prepare(
+                'INSERT INTO ChatMessage (ChatID, MessageID)
+                 VALUES (:chat, :msg)'
+            );
+            $ins2->execute([
+                'chat' => $chatID,
+                'msg'  => $messageID
+            ]);
+
+            $pdo->commit();
+            echo json_encode(['success' => true, 'messageID' => $messageID]);
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Erreur DB: ' . $e->getMessage()]);
+        }
+    }
+
+    public static function creerChat()
+    {
         global $pdo;
         header('Content-Type: application/json');
         header('Access-Control-Allow-Origin: *');
@@ -45,14 +139,14 @@ class ChatController
             echo json_encode(['success' => false, 'message' => 'Clé apiKey manquante.']);
             return;
         }
-        $stmtKey = $pdo->prepare('SELECT ID FROM User WHERE ApiKey = :key');
+        $stmtKey = $pdo->prepare('SELECT ID FROM `User` WHERE ApiKey = :key');
         $stmtKey->execute(['key' => $apiKey]);
         $userRow = $stmtKey->fetch(PDO::FETCH_ASSOC);
         if (!$userRow) {
             echo json_encode(['success' => false, 'message' => 'Clé apiKey invalide.']);
             return;
         }
-        $userID = $userRow['ID'];
+        $creatorID = $userRow['ID'];
 
         if (empty($_POST['chat_name'])) {
             echo json_encode(['success' => false, 'message' => 'Le nom du chat est obligatoire.']);
@@ -65,10 +159,8 @@ class ChatController
             echo json_encode(['success' => false, 'message' => 'Liste des pseudos manquante ou invalide.']);
             return;
         }
-
-        // Traduire chaque pseudo en userID
-        $stmtU = $pdo->prepare('SELECT ID FROM User WHERE Pseudo = :pseudo');
-        $userIDs = [];
+        $stmtU = $pdo->prepare('SELECT ID FROM `User` WHERE Pseudo = :pseudo');
+        $memberIDs = [];
         foreach ($pseudoList as $pseudo) {
             $stmtU->execute(['pseudo' => htmlspecialchars($pseudo)]);
             $row = $stmtU->fetch(PDO::FETCH_ASSOC);
@@ -76,40 +168,45 @@ class ChatController
                 echo json_encode(['success' => false, 'message' => "Pseudo introuvable : $pseudo"]);
                 return;
             }
-            $userIDs[] = $row['ID'];
+            $memberIDs[] = $row['ID'];
         }
 
         try {
-            $stmtChat = $pdo->prepare('INSERT INTO Chat(name) VALUES (:chat_name)');
+            $stmtChat = $pdo->prepare('INSERT INTO `Chat` (`Name`) VALUES (:chat_name)');
             $stmtChat->execute(['chat_name' => $chat_name]);
             $chat_id = $pdo->lastInsertId();
 
             $stmtCC = $pdo->prepare(
-                'INSERT INTO ChatCreator(UserID, TeamID, ChatID) VALUES (:user_id, NULL, :chat_id)'
+                'INSERT INTO `ChatCreator` (UserID, TeamID, ChatID, isCreator)
+                 VALUES (:user_id, NULL, :chat_id, :isCreator)'
             );
-            foreach ($userIDs as $uid) {
-                $stmtCC->execute(['user_id' => $uid, 'chat_id' => $chat_id]);
-            }
-            if (!in_array($userID, $userIDs)) {
-                $stmtCC->execute(['user_id' => $userID, 'chat_id' => $chat_id]);
+            $stmtCC->execute([
+                'user_id'   => $creatorID,
+                'chat_id'   => $chat_id,
+                'isCreator' => 1
+            ]);
+            foreach ($memberIDs as $uid) {
+                if ($uid === $creatorID) continue;
+                $stmtCC->execute([
+                    'user_id'   => $uid,
+                    'chat_id'   => $chat_id,
+                    'isCreator' => 0
+                ]);
             }
 
             echo json_encode([
                 'success' => true,
-                'message' => "Chat créé (#{$chat_id}) avec " . count($userIDs) . " membres.",
+                'message' => "Chat créé (#{$chat_id}) avec " . count($memberIDs) . " membres.",
                 'chatID'  => $chat_id
             ]);
-
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Erreur création chat : ' . $e->getMessage()]);
         }
     }
 
-    /**
-     * Récupère tous les chats d'un utilisateur (apiKey), renvoyant chatID, chatName et avatar du créateur
-     */
-    public static function getChatsForUser() {
+    public static function getChatsForUser()
+    {
         global $pdo;
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
@@ -119,48 +216,78 @@ class ChatController
             echo json_encode(['success' => false, 'message' => 'Clé apiKey manquante.']);
             return;
         }
-        $stmtKey = $pdo->prepare('SELECT ID FROM User WHERE ApiKey = :key');
+        $stmtKey = $pdo->prepare('SELECT ID FROM `User` WHERE ApiKey = :key');
         $stmtKey->execute(['key' => $apiKey]);
-        $u = $stmtKey->fetch(PDO::FETCH_ASSOC);
-        if (!$u) {
+        $user = $stmtKey->fetch(PDO::FETCH_ASSOC);
+        if (!$user) {
             echo json_encode(['success' => false, 'message' => 'Clé apiKey invalide.']);
             return;
         }
-        $userID = $u['ID'];
+        $userID = $user['ID'];
 
         try {
             $sql = "
                 SELECT
-                  c.ID   AS chatID,
-                  c.Name AS chatName,
-                  u2.Img AS creatorImg
-                FROM Chat c
-                JOIN ChatCreator cc_me
-                  ON cc_me.ChatID = c.ID AND cc_me.UserID = :userID
-                JOIN ChatCreator cc_creator
-                  ON cc_creator.ChatID = c.ID
-                 AND cc_creator.UserID = (
-                    SELECT MIN(UserID)
-                    FROM ChatCreator
-                    WHERE ChatID = c.ID
-                  )
-                JOIN User u2
+                    ch.ID      AS chatID,
+                    ch.Name    AS chatName,
+                    COALESCE(
+                        (
+                            SELECT Il.Img
+                              FROM ImgLib AS Il
+                             WHERE Il.UserID = cc_creator.UserID
+                             ORDER BY Il.`Index` DESC
+                             LIMIT 1
+                        ),
+                        u2.Img
+                    ) AS creatorImg
+                FROM Chat AS ch
+                JOIN ChatCreator AS cc_me
+                  ON cc_me.ChatID = ch.ID
+                 AND cc_me.UserID = :userID
+                JOIN ChatCreator AS cc_creator
+                  ON cc_creator.ChatID = ch.ID
+                 AND cc_creator.isCreator = 1
+                JOIN `User` AS u2
                   ON u2.ID = cc_creator.UserID
-                ORDER BY c.Creation_Date DESC
+                ORDER BY ch.Creation_Date DESC
             ";
             $stmt = $pdo->prepare($sql);
             $stmt->execute(['userID' => $userID]);
             $chats = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            echo json_encode($chats);
-
+            echo json_encode($chats, JSON_UNESCAPED_SLASHES);
         } catch (PDOException $e) {
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Erreur DB : ' . $e->getMessage()]);
         }
     }
 
-    public static function createMessage() {
+    public static function getMessageSelonUserID($userID)
+    {
+        global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+        if (!$userID) {
+            echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
+            return;
+        }
+        try {
+            $sql = 'SELECT Message.*
+                    FROM Message
+                    WHERE Message.UserID = :userID
+                    ORDER BY Message.Date DESC';
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['userID' => $userID]);
+            $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            echo json_encode($messages);
+        } catch (PDOException $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Database Message:', 'details' => $e->getMessage()]);
+        }
+    }
+
+
+    public static function createMessage()
+    {
         global $pdo;
         header('Content-Type: application/json');
 
@@ -170,7 +297,7 @@ class ChatController
         }
 
         $input = file_get_contents('php://input');
-        $data = json_decode($input, true);
+        $data  = json_decode($input, true);
         if (!is_array($data)) {
             echo json_encode(['success' => false, 'message' => 'Corps invalide (JSON attendu).']);
             return;
@@ -192,18 +319,9 @@ class ChatController
             $stmt->bindValue(':cont', $content, PDO::PARAM_STR);
             $stmt->bindValue(':file', $file);
             $stmt->execute();
-            echo json_encode(['success'=>true,'message'=>'Message créé','messageID'=>$pdo->lastInsertId()]);
+            echo json_encode(['success' => true, 'message' => 'Message créé', 'messageID' => $pdo->lastInsertId()]);
         } catch (PDOException $e) {
-            echo json_encode(['success'=>false,'message'=>'Erreur DB : '.$e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'Erreur DB : ' . $e->getMessage()]);
         }
     }
 }
-
-/*
- Exemple Postman pour créer un chat :
- POST http://localhost:9999/api/creerChat
- Body (form-data):
-   apiKey    : 008054c333eab54585dc53668a81fffa
-   chat_name : Ma discussion secrète
-   pseudos   : ["Alice","Bob","Charlie"]
-*/

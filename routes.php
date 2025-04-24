@@ -28,11 +28,41 @@ get('/api/admin/hash', function() {
     AdminController::generatePasswordHash($input);
 });
 
+post('/api/filter/create', function() {
+    FilterController::createFilter();
+});
+
+post('/api/filter/all', function() {
+    FilterController::getFiltersByType();
+});
+
 post('/api/filter/$id', function($id) {
     FilterController::getFilterById($id);
 });
 
+
 //----------------------------USER CONTROLLER----------------------------//
+
+//Route qui combiner les donnees des route ci-dessous
+get('/api/user_data_combined/${userID}', function($userID){
+    AndroidController::getUserDataCombinedAndroid($userID);
+});
+
+//Router pour touver nombre de jeux d'un user
+get('/api/total_games/${userID}', function($userID){
+    AndroidController::getUserTotalGameCountForAndroid($userID);
+});
+
+//Route pour trouver le nombre d'amis d'un user
+get('/api/total_friends/${userID}', function($userID){
+    AndroidController::getUserTotalFriendsForAndroid($userID);
+});
+
+//Route pour avoir les donnees d'un user selon
+get('/api/profile_android/${userID}', function($userID){
+    AndroidController::getUserDataForAndroid($userID);
+});
+
 
 // Route for creating a user
 post('/api/user/create', function() {
@@ -57,6 +87,19 @@ post('/api/user/id/${userID}', function($userID) {
     // Pass the userID and the input body to the controller
     UserController::getUserById($userID, $input);
 });
+
+get('/api/chat/userinfoById', function() {
+    UserController::getUserByUserId();
+});
+
+get('/api/getUserDataForAndroid/{apiKey}', function($apiKey){
+    AndroidController::getUserDataForAndroidByApiKey($apiKey);
+});
+// Route pour récupérer la liste des images d'activité
+get('/api/activity/images', function() {
+    AndroidController::getActivityImages();
+});
+
 
 get('/api/user/username/${username}', function($username) {
     // Read the JSON body from the request
@@ -96,6 +139,9 @@ put('/api/user/apikey', function() {
 delete('/api/user/${userID}', function($userID) {
     AdminController::deleteUserByAdmin($userID);
 });
+get('/api/user/info', function() {
+    ChatController::getUserByApiKey();
+});
 
 
 //put('/api/user/ban/${userID}', function($userID){
@@ -132,10 +178,6 @@ post('/api/activity/all', function() {
     ActivityController::getAllActivity();
 });
 
-post('/api/activity/count', function() {
-    ActivityController::countAllActivity();
-});
-
 post('/api/activity/id/$id', function($id) {
     ActivityController::getActivite($id);
 });
@@ -144,8 +186,8 @@ post('/api/activity/title', function() {
     ActivityController::getActiviteByTitle();
 });
 
-post('/api/activity/search/${title}', function($title){
-    ActivityController::searchActivities($title);
+post('/api/activity/search', function(){
+    ActivityController::searchActivites();
 });
 
 
@@ -157,6 +199,9 @@ delete('/api/activity/${id}', function($id){
     //need admin apikey & admin paswsword
 });
    
+post('/api/activity/count', function(){
+    ActivityController::countAllActivity();
+});
 
 //---------------------------- TEAM CONTROLLER ----------------------------//
 
@@ -209,51 +254,49 @@ delete('/api/team/${id}', function ($id) {
 
 //----------------------------MATCH CONTROLLER----------------------------//
 
-post('/api/match/create', function() {
-    //MatchController::creerMatch(); need re-work, I will do it later
+post('/api/match/create', function () {
+    MatchController::createMatch();                // fonctionelle
 });
 
-post('/api/match/invite/${userID}', function($userID) {
-    //need admin apikey
+post('/api/match/invite/${userID}', function ($userID) {
+    MatchController::inviteUser($userID);          // fonctionelle
 });
 
-post('/api/match/join/${userID}', function($userID) {
-    //need admin apikey
+post('/api/match/join/${userID}', function ($userID) {
+    MatchController::joinMatch($userID);           // fonctionelle 
 });
 
-post('/api/match/quit/${userID}', function($userID) {
-    //need admin apikey
+post('/api/match/quit/${userID}', function ($userID) {
+    MatchController::quitMatch($userID);           // fonctionelle
 });
 
-post('/api/match/ban/${userID}', function($userID) {
-    //need admin apikey
+post('/api/match/ban/${userID}', function ($userID) {
+    MatchController::banUser($userID);             // fonctionelle (ne peut pas ban qqun sans etre admin de la team)
 });
 
-post('/api/match/connect', function() {
-     //need admin apikey
+post('/api/match/connect', function () {
+    MatchController::connectMatch();               // fonctionelle
 });
 
-get('/api/match/$id', function($id){
-    //have params in body to say what to get
+get('/api/match/$id', function ($id) {
+    MatchController::getMatch($id);                // fonctionelle
 });
 
-get('/api/match/search', function(){
-    //search parameter in body
-    //have params in body to say what to get
+post('/api/match/search', function () {
+    MatchController::searchMatches();              // fonctionelle, passe de get a post (mettre les infos a filtrer dans le post)
 });
 
-put('/api/match/$id', function($id){
-    //need admin apikey
+put('/api/match/$id', function ($id) {
+    MatchController::updateMatch($id);             // fonctionelle
 });
 
-delete('/api/match/${id}', function($id){
-    //need admin apikey
+get('/api/team/$id/users', function($id) {
+    TeamController::getUsersByTeam($id);
 });
 
-
-
-
-
+delete('/api/match/${id}', function ($id) {
+    MatchController::deleteMatch($id);             // fonctionelle
+}); 
 
 
 
@@ -277,9 +320,10 @@ get('/api/inconnu/${userID}', function($userID){
     ChatController::getMessageSelonChatID($chatID);
  });
  
- get('/api/singleChatOnly/${chatID}', function($chatID){
-    ChatController::getChatOnly($chatID);
- });
+ get('/api/singleMessageSelonChatIDOnly/{chatID}', function($chatID) {
+    ChatController::getMessageSelonChatID($chatID);
+});
+
 
  get('/api/singleChateSelonMessageIDOnly/${msgID}', function($msgID){
     ChatController::getChatSelonMessageID($msgID);
@@ -289,9 +333,10 @@ get('/api/inconnu/${userID}', function($userID){
     ChatController::creerChat();
  });
 
- post('/api/envoyerMessage', function(){
-    ChatController::createMessage();
- });
+ post('/api/envoyerMessage', function() {
+    ChatController::envoyerMessage();
+});
+
  // Liste des chats d’un utilisateur (avec nom et image du créateur)
 post('/api/user/chats', function() {
     ChatController::getChatsForUser();
