@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -37,7 +38,7 @@ public class Register extends AppCompatActivity {
     private EditText etPseudonyme,
             etNom,
             etPrenom,
-            etDescription,      // Optional description
+            etDescription,
             etEmail,
             etPassword,
             etConfirmPassword;
@@ -59,7 +60,7 @@ public class Register extends AppCompatActivity {
         etPseudonyme      = findViewById(R.id.etPseudonyme);
         etNom             = findViewById(R.id.etNom);
         etPrenom          = findViewById(R.id.etPrenom);
-        etDescription     = findViewById(R.id.etDescription);   // Bind description field
+        etDescription     = findViewById(R.id.etDescription);
         etEmail           = findViewById(R.id.etEmail);
         etPassword        = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
@@ -103,7 +104,7 @@ public class Register extends AppCompatActivity {
         String pseudonym      = etPseudonyme.getText().toString().trim();
         String nomPart        = etNom.getText().toString().trim();
         String prenomPart     = etPrenom.getText().toString().trim();
-        String description    = etDescription.getText().toString().trim(); // Read optional description
+        String description    = etDescription.getText().toString().trim();
         String email          = etEmail.getText().toString().trim();
         String password       = etPassword.getText().toString();
         String confirmPassword= etConfirmPassword.getText().toString();
@@ -119,6 +120,23 @@ public class Register extends AppCompatActivity {
             Toast.makeText(this,
                     "Veuillez remplir tous les champs obligatoires.",
                     Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate email format
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            Toast.makeText(this,
+                    "Veuillez entrer un email valide.",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Validate password strength
+        String passwordPattern = "^(?=.*[A-Z])(?=.*[@#$%^&+=!]).{8,}$";
+        if (!password.matches(passwordPattern)) {
+            Toast.makeText(this,
+                    "Le mot de passe doit contenir au moins 8 caractères, une majuscule et un caractère spécial.",
+                    Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -148,7 +166,7 @@ public class Register extends AppCompatActivity {
                 email,
                 password,
                 confirmPassword,
-                description,   // Pass it to AsyncTask
+                description,
                 age,
                 agreement,
                 LANGUAGE_ID
@@ -169,7 +187,7 @@ public class Register extends AppCompatActivity {
             String email       = params[2];
             String password    = params[3];
             String password2   = params[4];
-            String description = params[5]; // Received description
+            String description = params[5];
             String age         = params[6];
             String agreement   = params[7];
             String languageId  = params[8];
@@ -199,12 +217,12 @@ public class Register extends AppCompatActivity {
                 writeFormField(dos, "email",       email);
                 writeFormField(dos, "password",    password);
                 writeFormField(dos, "password2",   password2);
-                writeFormField(dos, "description", description); // Include description
+                writeFormField(dos, "description", description);
                 writeFormField(dos, "language_id", languageId);
                 writeFormField(dos, "age",         age);
                 writeFormField(dos, "agreement",   agreement);
 
-                // Image upload (optional)
+                // Image upload
                 if (imageUri != null) {
                     InputStream iStream = getContentResolver().openInputStream(imageUri);
                     byte[] fileData = getBytes(iStream);
