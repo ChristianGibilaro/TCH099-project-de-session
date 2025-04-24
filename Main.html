@@ -61,7 +61,7 @@
   let _searchToken = 0;
   const searchContainer = `<div class="search-bar-details-wrapper">
       <div class="search-container">
-          <input type="text" class="search-input" placeholder="Search...">
+          <input type="text" class="search-input" placeholder="Search Activities...">
           <div id="search-results-dropdown" class="search-results-dropdown"></div>
       </div>
       <div id="search-details-box" class="search-details-box"></div>
@@ -78,24 +78,36 @@
   const resultsDropdown = searchPageDiv.querySelector('#search-results-dropdown');
   const detailsBox = searchPageDiv.querySelector('#search-details-box');
 
-  // Helper to render user details
+  // Helper to render activity details
   async function showActivityDetails(activityId) {
     detailsBox.innerHTML = '<div class="loading">Loading activity...</div>';
     try {
+      // Fetch details for a specific activity by ID
       const res = await fetch(`http://localhost:9999/api/activity/id/${activityId}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fields: [
-            "Title", "Main_Img", "Description", "Logo_Img", "Point_Value",
-            "Word_4_Player", "Word_4_Teammate", "Word_4_Playing",
-            "Main_Color", "Second_Color", "Friend_Main_Color", "Friend_Second_Color"
-          ],
-          activityDataFields: [
-            "Team_Count", "QuickTeam_Count", "Player_Count", "Active_Player_Count"
-          ],
-          levelFields: ["Name"],
-          filterFields: ["PositionFilterID"]
+          fields: {
+            activity: [
+              "ID",
+              "Title",
+              "Description",
+              "Main_Img",
+              "Logo_Img",
+              "Point_Value",
+              "Word_4_Player",
+              "Word_4_Playing", // Added Word_4_Playing
+              "Main_Color",
+              "Second_Color"
+            ],
+            activityData: [
+              "ActivityID",
+              "Player_Count",
+              "Active_Player_Count",
+              "Rating",
+              "Team_Count" // Added Team_Count
+            ]
+          }
         })
       });
       const result = await res.json();
@@ -113,8 +125,8 @@
               <div class="desc">${a.Description || ""}</div>
             </div>
             <div class="activity-stats-section">
-              <div class="activity-stat-row"><strong>${d.Player_Count || 0}</strong> ${a.Word_4_Player || ""}</div>
-              <div class="activity-stat-row"><strong>${d.Active_Player_Count || 0}</strong> ${a.Word_4_Playing || ""}</div>
+              <div class="activity-stat-row"><strong>${d.Player_Count || 0}</strong> ${a.Word_4_Player || "Players"}</div>
+              <div class="activity-stat-row"><strong>${d.Active_Player_Count || 0}</strong> ${a.Word_4_Playing || "Playing"}</div>
               <div class="activity-stat-row"><strong>${d.Team_Count || 0}</strong> Teams</div>
             </div>
           </div>
@@ -122,47 +134,13 @@
       } else {
         detailsBox.innerHTML = '<div class="error">Activity not found.</div>';
       }
-    } catch {
+    } catch (error) {
+      console.error(`Error fetching activity details for ID ${activityId}:`, error);
       detailsBox.innerHTML = '<div class="error">Error loading activity.</div>';
     }
   }
 
-  // Helper to render user details
-  async function showUserDetails(userId) {
-    detailsBox.innerHTML = '<div class="loading">Loading user...</div>';
-    try {
-      const res = await fetch(`http://localhost:9999/api/user/id/${userId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fields: ["Pseudo", "Email", "Img", "ID", "CreatedAt", "LastLogin"]
-        })
-      });
-      const result = await res.json();
-      console.log(`User details response for ID ${userId}:`, result);
-
-      if (result.success && result.data) {
-        const u = result.data;
-        console.log('User data found:', u);
-        detailsBox.innerHTML = `
-          <div class="details-content">
-            <img src="${u.Img}" alt="Profile" class="profile-img">
-            <div class="title">${u.Pseudo}</div>
-            <div class="desc">${u.Email || ""}</div>
-            <div class="info-row"><strong>User ID:</strong> ${u.ID}</div>
-            <div class="info-row"><strong>Created:</strong> ${u.CreatedAt ? new Date(u.CreatedAt).toLocaleDateString() : "N/A"}</div>
-            <div class="info-row"><strong>Last Login:</strong> ${u.LastLogin ? new Date(u.LastLogin).toLocaleString() : "N/A"}</div>
-          </div>
-        `;
-      } else {
-        console.warn(`Condition failed for user details ID ${userId}. Success: ${result.success}, Data: ${result.data}`);
-        detailsBox.innerHTML = '<div class="error">User not found.</div>';
-      }
-    } catch (error) {
-      console.error(`Error fetching user details for ID ${userId}:`, error);
-      detailsBox.innerHTML = '<div class="error">Error loading user.</div>';
-    }
-  }
+  // REMOVED showUserDetails function
 
   // Keyboard navigation state
   let searchLinks = [];
@@ -175,11 +153,9 @@
       searchLinks[newIndex].classList.add('selected');
       // Scroll into view if needed
       searchLinks[newIndex].scrollIntoView({ block: 'nearest' });
-      // Show details for the selected item
-      const type = searchLinks[newIndex].getAttribute('data-type');
+      // Show details for the selected item (only activities now)
       const id = searchLinks[newIndex].getAttribute('data-id');
-      if (type === 'user') showUserDetails(id);
-      if (type === 'activity') showActivityDetails(id);
+      showActivityDetails(id);
     }
     selectedIndex = newIndex;
   }
@@ -193,91 +169,84 @@
     searchLinks = [];
 
     if (query) {
-      // Fetch players
-      const playerPromise = fetch(`http://localhost:9999/api/user/search/${encodeURIComponent(query)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fields: ["Pseudo", "Email", "Img", "ID"],
-          limit: 10
-        })
-      }).then(res => res.json());
+      try {
+        // Fetch activities
+        const activityResponse = await fetch(`http://localhost:9999/api/activity/search`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            query: query,
+            fields: ["ID", "Title", "Main_Img", "Description"],
+            pagination: {
+              page: 1,
+              limit: 10 // Increased limit for activities
+            }
+          })
+        });
+        const activityResult = await activityResponse.json();
 
-      // Fetch activities
-      const activityPromise = fetch(`http://localhost:9999/api/activity/search/${encodeURIComponent(query)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          limit: 5,
-          fields: ["ID", "Title"],
-          levelFields: ["Name"],
-          filterFields: ["TypeFilterName"]
-        })
-      }).then(res => res.json());
+        if (currentToken !== _searchToken) return; // Check if this is the latest search
+        console.log("Activity Results:", activityResult);
 
-      const [playerResult, activityResult] = await Promise.all([playerPromise, activityPromise]);
-      if (currentToken !== _searchToken) return;
-      console.log(playerResult, activityResult);
-      // Players
-      let players = [];
-      if (playerResult.success && Array.isArray(playerResult.data)) {
-        players = playerResult.data.slice(0, 3).map(
-          user => `<a href="Profile.html?${user.ID}" data-type="user" data-id="${user.ID}">${user.Pseudo}</a>`
-        );
-      }
-
-      // Activities
-      let activities = [];
-      if (activityResult.success && Array.isArray(activityResult.data)) {
-        activities = activityResult.data.slice(0, 3).map(
-          item => `<a href="Activity.html?${item.activity.ID}" data-type="activity" data-id="${item.activity.ID}">${item.activity.Title}</a>`
-        );
-      }
-
-      let hasResults = false;
-      const addCategory = (categoryName, categoryResults) => {
-        if (categoryResults && categoryResults.length > 0) {
-          hasResults = true;
-          const categoryDiv = document.createElement('div');
-          categoryDiv.classList.add('dropdown-category');
-          const categoryTitle = document.createElement('h3');
-          categoryTitle.textContent = categoryName;
-          categoryDiv.appendChild(categoryTitle);
-          const ul = document.createElement('ul');
-          categoryResults.forEach(resultHTML => {
-            const li = document.createElement('li');
-            li.innerHTML = resultHTML;
-            ul.appendChild(li);
-          });
-          categoryDiv.appendChild(ul);
-          resultsDropdown.appendChild(categoryDiv);
+        // Activities
+        let activities = [];
+        if (activityResult.success && Array.isArray(activityResult.data)) {
+          activities = activityResult.data.map(
+            item => `<a href="Activity.html?${item.ID}" data-type="activity" data-id="${item.ID}">${item.Title}</a>`
+          );
+          console.log("Pagination Info:", activityResult.pagination);
+        } else {
+          console.warn("Activity search failed or returned no data:", activityResult.message || "No message");
         }
-      };
 
-      addCategory('Activities', activities);
-      addCategory('Teams', []);
-      addCategory('Players', players);
+        let hasResults = false;
+        const addCategory = (categoryName, categoryResults) => {
+          if (categoryResults && categoryResults.length > 0) {
+            hasResults = true;
+            const categoryDiv = document.createElement('div');
+            categoryDiv.classList.add('dropdown-category');
+            const categoryTitle = document.createElement('h3');
+            categoryTitle.textContent = categoryName;
+            categoryDiv.appendChild(categoryTitle);
+            const ul = document.createElement('ul');
+            categoryResults.forEach(resultHTML => {
+              const li = document.createElement('li');
+              li.innerHTML = resultHTML;
+              ul.appendChild(li);
+            });
+            categoryDiv.appendChild(ul);
+            resultsDropdown.appendChild(categoryDiv);
+          }
+        };
 
-      // Add hover listeners for details
-      resultsDropdown.querySelectorAll('a[data-type="user"]').forEach(a => {
-        a.addEventListener('mouseenter', () => showUserDetails(a.getAttribute('data-id')));
-      });
-      resultsDropdown.querySelectorAll('a[data-type="activity"]').forEach(a => {
-        a.addEventListener('mouseenter', () => showActivityDetails(a.getAttribute('data-id')));
-      });
+        addCategory('Activities', activities);
+        // REMOVED addCategory for Teams and Players
 
-      // Gather all links for keyboard navigation
-      searchLinks = Array.from(resultsDropdown.querySelectorAll('a[data-type]'));
-      selectedIndex = -1;
+        // Add hover listeners for details (only activities)
+        resultsDropdown.querySelectorAll('a[data-type="activity"]').forEach(a => {
+          a.addEventListener('mouseenter', () => showActivityDetails(a.getAttribute('data-id')));
+        });
 
-      if (hasResults) {
-        resultsDropdown.style.display = 'block';
-      } else {
-        const noResults = document.createElement('div');
-        noResults.classList.add('dropdown-no-results');
-        noResults.textContent = `No results found for "${query}".`;
-        resultsDropdown.appendChild(noResults);
-        resultsDropdown.style.display = 'block';
+        // Gather all links for keyboard navigation
+        searchLinks = Array.from(resultsDropdown.querySelectorAll('a[data-type="activity"]')); // Only activity links
+        selectedIndex = -1;
+
+        if (hasResults) {
+          resultsDropdown.style.display = 'block';
+        } else {
+          const noResults = document.createElement('div');
+          noResults.classList.add('dropdown-no-results');
+          noResults.textContent = `No activities found for "${query}".`;
+          resultsDropdown.appendChild(noResults);
+          resultsDropdown.style.display = 'block';
+        }
+      } catch (error) {
+        console.error("Error during search:", error);
+        if (currentToken === _searchToken) { // Only show error if it's for the current query
+          resultsDropdown.innerHTML = '<div class="dropdown-no-results error">Error performing search.</div>';
+          resultsDropdown.style.display = 'block';
+          detailsBox.innerHTML = '';
+        }
       }
     } else {
       resultsDropdown.style.display = 'none';
@@ -302,36 +271,47 @@
     } else if (e.key === 'Enter') {
       if (selectedIndex >= 0 && selectedIndex < searchLinks.length) {
         e.preventDefault();
-        searchLinks[selectedIndex].click();
+        searchLinks[selectedIndex].click(); // Navigate to the selected activity page
       }
     }
   });
 
   // Mouse click/hover also updates selection
   resultsDropdown.addEventListener('mousemove', function (e) {
-    if (e.target.tagName === 'A' && e.target.hasAttribute('data-type')) {
+    // Only handle activity links
+    if (e.target.tagName === 'A' && e.target.getAttribute('data-type') === 'activity') {
       const idx = searchLinks.indexOf(e.target);
-      if (idx !== -1) updateSelection(idx);
+      if (idx !== -1 && idx !== selectedIndex) { // Update only if different
+         updateSelection(idx);
+      }
     }
   });
 
   // Also update details on mouseover/focus for accessibility
   resultsDropdown.addEventListener('mouseover', function (e) {
-    if (e.target.tagName === 'A' && e.target.hasAttribute('data-type')) {
+     // Only handle activity links
+    if (e.target.tagName === 'A' && e.target.getAttribute('data-type') === 'activity') {
       const idx = searchLinks.indexOf(e.target);
-      if (idx !== -1) updateSelection(idx);
+       if (idx !== -1 && idx !== selectedIndex) {
+         updateSelection(idx);
+       }
     }
   });
   resultsDropdown.addEventListener('focusin', function (e) {
-    if (e.target.tagName === 'A' && e.target.hasAttribute('data-type')) {
+     // Only handle activity links
+    if (e.target.tagName === 'A' && e.target.getAttribute('data-type') === 'activity') {
       const idx = searchLinks.indexOf(e.target);
-      if (idx !== -1) updateSelection(idx);
+       if (idx !== -1 && idx !== selectedIndex) {
+         updateSelection(idx);
+       }
     }
   });
 
+
   // Close dropdown when clicking outside
   document.addEventListener('click', (event) => {
-    if (!searchContainer.includes && !searchContainer.contains(event.target)) {
+    const searchWrapper = searchPageDiv.querySelector('.search-bar-details-wrapper');
+    if (searchWrapper && !searchWrapper.contains(event.target)) {
       resultsDropdown.style.display = 'none';
       detailsBox.innerHTML = '';
       selectedIndex = -1;
@@ -351,23 +331,96 @@
     min-height: 300px;
     gap: 32px;
   }
+  /* Added styles for the search container itself */
+  .search-container {
+    position: relative; /* Needed for absolute positioning of dropdown */
+    flex: 1 1 400px; /* Allow search input/dropdown to take space */
+    min-width: 250px;
+  }
+  .search-input {
+    width: 100%;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+    border: 2px solid var(--accent2);
+    background-color: var(--bg-dark);
+    color: var(--text);
+    border-radius: 8px;
+    box-sizing: border-box; /* Include padding and border in width */
+  }
+  .search-results-dropdown {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 100%; /* Position below the input */
+    left: 0;
+    right: 0;
+    background: var(--bg-dark2);
+    border: 1px solid var(--accent);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000; /* Ensure it's above other content */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+  }
+  .dropdown-category h3 {
+    padding: 8px 12px;
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--accent);
+    background-color: var(--bg-dark);
+    border-bottom: 1px solid var(--accent2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .search-results-dropdown ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .search-results-dropdown li {
+    margin: 0;
+  }
+  .search-results-dropdown a {
+    display: block;
+    padding: 10px 15px;
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+  }
+  .search-results-dropdown a:hover,
+  .search-results-dropdown a:focus {
+    background-color: var(--accent2);
+    color: #fff;
+    outline: none;
+  }
+  .dropdown-no-results {
+    padding: 15px;
+    color: var(--accent2);
+    text-align: center;
+  }
+  .dropdown-no-results.error {
+    color: #ff6b6b; /* Error color */
+  }
+
   .search-details-box {
     flex: 1 1 480px;
     min-width: 340px;
     max-width: 520px;
     background: var(--bg-dark2);
     color: var(--text);
-  
-    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.25);
-    margin-left: 32px;
 
-    height: 100%;
+    box-shadow: 0 6px 32px 0 rgba(0,0,0,0.25);
+    /* Removed margin-left */
+
+    height: auto; /* Allow height to adjust */
     min-height: 400px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: box-shadow 0.2s;
+    transition: box-shadow 0.2s, border-color 0.2s;
     border: 2px solid var(--accent2);
+    border-radius: 8px; /* Added border-radius */
+    overflow: hidden; /* Hide overflow from images */
   }
   .search-details-box:hover {
     box-shadow: 0 12px 48px 0 rgba(0,0,0,0.35);
@@ -377,39 +430,10 @@
     width: 100%;
     text-align: center;
     font-size: 1.1rem;
-    padding-top: 8px;
+    padding-top: 0; /* Removed top padding */
   }
-  .details-content .main-img {
-    width: 100%;
-    max-width: 420px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 16px 0 rgba(0,0,0,0.18);
-    object-fit: cover;
-  }
-  .details-content .logo-img {
-    width: 90px;
-    height: 90px;
-    object-fit: contain;
-    border-radius: 50%;
-    background: #222;
-    margin: -50px auto 8px auto;
-    box-shadow: 0 2px 8px 0 rgba(0,0,0,0.18);
-    border: 3px solid var(--accent);
-    position: relative;
-    z-index: 2;
-    display: block;
-  }
-  .details-content .profile-img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 50%;
-    margin: 0 auto 16px auto;
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.18);
-    border: 3px solid var(--accent2);
-    background: #222;
-  }
+  /* REMOVED .details-content .main-img and .logo-img (now specific to activity) */
+  /* REMOVED .details-content .profile-img */
   .details-content .title {
     font-size: 1.5rem;
     font-weight: bold;
@@ -419,80 +443,103 @@
   .details-content .desc {
     margin-bottom: 18px;
     color: var(--text);
+    padding: 0 15px; /* Add padding for description */
   }
-  .details-content .info-row {
-    margin-bottom: 8px;
-    font-size: 1.05rem;
-  }
+  /* REMOVED .details-content .info-row */
   .loading, .error {
     color: var(--accent2);
-    margin-top: 40px;
+    margin: auto; /* Center vertically and horizontally */
+    padding: 20px;
     text-align: center;
     font-size: 1.2rem;
   }
+  .error {
+    color: #ff6b6b;
+  }
 
   .details-content.activity-details {
-  padding: 0;
-  background: none;
-  border: none;
-  box-shadow: none;
-}
-.activity-image-wrapper {
-  position: relative;
-  width: 100%;
-  margin-bottom: 0;
-}
-.main-img-activity {
-  width: 100%;
-  max-width: 100%;
-  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.18);
-  object-fit: cover;
-  display: block;
-}
-.logo-img-activity {
-  position: absolute;
-  top: 10%;
-  left: 10%;
-  width: 80%;
-  height: 80%;
-  object-fit: contain;
-  background: transparent;
-  z-index: 2;
-  pointer-events: none;
-}
-.activity-info-section {
-  border-top: 2px solid var(--accent2);
-  border-bottom: 2px solid var(--accent2);
-  padding: 18px 0 18px 0;
-  margin-bottom: 0;
-  margin-top: 0;
-}
-.activity-info-section .title {
-  font-size: 1.6rem;
-  font-weight: bold;
-  color: var(--accent);
-  margin-bottom: 8px;
-}
-.activity-info-section .desc {
-  color: var(--text);
-  margin-bottom: 0;
-}
-.activity-stats-section {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 18px 0 0 0;
-}
-.activity-stat-row {
-  font-size: 1.2rem;
-  color: var(--bold);
-  letter-spacing: 0.5px;
-}
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    width: 100%;
+    display: flex; /* Use flex for layout */
+    flex-direction: column;
+  }
+  .activity-image-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 0;
+    line-height: 0; /* Prevent extra space below image */
+  }
+  .main-img-activity {
+    width: 100%;
+    max-height: 250px; /* Limit height */
+    box-shadow: none; /* Remove shadow */
+    object-fit: cover;
+    display: block;
+  }
+  .logo-img-activity {
+    position: absolute;
+    bottom: -40px; /* Position overlapping the bottom */
+    left: 50%;
+    transform: translateX(-50%); /* Center horizontally */
+    width: 80px; /* Fixed size */
+    height: 80px;
+    object-fit: contain;
+    border-radius: 50%;
+    background: var(--bg-dark); /* Background for contrast */
+    z-index: 2;
+    border: 4px solid var(--accent);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .activity-info-section {
+    border: none; /* Remove borders */
+    padding: 60px 15px 15px 15px; /* Adjust padding: top(space for logo), sides, bottom */
+    margin-bottom: 0;
+    margin-top: 0;
+    text-align: center;
+  }
+  .activity-info-section .title {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .activity-info-section .desc {
+    color: var(--text);
+    margin-bottom: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+  .activity-stats-section {
+    display: flex;
+    flex-direction: row; /* Arrange stats horizontally */
+    justify-content: space-around; /* Distribute space */
+    gap: 10px;
+    padding: 15px; /* Add padding */
+    border-top: 1px solid var(--accent2); /* Separator line */
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: auto; /* Push stats to the bottom */
+  }
+  .activity-stat-row {
+    font-size: 1rem; /* Slightly smaller */
+    color: var(--text);
+    letter-spacing: 0.5px;
+    text-align: center;
+  }
+  .activity-stat-row strong {
+    display: block; /* Put number on its own line */
+    font-size: 1.3rem;
+    color: var(--bold);
+    margin-bottom: 2px;
+  }
 /* Highlight selected search result */
 .search-results-dropdown a.selected {
   background: var(--accent2);
   color: #fff;
-  border-radius: 6px;
+  border-radius: 0; /* Remove radius for selected item */
   outline: none;
 }
   </style>

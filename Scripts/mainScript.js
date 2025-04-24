@@ -219,64 +219,115 @@ class mainScript extends globalVars {
     async creerActivity(event) {
         event.preventDefault();
         const form = event.target.form; // Get the form element
-        const formData = new FormData(form); // Create FormData from the form
-    
+
+        // --- Temporarily remove name from inactive switchable inputs before creating FormData ---
+        const switchableGroups = form.querySelectorAll('.switchable-input-group');
+        const originalData = new Map(); // Store original name and disabled state
+
+        switchableGroups.forEach(group => {
+            const inputs = group.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                const switchableContent = input.closest('.switchable-content');
+                // Check if the parent switchable content container is hidden
+                const isHidden = switchableContent && window.getComputedStyle(switchableContent).display === 'none';
+
+                if (isHidden) { // If the container is hidden, this input is inactive
+                    if (input.name) {
+                        // Store original data and remove name
+                        originalData.set(input, { name: input.name, disabled: input.disabled });
+                        input.removeAttribute('name');
+                        // Optionally, ensure it's disabled too, though visibility check is primary here
+                        // input.disabled = true;
+                        // console.log(`Temporarily removed name from hidden input: ${originalData.get(input).name}`);
+                    }
+                } else if (switchableContent) {
+                    // Ensure the active input is not disabled (it shouldn't be, but just in case)
+                    // and store its state if we need to restore it later (though unlikely needed here)
+                    // originalData.set(input, { name: input.name, disabled: input.disabled });
+                    // input.disabled = false;
+                }
+            });
+        });
+
+        // --- Create FormData AFTER potentially modifying names ---
+        const formData = new FormData(form);
+
+        // --- Restore original names and disabled states to inactive inputs ---
+        originalData.forEach((data, input) => {
+            if (data.name) {
+                input.setAttribute('name', data.name); // Restore the original name
+            } else {
+                input.removeAttribute('name'); // Ensure no name if it didn't have one
+            }
+            input.disabled = data.disabled; // Restore original disabled state
+            // console.log(`Restored name/disabled for input: ${data.name}`);
+        });
+        originalData.clear(); // Clear the map
+
         // --- Helper function to get selected checkbox values from custom dropdown ---
         const getSelectedValues = (containerId) => {
             const selectedValues = [];
-            // Find the container div by its label's 'for' attribute or a specific ID if available
-            const container = document.querySelector(`label[for="${containerId}"]`)?.closest('.input-group');
-            if (container) {
+            const container = document.getElementById(containerId);
+            if (container && container.classList.contains('bloc-filtre')) {
                 const checkboxes = container.querySelectorAll('.choiced input[type="checkbox"]:checked');
                 checkboxes.forEach(checkbox => {
-                    // Get the text content of the parent li, removing leading/trailing whitespace
                     const labelText = checkbox.closest('li.choice')?.textContent.trim();
-                    if (labelText) {
+                    if (labelText && labelText !== "--Clear--") {
                         selectedValues.push(labelText);
                     }
                 });
+            } else {
+                console.warn(`Checklist container with ID "${containerId}" not found or is not a bloc-filtre.`);
             }
             return selectedValues;
         };
-    
+
         // --- Get selected values from each custom dropdown ---
         const selectedPositions = getSelectedValues('positionID');
         const selectedLanguages = getSelectedValues('languageID');
         const selectedTypes = getSelectedValues('TypeID');
-        const selectedEnvironments = getSelectedValues('EnvironementID'); // Corrected typo 'EnvironementID'
-    
-        // --- Append selected values as arrays (or multiple times for FormData) ---
-        // FormData handles multiple appends with the same key, which is standard for multi-select/checkboxes
-        selectedPositions.forEach(value => formData.append('positionIDs[]', value)); // Use '[]' if backend expects an array
+        const selectedEnvironments = getSelectedValues('EnvironementID');
+
+        // --- Remove original text input values (now replaced by checklists) ---
+        formData.delete('positionID');
+        formData.delete('languageID');
+        formData.delete('TypeID');
+        formData.delete('EnvironementID');
+
+        // --- Append selected checklist values ---
+        selectedPositions.forEach(value => formData.append('positionIDs[]', value));
         selectedLanguages.forEach(value => formData.append('languageIDs[]', value));
         selectedTypes.forEach(value => formData.append('TypeIDs[]', value));
-        selectedEnvironments.forEach(value => formData.append('EnvironmentIDs[]', value)); // Corrected typo
-    
+        selectedEnvironments.forEach(value => formData.append('EnvironmentIDs[]', value));
+
         // Append API Key
         formData.append('apiKey', mainScript.getCookie('lunarCovenantApikey'));
-    
-        console.log(formData);
-        for (let [key, value] of formData.entries()) {
-            console.log(`${key}: ${value}`);
-        }
-    
+
+        // Log the final FormData content before sending
+ 
+
         var apiUrl = "http://localhost:9999";
-    
+        console.log(formData);
         try {
             const response = await fetch(`${apiUrl}/api/activity/create`, {
                 method: 'POST',
-                body: formData, // Send the updated FormData
+                body: formData,
             });
-    
+
             // Traitement de la reponse
             if (response.ok) {
-                const jsonData = await response.json(); // Parse the JSON and store it
-                alert('Activity Created Successfully:\n' + JSON.stringify(jsonData, null, 2)); // Pretty print JSON
-                // Optionally redirect or clear form
-                // window.location.href = 'ActivitiesList.html';
-                // form.reset(); // Reset form fields
+                //const jsonData = await response.json();
+                const raw = await response.text();
+                //alert('Activity Created Successfully:\n' + JSON.stringify(jsonData, null, 2));
+                console.log('Activity Created Successfully:', raw);
+                // form.reset(); // Consider resetting the form
             } else {
-                const errorData = await response.json().catch(() => ({ message: 'Failed to parse error response' }));
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch (e) {
+                    errorData = { message: response.statusText };
+                }
                 console.error('FRONT-END: Echec creation nouvelle activité.', response.status, errorData);
                 alert(`Failed to create activity: ${errorData.message || response.statusText}`);
             }

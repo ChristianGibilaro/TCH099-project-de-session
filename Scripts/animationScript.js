@@ -332,3 +332,167 @@ function initializeSwitchableInputs() {
 // const formContainer = document.getElementById('form-container');
 // formContainer.innerHTML = CreateDynamicForm(...); // Generate the form
 // initializeSwitchableInputs(); // Initialize *after* adding to DOM
+
+/**
+ * Initializes universal event handlers for dynamic form elements like lists,
+ * switchable inputs, and hidden input groups using event delegation.
+ *
+ * @param {ElementCreator} elementCreatorInstance - An instance of the ElementCreator class,
+ *        required for generating HTML when adding new list items.
+ */
+function initializeDynamicFormHandlers(elementCreatorInstance) {
+    if (!elementCreatorInstance || typeof elementCreatorInstance.generateInputHtml !== 'function') {
+        console.error("ElementCreator instance with 'generateInputHtml' method is required for initializeDynamicFormHandlers.");
+        return;
+    }
+
+    console.log("Initializing dynamic form handlers...");
+
+    document.body.addEventListener('click', function(event) {
+
+        // --- Handle Add List Item ---
+        if (event.target.matches('.add-list-item-button')) {
+            console.log("Add list item button clicked");
+            const addButton = event.target;
+            const containerId = addButton.dataset.containerId;
+            const container = document.getElementById(containerId);
+
+            if (!container) {
+                console.error(`List container with ID "${containerId}" not found.`);
+                return;
+            }
+
+            try {
+                const templateJson = container.dataset.inputTemplate.replace(/&apos;/g, "'");
+                const inputTemplate = JSON.parse(templateJson);
+                const nextIndex = parseInt(container.dataset.nextIndex, 10);
+                const removeButtonText = container.dataset.removeButtonText || 'Remove';
+
+                let newItemInputsHtml = '';
+                inputTemplate.forEach(inputDef => {
+                    // Use the passed ElementCreator instance
+                    newItemInputsHtml += elementCreatorInstance.generateInputHtml(inputDef, nextIndex, 'list-item-input', '', false);
+                });
+
+                const newItemDiv = document.createElement('div');
+                newItemDiv.classList.add('list-item');
+                newItemDiv.dataset.index = nextIndex;
+                newItemDiv.innerHTML = `
+                    ${newItemInputsHtml}
+                    <button type="button" class="remove-list-item-button" data-remove-text="${removeButtonText}">${removeButtonText}</button>
+                `;
+
+                container.appendChild(newItemDiv);
+                console.log(`Added list item with index ${nextIndex} to container ${containerId}`);
+
+                // Update the next index
+                container.dataset.nextIndex = nextIndex + 1;
+
+            } catch (e) {
+                console.error("Error adding list item:", e);
+                console.error("Template JSON:", container.dataset.inputTemplate);
+            }
+        }
+
+        // --- Handle Remove List Item ---
+        else if (event.target.matches('.remove-list-item-button')) {
+            console.log("Remove list item button clicked");
+            const removeButton = event.target;
+            const itemToRemove = removeButton.closest('.list-item');
+            if (itemToRemove) {
+                const index = itemToRemove.dataset.index;
+                itemToRemove.remove();
+                console.log(`Removed list item with index ${index}`);
+                // Optional: Re-index subsequent items if necessary, though often not required.
+            }
+        }
+
+        // --- Handle Switchable Input Button ---
+        else if (event.target.matches('.switchable-input-button')) {
+            console.log("Switchable input button clicked");
+            const button = event.target;
+
+            const groupId = button.dataset.groupId;
+            const type1InputId = button.dataset.type1Id;
+            const type2InputId = button.dataset.type2Id;
+            const type1ButtonText = decodeURIComponent(button.dataset.type1ButtonText);
+            const type2ButtonText = decodeURIComponent(button.dataset.type2ButtonText);
+
+            const groupElement = document.getElementById(groupId);
+            if (!groupElement) {
+                console.error(`Switchable group element with ID "${groupId}" not found.`);
+                return;
+            }
+
+            const type1Wrapper = groupElement.querySelector(`.switchable-content.switchable-type1`);
+            const type2Wrapper = groupElement.querySelector(`.switchable-content.switchable-type2`);
+            const input1 = document.getElementById(type1InputId);
+            const input2 = document.getElementById(type2InputId);
+
+            if (!type1Wrapper || !type2Wrapper || !input1 || !input2) {
+                console.error(`Could not find all required elements for switchable group "${groupId}". Check IDs: ${type1InputId}, ${type2InputId}`);
+                return;
+            }
+
+            const isType1Active = type1Wrapper.style.display !== 'none';
+
+            type1Wrapper.style.display = isType1Active ? 'none' : 'block';
+            type2Wrapper.style.display = isType1Active ? 'block' : 'none';
+
+            input1.disabled = isType1Active;
+            input2.disabled = !isType1Active;
+
+            const toggleRequired = (input, isEnabled) => {
+                const originallyRequired = input.getAttribute('data-original-required') === 'true';
+                if (originallyRequired) {
+                    if (isEnabled) input.setAttribute('required', '');
+                    else input.removeAttribute('required');
+                }
+            };
+
+            toggleRequired(input1, !isType1Active);
+            toggleRequired(input2, isType1Active);
+
+            button.textContent = isType1Active ? type2ButtonText : type1ButtonText;
+            console.log(`Switched group ${groupId} to ${isType1Active ? 'Type 2' : 'Type 1'}`);
+        }
+
+        // --- Handle Hidden Input Button ---
+        else if (event.target.matches('.hidden-input-button')) {
+            // Assumes inline onclick was removed from ElementCreator.js
+            console.log("Hidden input button clicked");
+            const button = event.target;
+            // Infer content ID based on button ID convention
+            const contentId = button.id.replace('hidden_button_', 'hidden_content_');
+            const content = document.getElementById(contentId);
+
+            // Get button text from data attributes (ensure these are added in ElementCreator if needed)
+            const buttonTextShow = button.dataset.buttonTextShow || "Show";
+            const buttonTextHide = button.dataset.buttonTextHide || "Hide";
+
+            if (!content) {
+                 console.error(`Hidden content with ID "${contentId}" not found.`);
+                 return;
+            }
+
+            const isCurrentlyHidden = content.style.display === 'none';
+            content.style.display = isCurrentlyHidden ? 'block' : 'none';
+            button.textContent = isCurrentlyHidden ? buttonTextHide : buttonTextShow;
+
+            // Enable/disable inputs within the content
+            const inputs = content.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                input.disabled = !isCurrentlyHidden;
+                // Toggle required attribute based on original state
+                const originalRequired = input.getAttribute('data-original-required') === 'true';
+                if (originalRequired) {
+                    if (isCurrentlyHidden) input.setAttribute('required', '');
+                    else input.removeAttribute('required');
+                }
+            });
+            console.log(`Toggled visibility for hidden content ${contentId} to ${isCurrentlyHidden ? 'visible' : 'hidden'}`);
+        }
+
+    }); // End of main click listener
+
+} // End of initializeDynamicFormHandlers

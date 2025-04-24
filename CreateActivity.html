@@ -11,7 +11,7 @@
   <script src="Scripts/ElementCreator.js"></script>
   <script src="Scripts/globalVars.js"></script>
   <script src="Scripts/mainScript.js"></script>
-
+  
   <link rel="stylesheet" href="Styles/normalize.css">
   <link rel="stylesheet" href="Styles/Demonstrateur.css">
 
@@ -102,79 +102,118 @@
           { type: 'text', label: 'word for playing', name: 'word_4_playing', required: false },
           { type: 'text', label: 'Value of a point', name: 'point_value', required: false },
           { type: 'color', label: 'main color', name: 'main_color', required: false },
-          { type: 'color', label: 'secondary color', name: 'second_color', required: false }, 
-          { type: 'color', label: 'main friend color', name: 'friend_main_color', required: false }, 
+          { type: 'color', label: 'secondary color', name: 'second_color', required: false },
+          { type: 'color', label: 'main friend color', name: 'friend_main_color', required: false },
           { type: 'color', label: 'secondary friend color', name: 'friend_second_color', required: false },
           { type: 'text', label: 'location', name: 'positionID', required: false },
           { type: 'text', label: 'language', name: 'languageID', required: false },
           { type: 'text', label: 'Type', name: 'TypeID', required: false },
           { type: 'text', label: 'Platform', name: 'EnvironementID', required: false },
 
+          { type: 'text', label: 'Name of the  language Filter', name: 'languageFiltersTitle', required: false },
           {
-        type: 'hidden', // Specify the type
-        label: 'Create Language Filters', // Label for the whole section
-        name: 'CreateLanguageFilters', // Base name for IDs
-        initiallyHidden: true, // Optional: Start hidden (default)
-        buttonTextShow: 'Show Advanced', // Optional: Custom button text
-        buttonTextHide: 'Hide Advanced', // Optional: Custom button text
-        inputs: [ // Array of inputs to hide/show
-        { type: 'text', label: 'Language Filter Name', name: 'Languagefilter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
-        { type: 'textarea', label: 'Language Options (one per line)', name: 'Languagefilter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
-        ]
-    },
-          
-
-
-    {
-        type: 'hidden', // Specify the type
-        label: 'Create Type Filters', // Label for the whole section
-        name: 'CreateTypeFilters', // Base name for IDs
-        initiallyHidden: true, // Optional: Start hidden (default)
-        buttonTextShow: 'Show Advanced', // Optional: Custom button text
-        buttonTextHide: 'Hide Advanced', // Optional: Custom button text
-        inputs: [ // Array of inputs to hide/show
-        { type: 'text', label: 'Type Filter Name', name: 'Typefilter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
-        { type: 'textarea', label: 'Type Options (one per line)', name: 'fTypeilter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
-        ]
-    },
-    {
-        type: 'hidden', // Specify the type
-        label: 'Create Environment Filters', // Label for the whole section
-        name: 'CreateEnvironmentFilters', // Base name for IDs
-        initiallyHidden: true, // Optional: Start hidden (default)
-        buttonTextShow: 'Show Advanced', // Optional: Custom button text
-        buttonTextHide: 'Hide Advanced', // Optional: Custom button text
-        inputs: [ // Array of inputs to hide/show
-
-        { type: 'text', label: 'EnvironmentFilter Name', name: 'Environmentfilter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
-          { type: 'textarea', label: 'EnvironmentOptions (one per line)', name: 'Environmentfilter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
-        ]
-    },
-    {
-        type: 'hidden', // Specify the type
-        label: 'Create Position Filters', // Label for the whole section
-        name: 'CreatePositionFilters', // Base name for IDs
-        initiallyHidden: true, // Optional: Start hidden (default)
-        buttonTextShow: 'Show Advanced', // Optional: Custom button text
-        buttonTextHide: 'Hide Advanced', // Optional: Custom button text
-        inputs: [ // Array of inputs to hide/show
-
-
-        { type: 'text', label: 'PositionFilter Name', name: 'Positionfilter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
-          { type: 'textarea', label: 'PositionOptions (one per line)', name: 'Positionfilter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
-        ]
-    },
-
-
-
+            type: 'list',
+            name: 'languageFilters',
+            label: 'Language Filters',
+            addButtonText: 'Add Language Filter',
+            removeButtonText: 'Remove',
+            startEmpty: true,
+            inputs: [
+              {
+                type: 'text',
+                name: 'languageName',
+                label: 'Language Name',
+                placeholder: 'e.g., English, French',
+                required: true
+              }
+            ]
+          },
+          { type: 'text', label: 'Name of the Type Filter', name: 'typeFiltersTitle', required: false },
+          {
+            type: 'list',
+            name: 'typeFilters',
+            label: 'Type Filters',
+            addButtonText: 'Add Type Filter',
+            removeButtonText: 'Remove',
+            startEmpty: true,
+            inputs: [
+              {
+                type: 'text',
+                name: 'typeName',
+                label: 'Type Name',
+                placeholder: 'e.g., Action, RPG, Strategy',
+                required: true
+              }
+            ]
+          },
+          { type: 'text', label: 'Name of the Environment Filter', name: 'environmentFiltersTitle', required: false },
+          {
+            type: 'list',
+            name: 'environmentFilters',
+            label: 'Environment Filters',
+            addButtonText: 'Add Environment Filter',
+            removeButtonText: 'Remove',
+            startEmpty: true,
+            inputs: [
+              {
+                type: 'text',
+                name: 'environmentName',
+                label: 'Environment Name',
+                placeholder: 'e.g., Windows, macOS, Linux',
+                required: true
+              }
+            ]
+          },
+          { type: 'text', label: 'Name of the Position Filter', name: 'positionFiltersTitle', required: false },
+          {
+            type: 'list',
+            name: 'positionFilters',
+            label: 'Position Filters',
+            addButtonText: 'Add Position Filter',
+            removeButtonText: 'Remove',
+            startEmpty: true,
+            inputs: [
+              {
+                type: 'text',
+                name: 'PositionName',
+                label: 'Position Name',
+                placeholder: 'e.g., Role, Lane',
+                required: true
+              }
+            ]
+          },
+          {
+            type: 'list',
+            name: 'levels',
+            label: 'Levels',
+            addButtonText: 'Add Level',
+            removeButtonText: 'Remove',
+            inputs: [
+              {
+                type: 'text',
+                name: 'levelName',
+                label: 'Level Name',
+                placeholder: 'New Level',
+                required: true
+              },
+              { // --- Switchable Image Input (URL or File) ---
+                    type: 'switchable',
+                    label: 'Level Logo',
+                    name: 'levelLogo',
+                    type1: { type: 'url', label: 'URL', name: 'level_logo_url', placeholder: 'https://...', required: true },
+                    type2: { type: 'file', label: 'Upload', name: 'level_logo_file', required: true },
+                    defaultType: 'type2',
+                    switchButtonText: "Or %typeLabel%"
+                  }
+            ]
+          }
         ],
-        submitButtonText: "Create an account",
-        loginLink: "Sign-in.html", // URL for the login page link
-        loginLinkText: "Already have an account ? Connect " // Text for the login link (<a> tag added by CreateDynamicForm)
+        submitButtonText: "Create Activity",
+        loginLink: null,
+        loginLinkText: ""
       };
 
       // --- Generate the Form HTML ---
-      // Assuming 'creator.CreateDynamicForm' function exists and is defined as previously discussed
       const generatedDynamicFormHTML = creator.CreateDynamicForm(
         dynamicFormConfig.formTitle,
         dynamicFormConfig.formId,
@@ -187,13 +226,27 @@
       );
 
       document.write(generatedDynamicFormHTML);
-      document.getElementById('soummission_btn').addEventListener('click', API.creerActivity);
+
+      // --- Event Listeners and Initialization ---
       document.addEventListener('DOMContentLoaded', function() {
-        initializeSwitchableInputs();
 
-      });
+        // Add listener for the main form submission button
+        const submitButton = document.getElementById('soummission_btn'); // Make sure this ID matches the one generated by CreateDynamicForm
+        if (submitButton) {
+            submitButton.addEventListener('click', API.creerActivity);
+        } else {
+            console.error('Submission button with ID "soummission_btn" not found.');
+        }
 
-      async function fetchFilterOptions(filterType, id,name,placeholder) {
+        // --- Initialize the universal handlers ---
+        if (typeof initializeDynamicFormHandlers === 'function' && typeof creator !== 'undefined') {
+            initializeDynamicFormHandlers(creator);
+        } else {
+            console.error("Could not initialize dynamic form handlers. Function or creator instance missing.");
+        }
+
+        // --- Fetch Filter Options ---
+        async function fetchFilterOptions(filterType, id,name,placeholder) {
           const response = await fetch(`http://localhost:9999/api/filter/${id}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -206,17 +259,29 @@
           names.push(...data.elements.map(e => e.Name));
           const ids = data.elements.map(e => e.ID);
           console.log(names, ids);
-          var out = creator.CreateCheckList(names,placeholder,name);
-          console.log(out);
-          document.getElementById(name).replaceWith(...out.children);
+          var checklistElement = creator.CreateCheckList(names,placeholder,name);
+          console.log(checklistElement);
+          const targetElement = document.getElementById(name);
+          if (targetElement && checklistElement) {
+              if (checklistElement.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+                 targetElement.replaceWith(...checklistElement.childNodes);
+              } else {
+                 targetElement.replaceWith(checklistElement);
+              }
+          } else {
+              console.error(`Target element with ID "${name}" or generated checklist not found.`);
+          }
+          console.log("Checklist replaced successfully.");
           return [names, ids];
-        }   
+        }
         fetchFilterOptions('PositionFilter',1,"positionID","Position");
         fetchFilterOptions('LanguageFilter',1,"languageID","Language");
         fetchFilterOptions('TypeFilter',1,"TypeID","Type");
         fetchFilterOptions('EnvironmentFilter',1,"EnvironementID","Platform");
 
-        
+      }); // End DOMContentLoaded
+
+
     </script>
 
   </div>
