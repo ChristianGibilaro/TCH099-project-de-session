@@ -77,8 +77,8 @@ class UserController{
                 throw new Exception('Méthode HTTP non autorisée.');
             }
     
-            // Validation des champs obligatoires
-            $requiredFields = ['pseudonym', 'nom', 'email', 'password', 'password2', 'description', 'age', 'agreement'];
+            // Validation des champs obligatoires (sans 'description' qui devient optionnel)
+            $requiredFields = ['pseudonym', 'nom', 'email', 'password', 'password2', 'age', 'agreement'];
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
                     $response['errors'][$field] = "Le champ '$field' est requis.";
@@ -102,7 +102,11 @@ class UserController{
             $nom         = htmlspecialchars($_POST['nom']);
             $email       = htmlspecialchars($_POST['email']);
             $password    = $_POST['password'];
-            $description = htmlspecialchars($_POST['description']);
+            // description optionnelle : on récupère ou on met une chaîne vide
+            $description = !empty($_POST['description'])
+                ? htmlspecialchars($_POST['description'])
+                : '';
+    
             $age         = htmlspecialchars($_POST['age']);
     
             // Langue optionnelle
@@ -136,7 +140,6 @@ class UserController{
                 $imageFolder = $baseDir . 'ressources/images/profile/';
                 if (!is_dir($imageFolder)) mkdir($imageFolder, 0775, true);
     
-                // On stocke temporairement
                 $tempImagePath = $imageFolder . uniqid('tmp_', true) . '.' . $extension;
                 if (!move_uploaded_file($fileTmpPath, $tempImagePath)) {
                     throw new Exception('Échec du déplacement du fichier uploadé.');
@@ -175,7 +178,7 @@ class UserController{
             $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on' ? "https" : "http")
                      . "://" . $_SERVER['HTTP_HOST'];
     
-            // Si on a uploadé une image -> on renomme, sinon on prend defaultaccount.png
+            // Finalisation de l'image profil
             if ($tempImagePath) {
                 $finalName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $pseudonym)
                              . "_{$userID}." . strtolower(pathinfo($tempImagePath, PATHINFO_EXTENSION));
@@ -184,11 +187,9 @@ class UserController{
                 if (rename($tempImagePath, $finalAbs)) {
                     $imageUrl = $baseUrl . '/' . $finalRel;
                 } else {
-                    // En cas d'échec, fallback sur default
                     $imageUrl = $baseUrl . '/ressources/images/profile/defaultaccount.png';
                 }
             } else {
-                // Aucune image uploadée -> default
                 $imageUrl = $baseUrl . '/ressources/images/profile/defaultaccount.png';
             }
     
@@ -218,6 +219,7 @@ class UserController{
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
+    
    /**
      * GET /api/chat/userinfo?apiKey=...
      * Récupère l'utilisateur lié à la clé API et renvoie son pseudo et son Img.

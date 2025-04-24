@@ -48,50 +48,112 @@ class AndroidController
     }
 
     //retourne le nom, le pseudo, la description et l'image prole d'un utilisateur(Pour Android)
-    public static function getUserDataForAndroid($userID){
+    public static function getUserDataForAndroid($apiKey){
         global $pdo;
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
-        if (!$userID) {
-            echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
+    
+        if (!$apiKey) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Paramètre 'apiKey' manquant."
+            ]);
             return;
         }
+    
         try {
-            $sql = 'SELECT User.Name, User.Pseudo, User.Description, User.Img FROM User WHERE User.ID LIKE :userID';
-
+            // On cherche l'utilisateur dont la clé API correspond
+            $sql = '
+                SELECT
+                    User.Name,
+                    User.Pseudo,
+                    User.Description,
+                    User.Img
+                FROM `User`
+                WHERE User.ApiKey = :apiKey
+                LIMIT 1
+            ';
+    
             $stmt = $pdo->prepare($sql);
-            $stmt->execute(['userID' => $userID]);
+            $stmt->execute(['apiKey' => $apiKey]);
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-
+    
+            // Si aucun résultat, renvoyer un JSON vide ou un flag success=false
+            if (!$userData) {
+                echo json_encode([
+                    'success' => false,
+                    'message' => 'Aucun utilisateur trouvé pour cette apiKey.'
+                ]);
+                return;
+            }
+    
+            // Renvoyer les données trouvées
             echo json_encode($userData, JSON_UNESCAPED_SLASHES);
+    
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Tables "User, Chat et MEssage"):' => $e->getMessage()]);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur database : ' . $e->getMessage()
+            ]);
         }
     }
-    
-    //function qui retourne le nombre total d'amis d'un utilisateur selon l'ID passee en parametre
-    public static function getUserTotalFriendsForAndroid($userID){
+    public static function getActivityImages(){
         global $pdo;
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json; charset=utf-8');
-        if (!$userID) {
-            echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
+    
+        $folder = __DIR__ . '/../../ressources/images/activity/';
+        $files = array_diff(scandir($folder), ['.','..']);
+    
+        // récupère le host et porte
+        $host = $_SERVER['HTTP_HOST']; // 10.0.2.2:9999 en émulateur
+        $proto = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on' ? 'https' : 'http';
+        $baseUrl = "$proto://$host/ressources/images/activity/";
+    
+        $images = [];
+        foreach($files as $f){
+            $images[] = $baseUrl . $f;
+        }
+    
+        echo json_encode([
+          'success' => true,
+          'images'  => $images
+        ], JSON_UNESCAPED_SLASHES);
+    }
+    
+
+    //function qui retourne le nombre total d'amis d'un utilisateur selon l'ID passee en parametre
+    public static function getUserTotalFriendsForAndroid($apiKey){
+        global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+    
+        if (empty($apiKey)) {
+            echo json_encode(['success' => false, 'message' => "Paramètre 'apiKey' manquant."]);
             return;
         }
+    
         try {
-            $sql = 'SELECT COUNT(UserFriend.FriendID) AS total_friends FROM UserFriend WHERE UserFriend.UserID LIKE :userID';
-
+            // jointure entre User et UserFriend, filtre sur ApiKey
+            $sql = '
+                SELECT COUNT(UF.FriendID) AS total_friends
+                  FROM UserFriend UF
+                  JOIN User U ON UF.UserID = U.ID
+                 WHERE U.ApiKey = :apiKey
+            ';
+    
             $stmt = $pdo->prepare($sql);
-            $stmt->execute(['userID' => $userID]);
-            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-
-            echo json_encode($userData, JSON_UNESCAPED_SLASHES);
+            $stmt->execute(['apiKey' => $apiKey]);
+            $data = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            echo json_encode($data, JSON_UNESCAPED_SLASHES);
+    
         } catch (PDOException $e) {
             http_response_code(500);
-            echo json_encode(['Erreur Database(Contrainte ou Syntaxe-> Table "UserFriend"):' => $e->getMessage()]);
+            echo json_encode([
+                'Erreur Database (UserFriend / User)' => $e->getMessage()
+            ]);
         }
     }
 

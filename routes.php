@@ -92,6 +92,14 @@ get('/api/chat/userinfoById', function() {
     UserController::getUserByUserId();
 });
 
+get('/api/getUserDataForAndroid/{apiKey}', function($apiKey){
+    AndroidController::getUserDataForAndroidByApiKey($apiKey);
+});
+// Route pour récupérer la liste des images d'activité
+get('/api/activity/images', function() {
+    AndroidController::getActivityImages();
+});
+
 
 get('/api/user/username/${username}', function($username) {
     // Read the JSON body from the request
