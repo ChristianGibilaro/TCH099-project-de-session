@@ -72,7 +72,7 @@ public class MessagerieHome extends AppCompatActivity {
         });
         btnMessages.setOnClickListener(v -> {
             Log.d("MessagerieHome", "Messages tapped (déjà dans MessagerieHome)");
-            // Optionnel : rafraîchir la liste
+            startActivity(new Intent(MessagerieHome.this, Home.class).putExtra("apiKey", apiKey));;
             // adapter.refreshConversations();
         });
         // Set conversation click listener

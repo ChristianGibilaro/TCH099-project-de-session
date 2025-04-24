@@ -118,7 +118,7 @@
             android:background="?android:selectableItemBackgroundBorderless"
             android:contentDescription="Messages"
             android:scaleType="centerInside"
-            android:src="@drawable/message"
+            android:src="@drawable/back_button"
             app:tint="@android:color/white" />
 
     </LinearLayout>
