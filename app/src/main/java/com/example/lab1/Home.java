@@ -1,155 +1,290 @@
 package com.example.lab1;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RatingBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 
 public class Home extends AppCompatActivity {
-
     private static final String TAG = "HomeActivity";
+
     private ImageButton btnLogout, btnMessages;
-    private ImageView btnAdd;
-    private RecyclerView photoGrid;
-    private PostAdapter adapter;
-    private int[] randomImages = {R.drawable.image, R.drawable.logo};
-    private String apiKey;  // récupère l'API key
+    private RecyclerView publicationGrid;
+    private TextView tvFriendsValue, tvUsernameValue, tvDescriptionValue;
+    private ImageView imgProfile;
+    private PublicationAdapter pubAdapter;
+    private String apiKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        // Récupère l'apiKey depuis l'Intent
+        // Récupère l’apiKey depuis l’Intent
         apiKey = getIntent().getStringExtra("apiKey");
         Log.d(TAG, "onCreate: apiKey reçu = " + apiKey);
 
-        btnLogout = findViewById(R.id.btnLogout);
-        btnMessages = findViewById(R.id.btnMessages);
-        btnAdd = findViewById(R.id.btnAdd);
-        RatingBar ratingBar = findViewById(R.id.ratingBar);
-        photoGrid = findViewById(R.id.photoGrid);
+        // bind views
+        btnLogout          = findViewById(R.id.btnLogout);
+        btnMessages        = findViewById(R.id.btnMessages);
+        publicationGrid    = findViewById(R.id.photoGrid);
+        tvFriendsValue     = findViewById(R.id.tvFriendsValue);
+        tvUsernameValue    = findViewById(R.id.tvUsernameValue);
+        tvDescriptionValue = findViewById(R.id.tvDescriptionValue);
+        imgProfile         = findViewById(R.id.imgProfile);
 
-        // Utiliser un LinearLayoutManager pour un affichage en "mur"
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        photoGrid.setLayoutManager(layoutManager);
+        // charger profil, amis et publications
+        new LoadProfileTask().execute(apiKey);
+        new GetFriendsCountTask().execute(apiKey);
+        new LoadPublicationsTask().execute();
 
-        // Création de l'adapter et affectation au RecyclerView
-        adapter = new PostAdapter();
-        photoGrid.setAdapter(adapter);
+        // setup RecyclerView
+        publicationGrid.setLayoutManager(new LinearLayoutManager(this));
+        pubAdapter = new PublicationAdapter();
+        publicationGrid.setAdapter(pubAdapter);
 
-        // Ajout de quelques posts initiaux pour tester
-        adapter.addPost(new Post(R.drawable.image, "Mon premier post"));
-        adapter.addPost(new Post(R.drawable.logo, "Mon deuxième post"));
-
-        // Bouton "Add content" : ajoute un nouveau post aléatoire
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Random rand = new Random();
-                int randomIndex = rand.nextInt(randomImages.length);
-                int selectedImage = randomImages[randomIndex];
-                String newDescription = "Post aléatoire #" + (adapter.getItemCount() + 1);
-                adapter.addPost(new Post(selectedImage, newDescription));
-                Log.d(TAG, "Nouveau post ajouté: " + newDescription);
-            }
+        // logout
+        btnLogout.setOnClickListener(v -> {
+            Log.d(TAG, "Logout tapped, returning to Login");
+            startActivity(new Intent(Home.this, Login.class));
+            finish();
         });
 
-        // Bouton Logout : retourne à la page Login
-        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "Logout tapped, returning to Login");
-                Intent intent = new Intent(Home.this, Login.class);
-                startActivity(intent);
-                finish();
-            }
-        });
-
-        // Bouton Messages : ouvre l'activité de messagerie en passant l'apiKey
-        btnMessages.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Log.d(TAG, "Messages tapped, launching MessagerieHome with apiKey");
-                Intent intent = new Intent(Home.this, MessagerieHome.class);
-                intent.putExtra("apiKey", apiKey);
-                startActivity(intent);
-            }
+        // messages
+        btnMessages.setOnClickListener(v -> {
+            Log.d(TAG, "Messages tapped, launching MessagerieHome");
+            startActivity(new Intent(Home.this, MessagerieHome.class)
+                    .putExtra("apiKey", apiKey));
         });
     }
 
-    // Modèle de publication (Post)
-    private static class Post {
-        private int imageResId;
-        private String description;
+    // --- Load user profile ---
+    private class LoadProfileTask extends AsyncTask<String, Void, JSONObject> {
+        @Override
+        protected JSONObject doInBackground(String... params) {
+            try {
+                String endpoint = "http://10.0.2.2:9999/api/profile_android/"
+                        + URLEncoder.encode(params[0], "UTF-8");
+                Log.d(TAG, "LoadProfileTask: requesting URL = " + endpoint);
 
-        public Post(int imageResId, String description) {
-            this.imageResId = imageResId;
-            this.description = description;
+                HttpURLConnection conn = (HttpURLConnection)
+                        new URL(endpoint).openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "application/json");
+
+                int code = conn.getResponseCode();
+                Log.d(TAG, "LoadProfileTask: HTTP response code = " + code);
+                if (code != HttpURLConnection.HTTP_OK) {
+                    conn.disconnect();
+                    return null;
+                }
+
+                BufferedReader rd = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream())
+                );
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = rd.readLine()) != null) sb.append(line);
+                rd.close();
+                conn.disconnect();
+
+                Log.d(TAG, "LoadProfileTask: raw response = " + sb);
+                return new JSONObject(sb.toString());
+            } catch (Exception e) {
+                Log.e(TAG, "Erreur LoadProfileTask", e);
+                return null;
+            }
         }
 
-        public int getImageResId() {
-            return imageResId;
-        }
+        @Override
+        protected void onPostExecute(JSONObject json) {
+            if (json == null) {
+                Log.w(TAG, "LoadProfileTask: aucune donnée reçue");
+                return;
+            }
+            String pseudo = json.optString("Pseudo", "N/A");
+            String desc   = json.optString("Description", "");
+            String imgUrl = json.optString("Img", "");
+            Log.d(TAG, "Profil récupéré → pseudo=" + pseudo
+                    + " | desc=" + desc
+                    + " | imgUrl=" + imgUrl);
 
-        public String getDescription() {
-            return description;
+            tvUsernameValue.setText(pseudo);
+            tvDescriptionValue.setText(desc);
+            if (!imgUrl.isEmpty()) {
+                Glide.with(Home.this)
+                        .load(imgUrl)
+                        .placeholder(R.drawable.defaultaccount)
+                        .error(R.drawable.defaultaccount)
+                        .circleCrop()
+                        .into(imgProfile);
+            }
         }
     }
 
-    // Adapter pour gérer le mur de publications
-    private class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
+    // --- Load friends count ---
+    private class GetFriendsCountTask extends AsyncTask<String, Void, Integer> {
+        @Override
+        protected Integer doInBackground(String... params) {
+            try {
+                String urlStr = "http://10.0.2.2:9999/AndroidController.php"
+                        + "?action=getUserTotalFriendsForAndroid"
+                        + "&apiKey=" + URLEncoder.encode(params[0], "UTF-8");
+                HttpURLConnection conn = (HttpURLConnection)
+                        new URL(urlStr).openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "application/json");
 
-        private ArrayList<Post> postList = new ArrayList<>();
+                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    conn.disconnect();
+                    return 0;
+                }
 
-        public void addPost(Post post) {
-            postList.add(post);
-            notifyItemInserted(postList.size() - 1);
+                BufferedReader rd = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream())
+                );
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = rd.readLine()) != null) sb.append(line);
+                rd.close();
+                conn.disconnect();
+
+                JSONObject json = new JSONObject(sb.toString());
+                return json.optInt("total_friends", 0);
+            } catch (Exception e) {
+                Log.e(TAG, "Erreur GetFriendsCountTask", e);
+                return 0;
+            }
         }
 
-        @NonNull
         @Override
-        public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_post, parent, false);
-            return new PostViewHolder(view);
+        protected void onPostExecute(Integer count) {
+            Log.d(TAG, "Nombre d'amis = " + count);
+            tvFriendsValue.setText(String.valueOf(Math.max(0, count)));
+        }
+    }
+
+    // --- Load publications (activity images) ---
+    private class LoadPublicationsTask extends AsyncTask<Void, Void, List<Publication>> {
+        @Override
+        protected List<Publication> doInBackground(Void... unused) {
+            List<Publication> out = new ArrayList<>();
+            try {
+                String endpoint = "http://10.0.2.2:9999/api/activity/images";
+                Log.d(TAG, "LoadPublicationsTask: requesting URL = " + endpoint);
+
+                HttpURLConnection conn = (HttpURLConnection)
+                        new URL(endpoint).openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Accept", "application/json");
+
+                if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                    conn.disconnect();
+                    return out;
+                }
+
+                BufferedReader rd = new BufferedReader(
+                        new InputStreamReader(conn.getInputStream())
+                );
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = rd.readLine()) != null) sb.append(line);
+                rd.close();
+                conn.disconnect();
+
+                JSONObject root = new JSONObject(sb.toString());
+                if (root.optBoolean("success", false)) {
+                    JSONArray arr = root.optJSONArray("images");
+                    for (int i = 0; i < arr.length(); i++) {
+                        String url = arr.getString(i);
+                        String name = url.substring(url.lastIndexOf('/') + 1);
+                        out.add(new Publication(url, name));
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Erreur LoadPublicationsTask", e);
+            }
+            return out;
         }
 
         @Override
-        public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
-            Post currentPost = postList.get(position);
-            holder.postImage.setImageResource(currentPost.getImageResId());
-            holder.postDescription.setText(currentPost.getDescription());
+        protected void onPostExecute(List<Publication> pubs) {
+            pubAdapter.setPublications(pubs);
+        }
+    }
+
+    // --- Publication model ---
+    private static class Publication {
+        final String imageUrl;
+        final String name;
+        Publication(String imageUrl, String name) {
+            this.imageUrl = imageUrl;
+            this.name     = name;
+        }
+    }
+
+    // --- Adapter for publications ---
+    private class PublicationAdapter extends RecyclerView.Adapter<PublicationAdapter.ViewHolder> {
+        private final List<Publication> list = new ArrayList<>();
+
+        void setPublications(List<Publication> pubs) {
+            list.clear();
+            list.addAll(pubs);
+            notifyDataSetChanged();
+        }
+
+        @NonNull @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View v = getLayoutInflater().inflate(R.layout.item_post, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int pos) {
+            Publication p = list.get(pos);
+            holder.description.setText(p.name);
+            Glide.with(Home.this)
+                    .load(p.imageUrl)
+                    .placeholder(R.drawable.image)
+                    .error(R.drawable.image)
+                    .into(holder.image);
         }
 
         @Override
         public int getItemCount() {
-            return postList.size();
+            return list.size();
         }
 
-        class PostViewHolder extends RecyclerView.ViewHolder {
-            ImageView postImage;
-            TextView postDescription;
-
-            public PostViewHolder(@NonNull View itemView) {
+        class ViewHolder extends RecyclerView.ViewHolder {
+            ImageView image;
+            TextView  description;
+            ViewHolder(@NonNull View itemView) {
                 super(itemView);
-                postImage = itemView.findViewById(R.id.postImage);
-                postDescription = itemView.findViewById(R.id.postDescription);
+                image       = itemView.findViewById(R.id.postImage);
+                description = itemView.findViewById(R.id.postDescription);
             }
         }
     }

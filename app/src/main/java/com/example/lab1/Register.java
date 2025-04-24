@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 
 public class Register extends AppCompatActivity {
 
@@ -36,6 +37,7 @@ public class Register extends AppCompatActivity {
     private EditText etPseudonyme,
             etNom,
             etPrenom,
+            etDescription,      // Optional description
             etEmail,
             etPassword,
             etConfirmPassword;
@@ -57,6 +59,7 @@ public class Register extends AppCompatActivity {
         etPseudonyme      = findViewById(R.id.etPseudonyme);
         etNom             = findViewById(R.id.etNom);
         etPrenom          = findViewById(R.id.etPrenom);
+        etDescription     = findViewById(R.id.etDescription);   // Bind description field
         etEmail           = findViewById(R.id.etEmail);
         etPassword        = findViewById(R.id.etPassword);
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
@@ -65,15 +68,8 @@ public class Register extends AppCompatActivity {
         cbReglement       = findViewById(R.id.cbReglement);
         btnRegister       = findViewById(R.id.btnRegister);
 
-        ivProfilePicker.setOnClickListener(v -> {
-            Log.d(TAG, "Profile picker clicked, opening gallery");
-            openGallery();
-        });
-
-        btnRegister.setOnClickListener(v -> {
-            Log.d(TAG, "Register button clicked");
-            registerUser();
-        });
+        ivProfilePicker.setOnClickListener(v -> openGallery());
+        btnRegister.setOnClickListener(v -> registerUser());
     }
 
     private void openGallery() {
@@ -91,14 +87,12 @@ public class Register extends AppCompatActivity {
                 resultCode  == RESULT_OK &&
                 data        != null) {
             imageUri = data.getData();
-            Log.d(TAG, "Image URI selected: " + imageUri);
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(
                         getContentResolver(), imageUri
                 );
                 ivProfilePreview.setImageBitmap(bitmap);
                 ivProfilePreview.setVisibility(View.VISIBLE);
-                Log.d(TAG, "Profile preview updated");
             } catch (IOException e) {
                 Log.e(TAG, "Error loading selected image", e);
             }
@@ -109,30 +103,22 @@ public class Register extends AppCompatActivity {
         String pseudonym      = etPseudonyme.getText().toString().trim();
         String nomPart        = etNom.getText().toString().trim();
         String prenomPart     = etPrenom.getText().toString().trim();
+        String description    = etDescription.getText().toString().trim(); // Read optional description
         String email          = etEmail.getText().toString().trim();
         String password       = etPassword.getText().toString();
         String confirmPassword= etConfirmPassword.getText().toString();
         String agreement      = cbReglement.isChecked() ? "accepted" : "";
 
-        Log.d(TAG, "Inputs: pseudonym=" + pseudonym +
-                ", nom=" + nomPart +
-                ", prenom=" + prenomPart +
-                ", email=" + email +
-                ", agreement=" + agreement +
-                ", language_id=" + LANGUAGE_ID
-        );
-
+        // Validate required fields (description is optional)
         if (TextUtils.isEmpty(pseudonym) ||
                 TextUtils.isEmpty(nomPart)   ||
                 TextUtils.isEmpty(prenomPart)||
                 TextUtils.isEmpty(email)     ||
                 TextUtils.isEmpty(password)  ||
-                TextUtils.isEmpty(confirmPassword)
-        ) {
+                TextUtils.isEmpty(confirmPassword)) {
             Toast.makeText(this,
                     "Veuillez remplir tous les champs obligatoires.",
                     Toast.LENGTH_SHORT).show();
-            Log.w(TAG, "Validation failed: required field missing");
             return;
         }
 
@@ -140,7 +126,6 @@ public class Register extends AppCompatActivity {
             Toast.makeText(this,
                     "Les mots de passe ne correspondent pas.",
                     Toast.LENGTH_SHORT).show();
-            Log.w(TAG, "Validation failed: passwords do not match");
             return;
         }
 
@@ -148,23 +133,22 @@ public class Register extends AppCompatActivity {
             Toast.makeText(this,
                     "Veuillez accepter le règlement.",
                     Toast.LENGTH_SHORT).show();
-            Log.w(TAG, "Validation failed: agreement not accepted");
             return;
         }
 
-        // Combine nom + prenom into single "nom" field for the API
-        String fullName    = nomPart + " " + prenomPart;
-        String description = "Aucune description fournie.";
-        String age         = "1970-01-01";
+        String fullName = nomPart + " " + prenomPart;
+        if (TextUtils.isEmpty(description)) {
+            description = "Aucune description fournie.";
+        }
+        String age = "1970-01-01";
 
-        Log.d(TAG, "All validation passed, launching RegisterTask");
         new RegisterTask().execute(
                 pseudonym,
                 fullName,
                 email,
                 password,
                 confirmPassword,
-                description,
+                description,   // Pass it to AsyncTask
                 age,
                 agreement,
                 LANGUAGE_ID
@@ -185,12 +169,11 @@ public class Register extends AppCompatActivity {
             String email       = params[2];
             String password    = params[3];
             String password2   = params[4];
-            String description = params[5];
+            String description = params[5]; // Received description
             String age         = params[6];
             String agreement   = params[7];
             String languageId  = params[8];
 
-            Log.d(TASK_TAG, "doInBackground start");
             HttpURLConnection conn = null;
             DataOutputStream dos   = null;
 
@@ -207,7 +190,6 @@ public class Register extends AppCompatActivity {
                         "Content-Type",
                         "multipart/form-data;boundary=" + boundary
                 );
-                Log.d(TASK_TAG, "Connection opened to " + REGISTER_URL);
 
                 dos = new DataOutputStream(conn.getOutputStream());
 
@@ -217,107 +199,65 @@ public class Register extends AppCompatActivity {
                 writeFormField(dos, "email",       email);
                 writeFormField(dos, "password",    password);
                 writeFormField(dos, "password2",   password2);
-                writeFormField(dos, "description", description);
+                writeFormField(dos, "description", description); // Include description
                 writeFormField(dos, "language_id", languageId);
                 writeFormField(dos, "age",         age);
                 writeFormField(dos, "agreement",   agreement);
 
-                // Image: use selected file if any, otherwise default drawable
+                // Image upload (optional)
                 if (imageUri != null) {
-                    Log.d(TASK_TAG, "Uploading selected image file");
-                    InputStream iStream =
-                            getContentResolver().openInputStream(imageUri);
+                    InputStream iStream = getContentResolver().openInputStream(imageUri);
                     byte[] fileData = getBytes(iStream);
                     String fileName = "img_" + System.currentTimeMillis() + ".png";
                     writeFileField(dos, "image", fileName, "image/png", fileData);
                 } else {
-                    Log.d(TASK_TAG, "No image selected, using default drawable");
                     Resources res = Register.this.getResources();
-                    Bitmap bitmap = BitmapFactory.decodeResource(
-                            res, R.drawable.defaultaccount
-                    );
+                    Bitmap bitmap = BitmapFactory.decodeResource(res, R.drawable.defaultaccount);
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
                     byte[] fileData = baos.toByteArray();
-                    writeFileField(
-                            dos, "image", "defaultaccount.png", "image/png", fileData
-                    );
+                    writeFileField(dos, "image", "defaultaccount.png", "image/png", fileData);
                 }
 
-                // Finish multipart request
+                // Finish multipart
                 dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
                 dos.flush();
                 dos.close();
-                Log.d(TASK_TAG, "Request sent, awaiting response");
 
                 int responseCode = conn.getResponseCode();
-                Log.d(TASK_TAG, "Response code: " + responseCode);
-
                 InputStream is = (responseCode == HttpURLConnection.HTTP_OK)
                         ? conn.getInputStream()
                         : conn.getErrorStream();
-
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(is)
-                );
-                StringBuilder response = new StringBuilder();
+                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+                StringBuilder sb = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    response.append(line);
+                    sb.append(line);
                 }
                 reader.close();
 
-                Log.d(TASK_TAG, "Response payload: " + response);
-                return response.toString();
+                return sb.toString();
 
             } catch (Exception e) {
                 Log.e(TASK_TAG, "Network error", e);
+                return null;
             } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                    Log.d(TASK_TAG, "Connection closed");
-                }
+                if (conn != null) conn.disconnect();
             }
-            return null;
         }
 
-        private void writeFormField(
-                DataOutputStream dos,
-                String fieldName,
-                String fieldValue
-        ) throws IOException {
-            Log.d(TASK_TAG,
-                    "Writing field '" + fieldName + "' = '" + fieldValue + "'");
+        private void writeFormField(DataOutputStream dos, String name, String value) throws IOException {
             dos.writeBytes(twoHyphens + boundary + lineEnd);
-            dos.writeBytes(
-                    "Content-Disposition: form-data; name=\"" +
-                            fieldName + "\"" + lineEnd
-            );
-            dos.writeBytes("Content-Type: text/plain; charset=UTF-8" + lineEnd);
-            dos.writeBytes(lineEnd);
-            dos.writeBytes(fieldValue + lineEnd);
+            dos.writeBytes("Content-Disposition: form-data; name=\"" + name + "\"" + lineEnd);
+            dos.writeBytes("Content-Type: text/plain; charset=UTF-8" + lineEnd + lineEnd);
+            dos.writeBytes(value + lineEnd);
         }
 
-        private void writeFileField(
-                DataOutputStream dos,
-                String fieldName,
-                String fileName,
-                String mimeType,
-                byte[] fileData
-        ) throws IOException {
-            Log.d(TASK_TAG,
-                    "Writing file '" + fieldName + "' filename='" + fileName + "'");
+        private void writeFileField(DataOutputStream dos, String fieldName, String fileName, String mimeType, byte[] fileData) throws IOException {
             dos.writeBytes(twoHyphens + boundary + lineEnd);
-            dos.writeBytes(
-                    "Content-Disposition: form-data; name=\"" +
-                            fieldName +
-                            "\"; filename=\"" +
-                            fileName +
-                            "\"" + lineEnd
-            );
+            dos.writeBytes("Content-Disposition: form-data; name=\"" + fieldName + "\"; filename=\"" + fileName + "\"" + lineEnd);
             dos.writeBytes("Content-Type: " + mimeType + lineEnd);
-            dos.writeBytes("Content-Transfer-Encoding: binary" + lineEnd);
-            dos.writeBytes(lineEnd);
+            dos.writeBytes("Content-Transfer-Encoding: binary" + lineEnd + lineEnd);
             dos.write(fileData);
             dos.writeBytes(lineEnd);
         }
@@ -334,26 +274,14 @@ public class Register extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
-            Log.d(TASK_TAG, "onPostExecute: " + result);
             if (result != null) {
-                Toast.makeText(
-                        Register.this,
-                        "Inscription réussie",
-                        Toast.LENGTH_LONG
-                ).show();
+                Toast.makeText(Register.this, "Inscription réussie", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(Register.this, Login.class);
-                intent.putExtra(
-                        "registeredEmail",
-                        etEmail.getText().toString()
-                );
+                intent.putExtra("registeredEmail", etEmail.getText().toString());
                 startActivity(intent);
                 finish();
             } else {
-                Toast.makeText(
-                        Register.this,
-                        "Erreur lors de l'inscription",
-                        Toast.LENGTH_LONG
-                ).show();
+                Toast.makeText(Register.this, "Erreur lors de l'inscription", Toast.LENGTH_LONG).show();
             }
         }
     }

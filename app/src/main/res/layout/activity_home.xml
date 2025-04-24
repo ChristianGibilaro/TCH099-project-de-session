@@ -91,23 +91,7 @@
                         android:layout_weight="1"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tvParticipationLabel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Participation"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvParticipationValue"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="439"
-                            android:textSize="16sp" />
-                    </LinearLayout>
+                        android:orientation="vertical"/>
                 </LinearLayout>
 
                 <!-- Description -->
@@ -135,48 +119,7 @@
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:padding="16dp">
-
-            <RatingBar
-                android:id="@+id/ratingBar"
-                android:layout_width="wrap_content"
-                android:layout_height="46dp"
-                android:isIndicator="true"
-                android:minWidth="150dp"
-                android:numStars="5"
-                android:rating="4"
-                android:scaleX="0.35"
-                android:scaleY="0.35"
-                android:stepSize="1"
-                android:translationX="-70dp" />
-
-            <!-- Container pour "Add content:" et le bouton Add -->
-            <LinearLayout
-                android:id="@+id/addContainer"
-                android:layout_width="165dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:translationX="-40dp">
-
-                <TextView
-                    android:id="@+id/tvAddContent"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:text="Add content:"
-                    android:textSize="14sp"
-                    android:translationY="20dp" />
-
-                <ImageView
-                    android:id="@+id/btnAdd"
-                    android:layout_width="61dp"
-                    android:layout_height="63dp"
-                    android:layout_marginStart="8dp"
-                    android:contentDescription="Ajouter contenu"
-                    android:padding="8dp"
-                    android:src="@drawable/add" />
-            </LinearLayout>
-        </LinearLayout>
+            android:padding="16dp"/>
 
         <!-- Publications Container (Mur de publications) -->
         <LinearLayout

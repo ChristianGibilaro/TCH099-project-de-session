@@ -34,6 +34,7 @@ public class MessagerieHome extends AppCompatActivity {
 
     private RecyclerView convoList;
     private ConvoAdapter adapter;
+    private ImageButton btnLogout, btnMessages;
     private ImageButton btnCreateConvo;
     private String apiKey;  // API key for authenticated calls
 
@@ -50,6 +51,8 @@ public class MessagerieHome extends AppCompatActivity {
 
         btnCreateConvo = findViewById(R.id.btnCreateConvo);
         convoList = findViewById(R.id.convoList);
+        btnLogout   = findViewById(R.id.btnLogout);
+        btnMessages = findViewById(R.id.btnMessages);
 
         // Setup RecyclerView as a vertical list (1 column)
         convoList.setLayoutManager(new GridLayoutManager(this, 1));
@@ -62,6 +65,16 @@ public class MessagerieHome extends AppCompatActivity {
         Log.d(TAG, "Calling loadChats() to fetch chat list");
         loadChats();
 
+        btnLogout.setOnClickListener(v -> {
+            Log.d("MessagerieHome", "Logout tapped, returning to Login");
+            startActivity(new Intent(MessagerieHome.this, Login.class));
+            finish();
+        });
+        btnMessages.setOnClickListener(v -> {
+            Log.d("MessagerieHome", "Messages tapped (déjà dans MessagerieHome)");
+            // Optionnel : rafraîchir la liste
+            // adapter.refreshConversations();
+        });
         // Set conversation click listener
         adapter.setOnConvoClickListener(conversation -> {
             Log.d(TAG, "onConvoClick: clicked conversation id=" + conversation.getId());
