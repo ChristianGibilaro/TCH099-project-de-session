@@ -77,7 +77,7 @@ class UserController{
                 throw new Exception('Méthode HTTP non autorisée.');
             }
     
-            // Les champs obligatoires (on retire language_name)
+            // Validation des champs obligatoires
             $requiredFields = ['pseudonym', 'nom', 'email', 'password', 'password2', 'description', 'age', 'agreement'];
             foreach ($requiredFields as $field) {
                 if (empty($_POST[$field])) {
@@ -90,7 +90,6 @@ class UserController{
             if (empty($_POST['agreement']) || $_POST['agreement'] !== 'accepted') {
                 $response['errors']['agreement'] = 'Vous devez accepter les conditions.';
             }
-    
             if (!empty($response['errors'])) {
                 $response['message'] = 'Erreur de validation. Veuillez corriger les champs indiqués.';
                 http_response_code(400);
@@ -98,7 +97,7 @@ class UserController{
                 return;
             }
     
-            // Récupération des valeurs
+            // Préparation des données
             $pseudonym   = htmlspecialchars($_POST['pseudonym']);
             $nom         = htmlspecialchars($_POST['nom']);
             $email       = htmlspecialchars($_POST['email']);
@@ -106,19 +105,16 @@ class UserController{
             $description = htmlspecialchars($_POST['description']);
             $age         = htmlspecialchars($_POST['age']);
     
-            // === Gestion de la langue (optionnelle) ===
-            if (!empty($_POST['language_name'])) {
-                $languageName = htmlspecialchars($_POST['language_name']);
-            } else {
-                $languageName = 'Français';          // valeur par défaut
-            }
-            // Recherche de l'ID de langue
+            // Langue optionnelle
+            $languageName = !empty($_POST['language_name'])
+                ? htmlspecialchars($_POST['language_name'])
+                : 'Français';
             $stmtLang = $pdo->prepare('SELECT ID FROM Language WHERE Name = :name');
             $stmtLang->execute([':name' => $languageName]);
             $langRow = $stmtLang->fetch(PDO::FETCH_ASSOC);
-            $languageID = $langRow ? $langRow['ID'] : 1; // fallback à 1
+            $languageID = $langRow ? $langRow['ID'] : 1;
     
-            // === (Optionnel) Position ===
+            // Position optionnelle
             $positionID = null;
             if (!empty($_POST['position_name'])) {
                 $posName = htmlspecialchars($_POST['position_name']);
@@ -130,9 +126,24 @@ class UserController{
                 }
             }
     
-            // ... reste de la gestion du fichier image comme avant ...
+            // Gestion optionnelle de l'upload d'image
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+                $fileTmpPath       = $_FILES['image']['tmp_name'];
+                $originalFileName  = basename($_FILES['image']['name']);
+                $extension         = pathinfo($originalFileName, PATHINFO_EXTENSION);
+                $safePseudo        = preg_replace('/[^a-zA-Z0-9_-]/', '_', $pseudonym);
     
-            // Insertion de l'utilisateur
+                $imageFolder = $baseDir . 'ressources/images/profile/';
+                if (!is_dir($imageFolder)) mkdir($imageFolder, 0775, true);
+    
+                // On stocke temporairement
+                $tempImagePath = $imageFolder . uniqid('tmp_', true) . '.' . $extension;
+                if (!move_uploaded_file($fileTmpPath, $tempImagePath)) {
+                    throw new Exception('Échec du déplacement du fichier uploadé.');
+                }
+            }
+    
+            // Insertion de l'utilisateur (Img = 'pending' pour l'instant)
             $stmtUser = $pdo->prepare(
                 'INSERT INTO User
                  (Img, Pseudo, Name, Email, Password, Last_Login,
@@ -142,98 +153,221 @@ class UserController{
                   :language_id, :creation_date, :position_id, :description, :age)'
             );
             $stmtUser->execute([
-                ':img'            => $imagePath ?? 'pending',
-                ':pseudo'         => $pseudonym,
-                ':nom'            => $nom,
-                ':email'          => $email,
-                ':passwordd'      => password_hash($password, PASSWORD_DEFAULT),
-                ':last_login'     => date('Y-m-d H:i:s'),
-                ':language_id'    => $languageID,
-                ':creation_date'  => date('Y-m-d H:i:s'),
-                ':position_id'    => $positionID,
-                ':description'    => $description,
-                ':age'            => $age
+                ':img'           => 'pending',
+                ':pseudo'        => $pseudonym,
+                ':nom'           => $nom,
+                ':email'         => $email,
+                ':passwordd'     => password_hash($password, PASSWORD_DEFAULT),
+                ':last_login'    => date('Y-m-d H:i:s'),
+                ':language_id'   => $languageID,
+                ':creation_date' => date('Y-m-d H:i:s'),
+                ':position_id'   => $positionID,
+                ':description'   => $description,
+                ':age'           => $age
             ]);
     
-            // ... renommage du fichier et réponse finale ...
+            $userID = $pdo->lastInsertId();
+            if (!$userID) {
+                throw new Exception("Impossible de récupérer l'ID de l'utilisateur.");
+            }
     
+            // URL de base pour construire le lien public
+            $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']==='on' ? "https" : "http")
+                     . "://" . $_SERVER['HTTP_HOST'];
+    
+            // Si on a uploadé une image -> on renomme, sinon on prend defaultaccount.png
+            if ($tempImagePath) {
+                $finalName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $pseudonym)
+                             . "_{$userID}." . strtolower(pathinfo($tempImagePath, PATHINFO_EXTENSION));
+                $finalRel  = 'ressources/images/profile/' . $finalName;
+                $finalAbs  = $baseDir . $finalRel;
+                if (rename($tempImagePath, $finalAbs)) {
+                    $imageUrl = $baseUrl . '/' . $finalRel;
+                } else {
+                    // En cas d'échec, fallback sur default
+                    $imageUrl = $baseUrl . '/ressources/images/profile/defaultaccount.png';
+                }
+            } else {
+                // Aucune image uploadée -> default
+                $imageUrl = $baseUrl . '/ressources/images/profile/defaultaccount.png';
+            }
+    
+            // Mise à jour de User.Img
+            $stmtUpdate = $pdo->prepare('UPDATE User SET Img = :img WHERE ID = :id');
+            $stmtUpdate->execute([':img' => $imageUrl, ':id' => $userID]);
+    
+            // Insertion dans ImgLib (historique)
+            $stmtImgLib = $pdo->prepare(
+                'INSERT INTO ImgLib (`UserID`, `Img`) VALUES (:userID, :imgUrl)'
+            );
+            $stmtImgLib->execute([
+                ':userID' => $userID,
+                ':imgUrl' => $imageUrl
+            ]);
+    
+            // Réponse
             $response['success'] = true;
             $response['message'] = 'Compte créé avec succès !';
             echo json_encode($response);
     
         } catch (PDOException $e) {
             http_response_code(500);
-            $response['message'] = 'Erreur de base de données.';
-            echo json_encode($response);
+            echo json_encode(['success' => false, 'message' => 'Erreur DB : ' . $e->getMessage()]);
         } catch (Exception $e) {
-            // Gère les autres exceptions éventuelles
             http_response_code(http_response_code() ?: 500);
-            $response['message'] = $e->getMessage();
-            echo json_encode($response);
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
-    
-   public static function getUserById($userID) {
-    global $pdo;
+   /**
+     * GET /api/chat/userinfo?apiKey=...
+     * Récupère l'utilisateur lié à la clé API et renvoie son pseudo et son Img.
+     */
+    public static function getUserByApiKey() {
+        global $pdo;
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
 
-    header('Access-Control-Allow-Origin: *');
-    header('Content-Type: application/json; charset=utf-8');
-
-    if (!$userID) {
-        http_response_code(400); // Bad request if ID is missing
-        echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
-        return;
-    }
-
-    try {
-        // Parse the JSON body to get the desired fields
-        $input = json_decode(file_get_contents('php://input'), true);
-        $fields = isset($input['fields']) ? $input['fields'] : '*';
-
-        // Validate fields input
-        if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-            http_response_code(400);
-            echo json_encode(['success' => false, 'message' => "Paramètre 'fields' doit être '*' ou un tableau non vide."]);
+        if (!isset($_GET['apiKey'])) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Paramètre 'apiKey' manquant."
+            ]);
             return;
         }
 
-        // Basic validation against known columns (optional but recommended)
-        $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
-        $selectFields = '*';
-        if (is_array($fields)) {
-            $validFields = array_intersect($fields, $allowedFields);
-            if (empty($validFields)) {
-                 http_response_code(400);
-                 echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
-                 return;
-            }
-            // Sanitize field names (though PDO prepares values, good practice for identifiers if needed)
-            $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
-        }
-
-
-        $sql = "SELECT $selectFields FROM User WHERE User.ID = :userID";
-
+        $apiKey = $_GET['apiKey'];
+        $sql = "SELECT ID, Pseudo, Img FROM `User` WHERE ApiKey = :apiKey";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['userID' => $userID]);
-        $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute(['apiKey' => $apiKey]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($userData) {
-            echo json_encode(['success' => true, 'data' => $userData]);
-        } else {
-            http_response_code(404); // Not Found
-            echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'ID fourni."]);
+        if (!$user) {
+            echo json_encode([
+                'success' => false,
+                'message' => "Clé API invalide."
+            ]);
+            return;
         }
-    } catch (PDOException $e) {
-        http_response_code(500);
-        error_log("PDOException in getUserById: " . $e->getMessage());
-        echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
-    } catch (Exception $e) {
-         http_response_code(500);
-         error_log("Exception in getUserById: " . $e->getMessage());
-         echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
+
+        echo json_encode([
+            'success' => true,
+            'userID'  => $user['ID'],
+            'pseudo'  => $user['Pseudo'],
+            'img'     => $user['Img']
+        ]);
+    }
+    /**
+ * GET /api/chat/userinfoById?userID=...
+ * Récupère le pseudo et l'image d'un utilisateur à partir de son ID.
+ */
+public static function getUserByUserId() {
+    global $pdo;
+    header('Access-Control-Allow-Origin: *');
+    header('Content-Type: application/json; charset=utf-8');
+
+    if (!isset($_GET['userID'])) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            'message' => "Paramètre 'userID' manquant."
+        ]);
+        return;
     }
 
+    $userID = intval($_GET['userID']);
+    try {
+        $sql = "SELECT Pseudo, Img FROM `User` WHERE ID = :userID";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['userID' => $userID]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            http_response_code(404);
+            echo json_encode([
+                'success' => false,
+                'message' => "Utilisateur introuvable pour l'ID fourni."
+            ]);
+            return;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'userID'  => $userID,
+            'pseudo'  => $user['Pseudo'],
+            'img'     => $user['Img']
+        ]);
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erreur Database: ' . $e->getMessage()
+        ]);
+    }
+}
+
+ 
+    
+    public static function getUserById($userID) {
+        global $pdo;
+
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Type: application/json; charset=utf-8');
+
+        if (!$userID) {
+            http_response_code(400); // Bad request if ID is missing
+            echo json_encode(['success' => false, 'message' => "Paramètre 'userID' manquant."]);
+            return;
+        }
+
+        try {
+            // Parse the JSON body to get the desired fields
+            $input = json_decode(file_get_contents('php://input'), true);
+            $fields = isset($input['fields']) ? $input['fields'] : '*';
+
+            // Validate fields input
+            if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' doit être '*' ou un tableau non vide."]);
+                return;
+            }
+
+            // Basic validation against known columns (optional but recommended)
+            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
+            $selectFields = '*';
+            if (is_array($fields)) {
+                $validFields = array_intersect($fields, $allowedFields);
+                if (empty($validFields)) {
+                    http_response_code(400);
+                    echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
+                    return;
+                }
+                // Sanitize field names (though PDO prepares values, good practice for identifiers if needed)
+                $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
+            }
+
+
+            $sql = "SELECT $selectFields FROM User WHERE User.ID = :userID";
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['userID' => $userID]);
+            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($userData) {
+                echo json_encode(['success' => true, 'data' => $userData]);
+            } else {
+                http_response_code(404); // Not Found
+                echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'ID fourni."]);
+            }
+        } catch (PDOException $e) {
+            http_response_code(500);
+            error_log("PDOException in getUserById: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
+        } catch (Exception $e) {
+            http_response_code(500);
+            error_log("Exception in getUserById: " . $e->getMessage());
+            echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
+        
+        }
     }
 
     public static function getUserByUsername($username) { // Removed $input, read from body
@@ -292,66 +426,6 @@ class UserController{
         } catch (Exception $e) {
              http_response_code(500);
              error_log("Exception in getUserByUsername: " . $e->getMessage());
-             echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
-        }
-    }
-
-    public static function getUserByApiKey($apiKey) { // Removed $input, read from body
-        global $pdo;
-    
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json; charset=utf-8');
-    
-        if (!$apiKey) {
-             http_response_code(400);
-            echo json_encode(['success' => false, 'message' => "Paramètre 'apiKey' manquant dans l'URL."]);
-            return;
-        }
-    
-        try {
-            // Parse the JSON body to get the desired fields
-            $input = json_decode(file_get_contents('php://input'), true);
-            $fields = isset($input['fields']) ? $input['fields'] : '*';
-    
-            // Validate fields input
-            if ($fields !== '*' && (!is_array($fields) || empty($fields))) {
-                 http_response_code(400);
-                echo json_encode(['success' => false, 'message' => "Paramètre 'fields' dans le body doit être '*' ou un tableau non vide."]);
-                return;
-            }
-    
-            // Basic validation against known columns (optional but recommended)
-            $allowedFields = ['ID', 'Img', 'Pseudo', 'Name', 'Email', /* add other valid columns */ 'Last_Login', 'LanguageID', 'Creation_Date', 'PositionID', 'Description', 'Birth', 'ApiKey'];
-            $selectFields = '*';
-            if (is_array($fields)) {
-                $validFields = array_intersect($fields, $allowedFields);
-                if (empty($validFields)) {
-                     http_response_code(400);
-                     echo json_encode(['success' => false, 'message' => "Aucun champ valide fourni dans 'fields'."]);
-                     return;
-                }
-                $selectFields = implode(', ', array_map(function($field) { return "`" . str_replace("`", "``", $field) . "`"; }, $validFields));
-            }
-    
-            $sql = "SELECT $selectFields FROM User WHERE User.ApiKey = :apiKey";
-    
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute(['apiKey' => $apiKey]);
-            $userData = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-            if ($userData) {
-                echo json_encode(['success' => true, 'data' => $userData]);
-            } else {
-                 http_response_code(404);
-                echo json_encode(['success' => false, 'message' => "Utilisateur introuvable avec l'apiKey fourni."]);
-            }
-        } catch (PDOException $e) {
-            http_response_code(500);
-            error_log("PDOException in getUserByApiKey: " . $e->getMessage());
-            echo json_encode(['success' => false, 'message' => 'Erreur Database.']);
-        } catch (Exception $e) {
-             http_response_code(500);
-             error_log("Exception in getUserByApiKey: " . $e->getMessage());
              echo json_encode(['success' => false, 'message' => 'Erreur Serveur.']);
         }
     }
