@@ -170,8 +170,8 @@ post('/api/activity/title', function() {
     ActivityController::getActiviteByTitle();
 });
 
-post('/api/activity/search/${title}', function($title){
-    ActivityController::searchActivities($title);
+post('/api/activity/search', function(){
+    ActivityController::searchActivites();
 });
 
 

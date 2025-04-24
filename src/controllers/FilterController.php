@@ -163,6 +163,7 @@ class FilterController
         $positionFields = ['Name', 'Country', 'State', 'City', 'Street', 'Number', 'GPS', 'Local_Time'];
 
         try {
+            $pdo->beginTransaction(); // Start the transaction
 
             // 1. Insert options and collect their IDs
             $optionIDs = [];
@@ -200,10 +201,12 @@ class FilterController
                 $stmt2->execute([$oid, $filterID]);
             }
 
-            $pdo->commit();
+            $pdo->commit(); // Commit the transaction
             echo json_encode(['success' => true, 'filterID' => $filterID, 'optionIDs' => $optionIDs]);
         } catch (Exception $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) { // Check if a transaction is active before rolling back
+                $pdo->rollBack();
+            }
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
         }
     }
