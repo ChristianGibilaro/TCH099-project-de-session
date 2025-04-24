@@ -41,7 +41,6 @@ post('/api/filter/$id', function($id) {
 });
 
 
-
 //----------------------------USER CONTROLLER----------------------------//
 
 //Route qui combiner les donnees des route ci-dessous
@@ -189,6 +188,9 @@ delete('/api/activity/${id}', function($id){
     //need admin apikey & admin paswsword
 });
    
+post('/api/activity/count', function(){
+    ActivityController::countAllActivity();
+});
 
 //---------------------------- TEAM CONTROLLER ----------------------------//
 
@@ -228,6 +230,10 @@ post('/api/team/title', function () {
     $input = json_decode(file_get_contents('php://input'), true); // fonctionelle
     $title = $input['title'] ?? '';
     TeamController::getTeamByTitle($title);
+});
+
+get('/api/team/$id/users', function($id) {
+    TeamController::getUsersByTeam($id);
 });
 
 put('/api/team/$id', function ($id) {
