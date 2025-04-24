@@ -893,9 +893,7 @@ class ActivityController
                 ]
             ];
 
-            $result['activity']['Main_Img'] = "https://api.lunarcovenant.com/" . $result['activity']['Main_Img'];
-            $result['activity']['Logo_Img'] = "https://api.lunarcovenant.com/" . $result['activity']['Logo_Img'];
-
+         
             // Prepare success response structure
             $response = ['success' => true, 'data' => $result];
             if (php_sapi_name() !== 'cli' && !headers_sent()) {
