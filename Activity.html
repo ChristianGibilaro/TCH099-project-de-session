@@ -30,20 +30,25 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        fields: [
-          "Title", "Main_Img", "Description", "Logo_Img", "Point_Value",
-          "Word_4_Player", "Word_4_Teammate", "Word_4_Playing",
-          "Main_Color", "Second_Color", "Friend_Main_Color", "Friend_Second_Color"
-        ],
-        activityDataFields: [
-          "Team_Count", "QuickTeam_Count", "Player_Count", "Active_Player_Count"
-        ],
-        levelFields: [
-          "Name"
-        ],
-        filterFields: [
-          "PositionFilterID"
-        ]
+        fields: {
+          activity: [
+            "ID",
+            "Title",
+            "Description",
+            "Main_Img",
+            "Logo_Img",
+            "Point_Value",
+            "Word_4_Player",
+            "Main_Color",
+            "Second_Color"
+          ],
+          activityData: [
+            "ActivityID",
+            "Player_Count",
+            "Active_Player_Count",
+            "Rating"
+          ]
+        }
       })
     });
     const result = await response.json();

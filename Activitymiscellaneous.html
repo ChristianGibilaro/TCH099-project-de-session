@@ -15,120 +15,76 @@
   <link rel="stylesheet" href="Styles/normalize.css">
   <link rel="stylesheet" href="Styles/Demonstrateur.css">
 
+  <style>
+    .grid-item {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      margin: 12px;
+    }
+
+    .grid-item:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .grid-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      padding: 24px;
+    }
+
+    .match-card {
+      padding: 12px;
+      border: 2px solid #49b6ff;
+      border-radius: 12px;
+      background-color: #111;
+      color: white;
+      text-align: center;
+      width: 240px;
+    }
+
+    .match-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .match-level {
+      margin-top: 8px;
+      font-weight: bold;
+    }
+
+    .match-date {
+      color: #49b6ff;
+      margin-top: 4px;
+    }
+  </style>
 </head>
 
-<script>
-  var creator = new ElementCreator(document.title);
-  var API = new mainScript(document.title);
-  console.log(document.title);
-
-
-  // ---------------------------------------------- API DATA ----------------------------------------------
-
-
-  var elements =
-    [["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/553850/header.jpg", "Te3te", "Long texte"],
-    ["https://shared.cloudflare.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1739922037", "T2e", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/12e1bd007bebc8ffe7e9fad77ea3e6b6.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/a779abf92aeec12331d10524426171fb.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/e214786a5ff033e8ad5d57501bf82a16.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/928f27d1a6ae1828ad77b45f2d424dbf.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/8edc69aa76b7aac408ba3c248aa8d7d4.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/ea3a48c74a9efb9a08635fe7990347cc.jpg", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/994d88a370250b303be16fc98bb5cdac.png", "Texte", "Long texte"],
-    ["https://cdn2.steamgriddb.com/thumb/db3a47863b50389cccce3066cf7f7a53.jpg", "Texte", "Long texte"],];
-  var titles = ['nein', "Texte", "Long texte"];
-
-  var titleType = [["txt"], ["txt"], ["txt"]];
-  var titlesRow = creator.CreateTableTitles(titles, [40, 40, 20], 3, null, null, null);
-
-  var rowType = [["img", "100%", "160px", "image_failed", "FillImage", "object-fit: cover; object-position: 1% 40%;"], ["txt"], ["txt"]];
-  var rows = creator.CreateTableRows(elements, rowType, [20, 60, 20], 3, null, null, "text-align: center;");
-
-  const helldiversPlanets = [
-    "Acamar IV",
-    "Acerbitas",
-    "Acretia",
-    "Aesir Pass",
-    "Angel's Venture",
-    "Charon Prime",
-    "Choohe",
-    "Cratérus",
-    "Crimsica",
-    "Draupnir",
-    "Durgen",
-    "Emeria",
-    "Erata Prime",
-    "Esker",
-    "Estanu",
-    "Fenrir III",
-    "Fori Prime",
-    "Frosthorn",
-    "Heeth",
-    "Hellmire",
-    "Heze Bay",
-    "Ingmar",
-    "Isen IV",
-    "Kavis",
-    "Keid",
-    "Kraz",
-    "Lestrade",
-    "Maia",
-    "Malevelon Creek",
-    "Marfark",
-    "Martale",
-    "Matar Bay",
-    "Mefst",
-    "Meridia",
-    "Mort",
-    "Nivel IV",
-    "Obari",
-    "Oshaune",
-    "Penta",
-    "Pöpli IX",
-    "Provost",
-    "Pythea Bay",
-    "Seyshel Beach",
-    "Skarv",
-    "Sutnar",
-    "Thanatos",
-    "The Fold",
-    "Thera",
-    "Tibit",
-    "Troost",
-    "Turing",
-    "Ubanea",
-    "Ustotu",
-    "Vandalon IV",
-    "Varylia 5",
-    "Vernen Wells", // Sometimes appears as Vanern Wells
-    "X-45",
-    "Zagon Prime"
-  ];
-
-</script>
-
 <body>
-  <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
   <header onclick="toggleMenu()">
-    <script>
-      document.write(creator.PrefabMenu);
-    </script>
+    <script>document.write(new ElementCreator(document.title).PrefabMenu);</script>
   </header>
   <div id="dimmer" onclick="toggleMenu()"></div>
 
-
   <div id="contenu" style="height: 100%;">
-
     <div id="head">
       <script>
-        document.write(creator.CreateHero("ressources/Final/Main/moonDarkSign.png", "ressources/Commun/logo_example.png"));
+        document.write(new ElementCreator(document.title).CreateHero(
+          "ressources/Final/Main/moonDarkSign.png",
+          "ressources/Commun/logo_example.png"
+        ));
       </script>
     </div>
 
     <div class="barre-filtres" id="in1">
       <script>
-        window.addEventListener("load", (event) => { initializePagination("fatherland"); });
+        const helldiversPlanets = ["Acamar IV", "Acerbitas", "Ubanea", "Varylia 5", "Zagon Prime"];
+        window.addEventListener("load", () => initializePagination("fatherland"));
+        const creator = new ElementCreator(document.title);
         document.getElementById("in1").append(creator.CreateFilterTextbox(helldiversPlanets, "Find a planet to liberate"));
         document.getElementById("in1").append(creator.CreateCheckList(helldiversPlanets, "(Click to Open) Find a planet to liberate"));
       </script>
@@ -146,137 +102,59 @@
       </div>
     </div>
 
+    <div id="fatherland" class="grid-container"></div>
 
-
-    <div id="fatherland" class="contenu-onglet">
-      <div class="page-content" id="page-content-container " style="height: 100%;">
-        <div class="page-item active">
-            <script>
-                document.write(creator.CreateGrid([
-                  ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"]
-                ]));
-              </script>
-        </div>
-        <div class="page-item">
-            <script>
-                document.write(creator.CreateGrid([
-                  ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"]
-                ]));
-              </script>
-        </div>
-        <div class="page-item">
-            <script>
-                document.write(creator.CreateGrid([
-                  ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"],
-                    ["Activity.html", "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/capsule_231x87.jpg?t=1739922037",
-                    "#", "ressources/Commun/user_profile_image_example.png",
-                    "Creator: HeRobrain_III", "4/6 places", "Created: 10/12/2025<br>Ending: 17/12/2025 10:17AM<br>Level: RuneLevel 100"]
-                ]));
-              </script>
-        </div>
-      </div>
-      <div class="pagination" id="pagination-container">
-        <button class="prev-page">&lt; Previous</button>
-        <button class="next-page">Next &gt;</button>
-      </div>
+    <div class="pagination" id="pagination-container">
+      <button class="prev-page">&lt; Previous</button>
+      <button class="next-page">Next &gt;</button>
     </div>
-
-
   </div>
 
+  <script>
+    async function fetchAndDisplayMatches() {
+      const response = await fetch("https://api.lunarcovenant.com/api/match/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const result = await response.json();
+      const matches = Array.isArray(result.data) ? result.data : [];
+
+      await Promise.all(matches.map(async (match) => {
+        if (match.ActivityID) {
+          try {
+            const res = await fetch(`https://api.lunarcovenant.com/api/activity/id/${match.ActivityID}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" }
+            });
+            const actData = await res.json();
+            match.ActivityImg = actData.data?.activity?.Logo_Img || "ressources/Commun/logo_example.png";
+          } catch {
+            match.ActivityImg = "ressources/Commun/logo_example.png";
+          }
+        }
+      }));
+
+      const gridContainer = document.getElementById("fatherland");
+      gridContainer.innerHTML = "";
+
+      matches.forEach(match => {
+        const card = document.createElement("div");
+        card.className = "grid-item";
+        card.onclick = () => window.location.href = `MatchInfo.html?matchID=${match.ID}`;
+
+        card.innerHTML = `
+          <div class="match-card">
+            <img src="${match.ActivityImg}" alt="Image activité">
+            <div class="match-level">Niveau : ${match.LevelID ?? "?"}</div>
+            <div class="match-date">Créé le : ${match.Creation_Date ? new Date(match.Creation_Date).toLocaleString() : "?"}</div>
+          </div>
+        `;
+        gridContainer.appendChild(card);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchAndDisplayMatches);
+  </script>
 </body>
 
 </html>

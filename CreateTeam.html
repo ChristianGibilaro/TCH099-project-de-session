@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Créer une équipe</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
+  <script src="Scripts/mainScript.js"></script>
+
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
+</head>
+
+<body>
+  <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
+  <header id="main-menu" onclick="toggleMenu()"></header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <div id="contenu">
+    <div id="head"></div>
+    <div id="form-area" style="max-width:420px;margin:40px auto 0 auto;"></div>
+  </div>
+
+  <script>
+    var creator = new ElementCreator(document.title);
+    var API = new mainScript(document.title);
+
+    // Affiche le menu après que creator existe
+    document.getElementById('main-menu').innerHTML = creator.PrefabMenu;
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Récupération de l'ID de l'activité depuis l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      let activityID = parseInt(urlParams.get('activityID'), 10);
+      if (isNaN(activityID)) activityID = 9; // valeur par défaut
+
+      // Header visuel
+      document.getElementById('head').innerHTML =
+        creator.CreateHero("ressources/Final/Main/moonDarkSign.png", "ressources/Final/Main/logo.png");
+
+      // Même structure que Sign-up
+      const dynamicFormConfig = {
+        formTitle: "Créer une équipe",
+        formId: "form_create_team",
+        formMethod: "POST",
+        formEnctype: "application/json",
+        inputConfig: [
+          { type: 'text', label: 'Nom de l\'équipe', name: 'name', required: true },
+          { type: 'text', label: 'Niveau', name: 'rating', required: true, min: 0, max: 10 },
+          { type: 'textarea', label: 'Description', name: 'description', required: true }
+        ],
+        submitButtonText: "Créer l'équipe"
+      };
+
+      const generatedDynamicFormHTML = creator.CreateDynamicForm(
+        dynamicFormConfig.formTitle,
+        dynamicFormConfig.formId,
+        dynamicFormConfig.formMethod,
+        dynamicFormConfig.formEnctype,
+        dynamicFormConfig.inputConfig,
+        dynamicFormConfig.submitButtonText
+      );
+
+      document.getElementById('form-area').innerHTML = generatedDynamicFormHTML;
+
+      // Centrer le bouton submit
+      const submitBtn = document.querySelector('#form_create_team button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.style.display = "block";
+        submitBtn.style.margin = "32px auto 0 auto";
+      }
+
+      // Gestion de la soumission du formulaire
+      const form = document.getElementById('form_create_team');
+      if (form) {
+        form.onsubmit = async function (e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const data = {};
+          formData.forEach((value, key) => data[key] = value);
+
+          data.rating = parseInt(data.rating, 10);
+
+          const response = await fetch("https://api.lunarcovenant.com/api/team/create", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              activityID: activityID,
+              name: data.name,
+              description: data.description,
+              rating: data.rating
+            })
+          });
+          const result = await response.json();
+          if (result.success) {
+            alert("Équipe créée avec succès !");
+            window.location.href = "TeamsInfo.html?title=" + encodeURIComponent(data.name);
+          } else {
+            alert(result.message || "Erreur lors de la création de l'équipe.");
+          }
+        };
+      } else {
+        console.error("Formulaire non trouvé dans le DOM !");
+      }
+    });
+
+    // Ajout de l'affichage du niveau de l'équipe
+    const team = { Level: 5 }; // Exemple de données
+    const teamLevelHTML = `<div class="team-level">Niveau : <b>${team.rating || "?"}</b></div>`;
+    document.getElementById('form-area').insertAdjacentHTML('beforeend', teamLevelHTML);
+  </script>
+</body>
+</html>

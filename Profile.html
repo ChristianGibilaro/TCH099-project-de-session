@@ -25,35 +25,73 @@
     // Extract ID from URL (?10 or ?id=10)
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.keys().next().value || urlParams.get('id');
-    if (!userId) return;
+    if (!userId) {
+        console.error("User ID not found in URL.");
+        // Optionally display an error message to the user
+        document.getElementById('head').innerHTML = "<p>Error: User ID not provided.</p>";
+        return;
+    }
 
-    const response = await fetch(`https://api.lunarcovenant.com/api/user/id/${userId}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        fields: ["Pseudo", "Last_Login", "Img", "Creation_Date", "Description"]
-      })
-    });
-    const result = await response.json();
-    if (result.success && result.data) {
-      const username = result.data.Pseudo;
-      const profileImgLink = result.data.Img;
-      const userDescription = result.data.Description;
-      const last_Login = result.data.Last_Login;
-      const userCreationDate = result.data.Creation_Date;
-      document.title = username;
-      document.getElementById('head').innerHTML =
-        creator.CreateProfile("ressources/Final/Main/logo.png", profileImgLink) +
-        creator.CreateDesc("<strong>" + username + " </strong><br>" + userDescription,
-          "Created: " + userCreationDate + "<br>Last login: " + last_Login);
+    try {
+        const response = await fetch(`https://api.lunarcovenant.com/api/user/id/${userId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fields: ["Pseudo", "Last_Login", "Img", "Creation_Date", "Description", "Backg_Img"] // Added "Backg_Img"
+          })
+        });
 
-      // Example media viewer, replace with dynamic data if needed
-      const html = creator.generateMediaViewer([
-        ["img", "ressources/Media/got_2.png"],
-        ["img", "ressources/Media/photo_manette.jpg"],
-        ["video", "ressources/Media/video_routes.mp4"]
-      ]);
-      document.getElementById('contenu').insertAdjacentHTML('beforeend', html);
+        // Check if the request was successful (status code 2xx)
+        if (!response.ok) {
+            console.error(`HTTP error! Status: ${response.status} ${response.statusText}`);
+            // Try to get more details from the response body as text
+            const errorText = await response.text();
+            console.error("Server response:", errorText);
+            // Display an error message
+            document.getElementById('head').innerHTML = `<p>Error loading profile: ${response.statusText}</p>`;
+            return;
+        }
+
+        // Try parsing the JSON
+        const result = await response.json(); // This is where the original error likely happened
+
+        if (result.success && result.data) {
+          const username = result.data.Pseudo;
+          const profileImgLink = result.data.Img;
+          const userDescription = result.data.Description;
+          const last_Login = result.data.Last_Login;
+          const userCreationDate = result.data.Creation_Date;
+          const backgroundImgLink = result.data.Backg_Img; // Extract background image URL
+          document.title = username;
+          document.getElementById('head').innerHTML =
+            creator.CreateProfile(backgroundImgLink, profileImgLink) + // Use backgroundImgLink here
+            creator.CreateDesc("<strong>" + username + " </strong><br>" + userDescription,
+              "Created: " + userCreationDate + "<br>Last login: " + last_Login);
+
+          // Example media viewer, replace with dynamic data if needed
+          const html = creator.generateMediaViewer([
+            ["img", "ressources/Media/got_2.png"],
+            ["img", "ressources/Media/photo_manette.jpg"],
+            ["video", "ressources/Media/video_routes.mp4"]
+          ]);
+          document.getElementById('contenu').insertAdjacentHTML('beforeend', html);
+        } else {
+            // Handle cases where the API call was successful but didn't return the expected data
+            console.error("API request succeeded but returned an error or no data:", result);
+            document.getElementById('head').innerHTML = `<p>Could not retrieve profile data. ${result.message || ''}</p>`;
+        }
+    } catch (error) {
+        // Catch network errors or JSON parsing errors
+        console.error('Error fetching or processing profile data:', error);
+        // Display a generic error message
+        document.getElementById('head').innerHTML = "<p>An error occurred while loading the profile.</p>";
+
+        // If the error is the specific JSON parsing error, it confirms the response wasn't valid JSON
+        if (error instanceof SyntaxError && error.message.includes("JSON.parse")) {
+            console.error("The server response was not valid JSON.");
+            // You might want to try fetching the response as text again here if needed,
+            // but the !response.ok check above should ideally catch server errors.
+        }
     }
   }
 

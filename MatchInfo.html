@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Match</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
+  <script src="Scripts/mainScript.js"></script>
+
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
+
+  <style>
+    #match-header {
+      max-width: 900px;
+      margin: 0 auto 32px auto;
+      background: var(--bg-dark2, #23272e);
+      border-radius: 18px;
+      box-shadow: var(--shadow, 0 2px 8px rgba(0,0,0,0.08));
+      padding: 32px 24px 24px 24px;
+      text-align: center;
+    }
+    #match-header h2 {
+      margin: 18px 0 8px 0;
+      font-size: 2em;
+      color: var(--accent2, #58acec);
+    }
+    #match-header .match-desc {
+      margin: 0 0 16px 0;
+      font-size: 1.1em;
+      color: #bfc9d1;
+    }
+    #match-header .match-level {
+      font-size: 1.05em;
+      color: #8a8a8a;
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header onclick="toggleMenu()">
+    <script>
+      var creator = new ElementCreator(document.title);
+      document.write(creator.PrefabMenu);
+    </script>
+  </header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <div id="contenu" style="height: 100%;">
+    <div id="head"></div>
+    <div id="match-header"></div>
+    <!-- Tu peux ajouter une section pour les équipes ou joueurs du match ici -->
+  </div>
+
+  <script>
+    var creator = new ElementCreator(document.title);
+
+    async function fetchAndRenderMatch() {
+      // Récupère l'id du match dans l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const matchId = urlParams.get('matchID');
+      if (!matchId) return;
+
+      // Récupère les infos du match
+      let match = null;
+      try {
+        const response = await fetch(`https://api.lunarcovenant.com/api/match/${matchId}`);
+        const result = await response.json();
+        if (result.success && result.data) {
+          match = result.data;
+        }
+      } catch (e) {
+        // fallback
+      }
+      if (!match) return;
+
+      // Récupère les infos de l'activité associée
+      let activityImg = "ressources/Commun/logo_example.png";
+      let activityTitle = "";
+      if (match.ActivityID) {
+        try {
+          const actRes = await fetch(`https://api.lunarcovenant.com/api/activity/id/${match.ActivityID}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" }
+          });
+          const actData = await actRes.json();
+          activityImg = actData.data?.Logo_Img || activityImg;
+          activityTitle = actData.data?.Title || "";
+        } catch (e) {}
+      }
+
+      // Affiche la bannière de l'activité
+      document.getElementById('head').innerHTML = creator.CreateHero(activityImg, activityImg);
+
+      // Affiche l'entête du match
+      document.getElementById('match-header').innerHTML = `
+        <h2>Match #${match.ID}</h2>
+        <div class="match-desc">${activityTitle ? "Activité : <b>" + activityTitle + "</b>" : ""}</div>
+        <div class="match-level">Niveau : <b>${match.LevelID ?? "?"}</b></div>
+        <div class="match-date">Créé le : <b>${match.Creation_Date ? new Date(match.Creation_Date).toLocaleString() : "?"}</b></div>
+        <div class="match-public">${match.Is_Public ? "Match public" : "Match privé"}</div>
+        <div class="match-description">${match.Description || ""}</div>
+      `;
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchAndRenderMatch);
+
+    
+  </script>
+</body>
+</html>
+

@@ -385,7 +385,6 @@ tbody .icon div {
   background-color: rgba(255, 255, 255, 0.05);
 }
 
-.listeScrollable thead th {}
 
 @keyframes subtleShake {
   0% {
@@ -959,26 +958,88 @@ tbody .icon div {
 
 /* --- Styles for Switchable Inputs --- */
 
-.switchable-input-group .input-wrapper {
-  /* Remove default bottom margin from the individual wrappers inside switchable */
-  margin-bottom: 0;
+/* Main container for the switchable group */
+.switchable-input-group {
+    /* Inherits margin-bottom from .input-group */
+    /* Add specific padding or border if needed */
+    padding: 15px; /* Example: Add some internal padding */
+    border: 1px dashed var(--bg-darkLite); /* Example: Visually distinguish the group */
+    border-radius: var(--border-radius);
 }
 
-.switchable-input-group .switchable-content {
-  /* Add some space below the active input before the button */
-  margin-bottom: 10px;
+/* The main label for the entire switchable group */
+.switchable-group-label {
+  display: block; /* Ensure label takes full width */
+  text-align: center; /* Center the main label */
+  font-weight: bold;
+  font-size: 1.1rem; /* Slightly larger */
+  color: var(--accent); /* Use accent color */
+  margin-bottom: 15px; /* Space below the main label */
 }
 
+/* Wrappers for the individual input options (type1, type2) */
+/* These wrappers often have classes 'input-group input-wrapper switchable-content' */
+.switchable-input-group > .input-group.switchable-content {
+  margin-bottom: 10px; /* Space below the active input option */
+  padding: 0; /* Remove padding if inherited from .input-group */
+  border: none; /* Remove border if inherited */
+  box-shadow: none; /* Remove shadow if inherited */
+}
+
+/* Style the labels *inside* the switchable content sections */
+.switchable-content label {
+    /* Styles should match regular input labels */
+    display: block;
+    color: var(--text);
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: left; /* Override potential centering */
+}
+
+/* Style the inputs *inside* the switchable content sections */
+.switchable-content input[type="text"],
+.switchable-content input[type="email"],
+.switchable-content input[type="password"],
+.switchable-content input[type="date"],
+.switchable-content input[type="file"],
+.switchable-content input[type="number"],
+.switchable-content input[type="url"],
+.switchable-content textarea {
+  /* Styles should match regular inputs */
+  width: calc(100% - 22px); /* Adjust for padding and border */
+  padding: 10px;
+  border: 1px solid var(--accent);
+  border-radius: var(--border-radius);
+  background-color: var(--bg-darkLite);
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.switchable-content textarea {
+  resize: vertical;
+  min-height: 80px; /* Adjust height if needed */
+}
+
+/* Style for disabled inputs within switchable content */
+.switchable-content input:disabled,
+.switchable-content textarea:disabled {
+    background-color: #404042; /* Darker background for disabled */
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* The button used to toggle between input types */
 .switchable-input-button {
-  background-color: var(--bg-darkLite); /* Use a distinct background */
+  background-color: var(--bg-darkLite);
   color: var(--accent);
   border: 1px solid var(--accent);
   padding: 8px 15px;
   border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 0.9rem;
-  margin-top: 5px; /* Space above the button */
-  display: inline-block; /* Or block if you want full width */
+  margin-top: 10px; /* Space above the button */
+  display: inline-block;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -987,238 +1048,186 @@ tbody .icon div {
   color: var(--bg-dark);
 }
 
-/* Ensure labels within the switched inputs look right */
-.switchable-content label {
+/* --- Styles for Hidden Inputs (Add if not present) --- */
+
+/* Main container for the hidden group */
+.hidden-input-group {
+    /* Inherits margin-bottom from .input-group */
+    padding: 15px;
+    border: 1px dashed var(--bg-darkLite);
+    border-radius: var(--border-radius);
+}
+
+/* Label for the entire hidden group */
+.hidden-group-label {
     display: block;
-    color: var(--text);
-    margin-bottom: 5px;
     font-weight: bold;
-    font-size: 1rem; /* Match your standard label size */
+    font-size: 1.1rem;
+    color: var(--accent);
+    margin-bottom: 10px; /* Space below label */
 }
 
-/* Ensure inputs within the switched content take full width */
-.switchable-content input[type="text"],
-.switchable-content input[type="url"],
-.switchable-content input[type="file"],
-.switchable-content textarea { /* Add other types as needed */
-  width: calc(100% - 22px); /* Match your standard input width */
-  /* Inherit other styles or redefine if necessary */
-   padding: 10px;
-   border: 1px solid var(--accent);
-   border-radius: var(--border-radius);
-   background-color: var(--bg-darkLite);
-   color: var(--text);
-   font-size: 1rem;
+/* Button to show/hide the content */
+.hidden-input-button {
+    /* Can share styles with switchable button or have its own */
+    background-color: var(--bg-darkLite);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    padding: 8px 15px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.9rem;
+    margin-bottom: 10px; /* Space below button when content is hidden */
+    display: inline-block;
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Add this if you haven't already, for better structure */
-.input-group {
-    margin-bottom: 20px; /* Standard spacing between form groups */
+.hidden-input-button:hover {
+    background-color: var(--accent);
+    color: var(--bg-dark);
 }
 
-/* Style for disabled inputs (optional visual cue) */
-.switchable-content input:disabled,
-.switchable-content textarea:disabled {
-    background-color: #404042; /* Slightly different background */
-    cursor: not-allowed;
-    opacity: 0.6;
+/* Container for the inputs that are hidden/shown */
+.hidden-content {
+    /* Add padding or border if needed when shown */
+    padding-top: 10px; /* Space between button and content when shown */
+    border-top: 1px solid var(--bg-darkLite); /* Separator line */
+    margin-top: 10px;
 }
 
-.switchable-group-label {
+/* Ensure inputs inside hidden content are styled correctly */
+.hidden-content .input-group,
+.hidden-content .input-wrapper {
+    margin-bottom: 15px; /* Adjust spacing for inner inputs */
+}
+.hidden-content .input-group:last-child,
+.hidden-content .input-wrapper:last-child {
+    margin-bottom: 0; /* No margin on the very last item */
+}
+
+/* --- Styles for List Inputs (Add if not present) --- */
+
+.list-input-group {
+    padding: 15px;
+    border: 1px solid var(--accent2); /* Distinct border for list group */
+    border-radius: var(--border-radius);
+    background-color: #202021; /* Slightly different background */
+}
+
+.list-group-label {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: var(--accent);
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.list-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between list items */
+    margin-bottom: 15px; /* Space before the 'Add' button */
+}
+
+.list-item {
+    background-color: var(--bg-dark2); /* Background for each item */
+    padding: 15px;
+    border: 1px solid var(--bg-darkLite);
+    border-radius: var(--border-radius);
+    position: relative; /* For positioning remove button if needed */
+}
+
+/* Adjust spacing for inputs within a list item */
+.list-item .input-group,
+.list-item .input-wrapper,
+.list-item .checkbox-group,
+.list-item .switchable-input-group, /* Target nested complex types */
+.list-item .hidden-input-group {
+    margin-bottom: 10px;
+}
+.list-item .input-group:last-of-type, /* Target last group before remove button */
+.list-item .input-wrapper:last-of-type,
+.list-item .checkbox-group:last-of-type,
+.list-item .switchable-input-group:last-of-type,
+.list-item .hidden-input-group:last-of-type {
+    margin-bottom: 15px; /* More space before remove button */
+}
+
+.remove-list-item-button {
+    background-color: #5e2a2a; /* Reddish background */
+    color: var(--text);
+    border: 1px solid #8e4444;
+    padding: 5px 10px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background-color 0.3s ease;
+    /* position: absolute; */ /* Optional: Position top-right */
+    /* top: 10px; */
+    /* right: 10px; */
+    display: block; /* Make it block to appear below inputs */
+    margin-top: 10px; /* Space above remove button */
+    margin-left: auto; /* Push to the right */
+}
+
+.remove-list-item-button:hover {
+    background-color: #8e4444;
+}
+
+.add-list-item-button {
+    background-color: var(--accent2);
+    color: var(--bg-dark);
+    border: none;
+    padding: 10px 18px;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    display: block; /* Full width button */
+    width: 100%;
+    margin-top: 10px; /* Space above add button */
+}
+
+.add-list-item-button:hover {
+    background-color: var(--accentHover);
+}
+
+/* --- Styles for Fieldset/Group Inputs --- */
+
+/* Main container for the grouped inputs */
+.fieldset-group {
+    /* Inherits margin-bottom from .input-group */
+    padding: 15px;
+    border: 1px solid var(--accent); /* Example border */
+    border-radius: var(--border-radius);
+    background-color: #28282a; /* Slightly different background */
+}
+
+/* The main label for the entire group */
+.fieldset-group-label {
+  display: block;
   text-align: center;
-  display: block; /* Ensure label takes full width to allow centering */
-  margin-bottom: 10px; /* Add some space below the centered label */
-}
-
-/* --- Optional: Adjust label styling if needed --- */
-/* You might already have styles for .input-group label,
-   but you can target this specific one if needed */
-.switchable-group-label {
-    font-weight: bold; /* Example: Make it bold */
-    /* font-size: 1.1rem; */ /* Example: Slightly larger font */
-}
-
-.activity-card {
-  background-color: var(--bg-dark2);
-  border: 1px solid var(--accent);
-  box-shadow: var(--shadow);
-}
-
-/* ---- SECTION 9 : MESSAGERIE ---- */
-
-.messagerie-container {
-  display: flex;
-  gap: 20px; /* espace entre les écrans */
-  padding: 20px;
-  box-sizing: border-box;
-  height: 100%;
-  overflow-x: auto;
-}
-
-.chat-screen {
-  flex: 1 1 0;
-  min-width: 350px;
-  background-color: var(--bg-darkLite);
-  border: 1px solid var(--accent);
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: var(--shadow);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-/* Conversation List */
-.conversation-list h3,
-.create-conversation h3 {
-  margin-top: 0;
-  font-size: 1.2em;
-}
-
-.chat-preview-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.chat-preview {
-  padding: 10px;
-  margin-bottom: 8px;
-  background: var(--bg-dark2);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.chat-preview:hover {
-  background: var(--accent);
-  color: var(--bg-dark);
-}
-
-.add-convo-btn {
-  margin-top: auto;
-  align-self: center;
-  font-size: 1.5em;
-  padding: 6px 12px;
-  border-radius: 50%;
-  background: var(--accent);
-  color: var(--bg-dark);
-  border: none;
-  cursor: pointer;
-}
-
-/* Create Conversation */
-.chat-input {
-  margin-bottom: 12px;
-  padding: 8px;
-  border: 1px solid var(--accent2);
-  border-radius: 6px;
-  background: var(--bg-dark2);
-  color: var(--text);
-}
-
-.create-btn {
-  align-self: flex-end;
-  padding: 8px 16px;
-  background: var(--accent);
-  color: var(--bg-dark);
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* Chat View */
-.chat-header {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.back-btn {
-  font-size: 1.2em;
-  margin-right: 10px;
-  background: transparent;
-  border: none;
-  color: var(--accent);
-  cursor: pointer;
-}
-
-.chat-title {
   font-weight: bold;
-  font-size: 1.1em;
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-bottom: 15px; /* Space below the main label */
 }
 
-.chat-messages {
-  flex-grow: 1;
-  overflow-y: auto;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* Optional: Wrapper for inner content if needed for spacing */
+.fieldset-content {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Add space between inner inputs */
 }
 
-.message {
-  display: flex;
-  align-items: flex-end;
-}
-
-.message.other {
-  flex-direction: row;
-}
-
-.message.self {
-  flex-direction: row-reverse;
-}
-
-.avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  margin: 0 8px;
-}
-
-.bubble {
-  max-width: 60%;
-  padding: 10px;
-  border-radius: 12px;
-  background: var(--accent2);
-  position: relative;
-  color: var(--text);
-}
-
-.message.self .bubble {
-  background: var(--accent);
-  color: var(--bg-dark);
-}
-
-.timestamp {
-  font-size: 0.7em;
-  position: absolute;
-  bottom: -16px;
-  right: 8px;
-  color: #aaa;
-}
-
-.chat-input-area {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.chat-message-input {
-  flex: 1;
-  padding: 8px;
-  border-radius: 8px;
-  border: 1px solid var(--accent2);
-  background: var(--bg-dark2);
-  color: var(--text);
-}
-
-.send-btn {
-  padding: 8px 16px;
-  background: var(--accent);
-  border: none;
-  border-radius: 6px;
-  color: var(--bg-dark);
-  cursor: pointer;
+/* Adjust spacing for inputs within a fieldset group */
+/* Target the wrappers generated by generateInputHtml */
+.fieldset-content > .input-group,
+.fieldset-content > .input-wrapper,
+.fieldset-content > .checkbox-group,
+.fieldset-content > .switchable-input-group,
+.fieldset-content > .hidden-input-group,
+.fieldset-content > .list-input-group { /* Allow nesting lists/groups */
+    margin-bottom: 0; /* Remove default bottom margin as gap is used */
 }

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Create Activity</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
+  <script src="Scripts/mainScript.js"></script>
+  
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
+
+</head>
+
+<script>
+  var creator = new ElementCreator(document.title);
+  var API = new mainScript(document.title);
+  console.log(document.title);
+</script>
+
+<body>
+  <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
+  <header onclick="toggleMenu()">
+    <script>
+      document.write(creator.PrefabMenu);
+    </script>
+  </header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <div id="contenu">
+
+    <div id="head">
+      <script>
+        document.write(creator.CreateHero("ressources/Final/Main/moonDarkSign.png", "ressources/Commun/logo_example.png"));
+      </script>
+    </div>
+
+    <!------------------------------------------------ SECTION 5 - FORM ---------------------------------------------->
+
+    <script>
+
+      // --- Configuration Object for the Dynamic Form ---
+      const dynamicFormConfig = {
+        formTitle: "Create an activity",
+        formId: "form_new_user_id",
+        formMethod: "POST",
+        formEnctype: "multipart/form-data", // Essential for file uploads
+        inputConfig: [
+          { type: 'text', label: 'title', name: 'title', required: true },
+          { type: 'checkbox', label: 'is Sport', name: 'isSport', required: true },
+          { // --- Switchable Image Input (URL or File) ---
+            type: 'switchable',
+            label: 'Main image',         // Translated label for the group
+            name: 'mainImg',      // Base name for the group (used for IDs)
+
+            type1: { // Configuration for the URL input option
+              type: 'url',
+              label: 'URL',        // Translated label specific to this mode
+              name: 'main_img_url',       // Name the backend expects for URL
+              placeholder: 'https://example.com/image.png',
+              required: true                 // Image is required if URL mode is active (set false if optional)
+            },
+            type2: { // Configuration for the File input option
+              type: 'file',
+              label: 'Upload',    // Translated label specific to this mode
+              name: 'main_img',      // Name the backend expects for File
+              required: true                 // Image is required if File mode is active (set false if optional)
+            },
+            defaultType: 'type2', // Show the URL input first by default
+            switchButtonText: "Or %typeLabel%" // Custom text for the switch button (uses other type's label)
+          },
+          { // --- Switchable Image Input (URL or File) ---
+            type: 'switchable',
+            label: 'Logo image',         // Translated label for the group
+            name: 'logoimg_',      // Base name for the group (used for IDs)
+
+            type1: { // Configuration for the URL input option
+              type: 'url',
+              label: 'URL',        // Translated label specific to this mode
+              name: 'logo_img',       // Name the backend expects for URL
+              placeholder: 'https://example.com/image.png',
+              required: true                 // Image is required if URL mode is active (set false if optional)
+            },
+            type2: { // Configuration for the File input option
+              type: 'file',
+              label: 'Upload',    // Translated label specific to this mode
+              name: 'logo_img_url',      // Name the backend expects for File
+              required: true                 // Image is required if File mode is active (set false if optional)
+            },
+            defaultType: 'type2', // Show the URL input first by default
+            switchButtonText: "Or %typeLabel%" // Custom text for the switch button (uses other type's label)
+          },
+          { type: 'textarea', label: 'Description', name: 'description', required: true }, // Assuming description is required
+          { type: 'text', label: 'word for a player', name: 'word_4_player', required: false },
+          { type: 'text', label: 'word for a team (to add to the db)', name: 'word_4_team', required: false },
+          { type: 'text', label: 'word for a teammate', name: 'word_4_teammate', required: false },
+          { type: 'text', label: 'word for playing', name: 'word_4_playing', required: false },
+          { type: 'text', label: 'Value of a point', name: 'point_value', required: false },
+          { type: 'color', label: 'main color', name: 'main_color', required: false },
+          { type: 'color', label: 'secondary color', name: 'second_color', required: false },
+          { type: 'color', label: 'main friend color', name: 'friend_main_color', required: false },
+          { type: 'color', label: 'secondary friend color', name: 'friend_second_color', required: false },
+          { type: 'text', label: 'location', name: 'positionID', required: false },
+          { type: 'text', label: 'language', name: 'languageID', required: false },
+          { type: 'text', label: 'Type', name: 'TypeID', required: false },
+          { type: 'text', label: 'Platform', name: 'EnvironementID', required: false },
+
+          { type: 'text', label: 'Name of the  language Filter', name: 'languageFiltersTitle', required: false },
+          {
+            type: 'list',
+            name: 'languageFilters',
+            label: 'Language Filters',
+            addButtonText: 'Add Language Filter',
+            removeButtonText: 'Remove',
+            startEmpty: true,
+            inputs: [
+              {
+                type: 'text',
+                name: 'languageName',
+                label: 'Language Name',
+                placeholder: 'e.g., English, French',
+                required: true
+              }
+            ]
+          },
+          { type: 'text', label: 'Name of the Type Filter', name: 'typeFiltersTitle', required: false },
+          {
+            type: 'list',
+            name: 'typeFilters',
+            label: 'Type Filters',
+            addButtonText: 'Add Type Filter',
+            removeButtonText: 'Remove',
+            startEmpty: true,
+            inputs: [
+              {
+                type: 'text',
+                name: 'typeName',
+                label: 'Type Name',
+                placeholder: 'e.g., Action, RPG, Strategy',
+                required: true
+              }
+            ]
+          },
+          { type: 'text', label: 'Name of the Environment Filter', name: 'environmentFiltersTitle', required: false },
+          {
+            type: 'list',
+            name: 'environmentFilters',
+            label: 'Environment Filters',
+            addButtonText: 'Add Environment Filter',
+            removeButtonText: 'Remove',
+            startEmpty: true,
+            inputs: [
+              {
+                type: 'text',
+                name: 'environmentName',
+                label: 'Environment Name',
+                placeholder: 'e.g., Windows, macOS, Linux',
+                required: true
+              }
+            ]
+          },
+          { type: 'text', label: 'Name of the Position Filter', name: 'positionFiltersTitle', required: false },
+          {
+            type: 'list',
+            name: 'positionFilters',
+            label: 'Position Filters',
+            addButtonText: 'Add Position Filter',
+            removeButtonText: 'Remove',
+            startEmpty: true,
+            inputs: [
+              {
+                type: 'text',
+                name: 'PositionName',
+                label: 'Position Name',
+                placeholder: 'e.g., Role, Lane',
+                required: true
+              }
+            ]
+          },
+          {
+            type: 'list',
+            name: 'levels',
+            label: 'Levels',
+            addButtonText: 'Add Level',
+            removeButtonText: 'Remove',
+            inputs: [
+              {
+                type: 'text',
+                name: 'levelName',
+                label: 'Level Name',
+                placeholder: 'New Level',
+                required: true
+              },
+              { // --- Switchable Image Input (URL or File) ---
+                    type: 'switchable',
+                    label: 'Level Logo',
+                    name: 'levelLogo',
+                    type1: { type: 'url', label: 'URL', name: 'level_logo_url', placeholder: 'https://...', required: true },
+                    type2: { type: 'file', label: 'Upload', name: 'level_logo_file', required: true },
+                    defaultType: 'type2',
+                    switchButtonText: "Or %typeLabel%"
+                  }
+            ]
+          }
+        ],
+        submitButtonText: "Create Activity",
+        loginLink: null,
+        loginLinkText: ""
+      };
+
+      // --- Generate the Form HTML ---
+      const generatedDynamicFormHTML = creator.CreateDynamicForm(
+        dynamicFormConfig.formTitle,
+        dynamicFormConfig.formId,
+        dynamicFormConfig.formMethod,
+        dynamicFormConfig.formEnctype,
+        dynamicFormConfig.inputConfig,
+        dynamicFormConfig.submitButtonText,
+        dynamicFormConfig.loginLink,
+        dynamicFormConfig.loginLinkText
+      );
+
+      document.write(generatedDynamicFormHTML);
+
+      // --- Event Listeners and Initialization ---
+      document.addEventListener('DOMContentLoaded', function() {
+
+        // Add listener for the main form submission button
+        const submitButton = document.getElementById('soummission_btn'); // Make sure this ID matches the one generated by CreateDynamicForm
+        if (submitButton) {
+            submitButton.addEventListener('click', API.creerActivity);
+        } else {
+            console.error('Submission button with ID "soummission_btn" not found.');
+        }
+
+        // --- Initialize the universal handlers ---
+        if (typeof initializeDynamicFormHandlers === 'function' && typeof creator !== 'undefined') {
+            initializeDynamicFormHandlers(creator);
+        } else {
+            console.error("Could not initialize dynamic form handlers. Function or creator instance missing.");
+        }
+
+        // --- Fetch Filter Options ---
+        async function fetchFilterOptions(filterType, id,name,placeholder) {
+          const response = await fetch(`https://api.lunarcovenant.com/api/filter/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "filterType": filterType })
+          });
+          const data = await response.json();
+          if (!data.elements || !Array.isArray(data.elements)) return [[], []];
+
+          const names = ["--Clear--"];
+          names.push(...data.elements.map(e => e.Name));
+          const ids = data.elements.map(e => e.ID);
+          console.log(names, ids);
+          var checklistElement = creator.CreateCheckList(names,placeholder,name);
+          console.log(checklistElement);
+          const targetElement = document.getElementById(name);
+          if (targetElement && checklistElement) {
+              if (checklistElement.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
+                 targetElement.replaceWith(...checklistElement.childNodes);
+              } else {
+                 targetElement.replaceWith(checklistElement);
+              }
+          } else {
+              console.error(`Target element with ID "${name}" or generated checklist not found.`);
+          }
+          console.log("Checklist replaced successfully.");
+          return [names, ids];
+        }
+        fetchFilterOptions('PositionFilter',1,"positionID","Position");
+        fetchFilterOptions('LanguageFilter',1,"languageID","Language");
+        fetchFilterOptions('TypeFilter',1,"TypeID","Type");
+        fetchFilterOptions('EnvironmentFilter',1,"EnvironementID","Platform");
+
+      }); // End DOMContentLoaded
+
+
+    </script>
+
+  </div>
+</body>
+
+</html>

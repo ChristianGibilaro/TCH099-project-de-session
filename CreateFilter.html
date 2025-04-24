@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Create Filter</title>
+    <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="Scripts/animationScript.js" defer></script>
+    <script src="Scripts/ElementCreator.js"></script>
+    <script src="Scripts/globalVars.js"></script>
+    <script src="Scripts/mainScript.js"></script> <!-- Assuming mainScript handles API calls -->
+
+    <link rel="stylesheet" href="Styles/normalize.css">
+    <link rel="stylesheet" href="Styles/Demonstrateur.css">
+    <!-- Add specific styles if needed -->
+
+</head>
+
+<script>
+    // Initialize creator and potentially API helper if needed elsewhere
+    var creator = new ElementCreator(document.title);
+    // var API = new mainScript(document.title); // Uncomment if mainScript has helper functions you use
+</script>
+
+<body>
+    <!------------------------------------------------ SECTION Ω - MENU ---------------------------------------------->
+    <header onclick="toggleMenu()">
+        <script>
+            document.write(creator.PrefabMenu);
+        </script>
+    </header>
+    <div id="dimmer" onclick="toggleMenu()"></div>
+
+    <div id="contenu">
+
+        <div id="head">
+            <!-- Optional: Add a hero section if desired -->
+            <script>
+                 // document.write(creator.CreateHero("path/to/background.png", "path/to/logo.png"));
+            </script>
+        </div>
+
+        <!------------------------------------------------ SECTION - FORM ---------------------------------------------->
+        <script>
+            // --- Configuration Object for the Dynamic Form ---
+            const filterFormConfig = {
+                formTitle: "Create a New Filter",
+                formId: "form_new_filter",
+                formMethod: "POST", // Method is handled by JS fetch, but good practice
+                formEnctype: "application/json", // We are sending JSON
+                inputConfig: [
+                    { type: 'text', label: 'Filter Type', name: 'filter_type', placeholder: 'e.g., Environment, Language', required: true },
+                    { type: 'text', label: 'Filter Name', name: 'filter_name', placeholder: 'e.g., Software, Spoken Languages', required: true },
+                    { type: 'textarea', label: 'Options (one per line)', name: 'filter_options', required: true, rows: 10, placeholder: 'Windows\nmacOS\nLinux...' }
+                ],
+                submitButtonText: "Create Filter",
+                // No login link needed for this form
+                loginLink: null,
+                loginLinkText: null
+            };
+
+            // --- Generate the Form HTML ---
+            const generatedFilterFormHTML = creator.CreateDynamicForm(
+                filterFormConfig.formTitle,
+                filterFormConfig.formId,
+                filterFormConfig.formMethod,
+                filterFormConfig.formEnctype,
+                filterFormConfig.inputConfig,
+                filterFormConfig.submitButtonText,
+                filterFormConfig.loginLink,
+                filterFormConfig.loginLinkText
+            );
+
+            document.write(generatedFilterFormHTML);
+
+            // --- API Call Function ---
+            async function createFilter(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const form = document.getElementById(filterFormConfig.formId);
+                const filterTypeInput = form.elements['filter_type'];
+                const filterNameInput = form.elements['filter_name'];
+                const filterOptionsInput = form.elements['filter_options'];
+
+                // Basic validation (can be enhanced)
+                if (!filterTypeInput.value || !filterNameInput.value || !filterOptionsInput.value) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                // Process options from textarea
+                const optionsArray = filterOptionsInput.value
+                    .split('\n')                // Split by newline
+                    .map(line => line.trim())   // Remove leading/trailing whitespace
+                    .filter(line => line !== '') // Remove empty lines
+                    .map(name => ({ Name: name })); // Format as { Name: "..." }
+
+                if (optionsArray.length === 0) {
+                    alert('Please enter at least one valid option.');
+                    return;
+                }
+
+                const requestBody = {
+                    type: filterTypeInput.value,
+                    filter_name: filterNameInput.value,
+                    count: optionsArray.length, // Calculate count based on processed options
+                    options: optionsArray
+                };
+
+                console.log("Sending request:", JSON.stringify(requestBody, null, 2)); // Log the request body for debugging
+
+                try {
+                    const response = await fetch('https://api.lunarcovenant.com/api/filter/create', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            // Add any necessary authentication headers (e.g., Authorization: Bearer token)
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    const result = await response.json(); // Assume server responds with JSON
+
+                    if (response.ok && result.success) { // Adjust based on your API's success response structure
+                        alert('Filter created successfully!');
+                        // Optionally redirect or clear the form
+                        // window.location.href = '/some-success-page';
+                        form.reset();
+                    } else {
+                        // Handle API errors (e.g., validation errors, server issues)
+                        console.error('API Error:', result);
+                        alert(`Failed to create filter: ${result.message || response.statusText}`);
+                    }
+                } catch (error) {
+                    // Handle network errors or issues parsing the response
+                    console.error('Fetch Error:', error);
+                    alert('An error occurred while communicating with the server.');
+                }
+            }
+
+            // --- Attach Event Listener ---
+            // Ensure the DOM is fully loaded before attaching the listener
+            document.addEventListener('DOMContentLoaded', function() {
+                // Find the submit button within the generated form
+                const submitButton = document.querySelector(`#${filterFormConfig.formId} button[type="submit"], #${filterFormConfig.formId} input[type="submit"]`);
+                 if (submitButton) {
+                    // It's better to listen on the form's submit event
+                     const formElement = document.getElementById(filterFormConfig.formId);
+                     if(formElement) {
+                         formElement.addEventListener('submit', createFilter);
+                     } else {
+                         console.error(`Form with ID ${filterFormConfig.formId} not found.`);
+                     }
+                 } else {
+                     console.error('Submit button not found for form:', filterFormConfig.formId);
+                 }
+
+                // Initialize any other scripts like switchable inputs if needed (though not used in this specific config)
+                // initializeSwitchableInputs();
+            });
+
+        </script>
+
+    </div>
+</body>
+
+</html>

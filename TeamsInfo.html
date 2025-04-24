@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Teams</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
+  <script src="Scripts/mainScript.js"></script>
+
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
+
+  <style>
+    #members-list .super-scrollable-list {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    #members-list .super-scrollable-list::-webkit-scrollbar {
+      display: none;
+    }
+    #team-header {
+      max-width: 900px;
+      margin: 0 auto 32px auto;
+      background: var(--bg-dark2, #23272e);
+      border-radius: 18px;
+      box-shadow: var(--shadow, 0 2px 8px rgba(0,0,0,0.08));
+      padding: 32px 24px 24px 24px;
+      text-align: center;
+    }
+    #team-header h2 {
+      margin: 18px 0 8px 0;
+      font-size: 2em;
+      color: var(--accent2, #58acec);
+    }
+    #team-header .team-desc {
+      margin: 0 0 16px 0;
+      font-size: 1.1em;
+      color: #bfc9d1;
+    }
+    #team-header .team-level {
+      font-size: 1.05em;
+      color: #8a8a8a;
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header onclick="toggleMenu()">
+    <script>
+      var creator = new ElementCreator(document.title);
+      document.write(creator.PrefabMenu);
+    </script>
+  </header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <div id="contenu" style="height: 100%;">
+    <div id="head"></div>
+    <div id="team-header"></div>
+    <div id="members-list" class="contenu-onglet"></div>
+  </div>
+
+  <script>
+    var creator = new ElementCreator(document.title);
+    var API = new mainScript(document.title);
+
+    async function fetchAndRenderTeam() {
+      // Récupère le nom de la team dans l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const teamTitle = urlParams.get('title') || "Liberty Brigade";
+      if (!teamTitle) return;
+
+      // Récupère les infos de la team
+      let team = {
+        Name: teamTitle,
+        Logo_Img: "ressources/Final/Main/logo.png",
+        Main_Img: "ressources/Commun/baniere_example.webp",
+        Description: "Description de l'équipe. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.",
+        Level: "Niveau 42"
+      };
+      let teamId = null;
+      try {
+        const response = await fetch("https://api.lunarcovenant.com/api/team/search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: teamTitle })
+        });
+        const result = await response.json();
+        if (result.success && result.data && result.data.length > 0) {
+          const found = result.data[0];
+          team = {
+            Name: found.Name || teamTitle,
+            Logo_Img: found.Logo_Img || team.Logo_Img,
+            Main_Img: found.Main_Img || team.Main_Img,
+            Description: found.Description || team.Description,
+            rating: found.Rating
+          };
+          teamId = found.ID; // Récupère l'ID de la team
+        }
+      } catch (e) {
+        // fallback sur les valeurs par défaut
+      }
+
+      // Affiche la bannière
+      document.getElementById('head').innerHTML = creator.CreateHero(team.Main_Img, team.Logo_Img);
+
+      // Affiche l'entête sous la bannière
+      document.getElementById('team-header').innerHTML = `
+        <h2>${team.Name}</h2>
+        <div class="team-desc">${team.Description}</div>
+        <div class="team-level">Niveau : <b>${team.rating !== undefined ? team.rating : ""}</b></div>
+      `;
+
+      // Récupère et affiche les membres réels de la team
+      let members = [];
+      if (teamId) {
+        try {
+          const usersResponse = await fetch(`https://api.lunarcovenant.com/api/team/${teamId}/users`);
+          const usersResult = await usersResponse.json();
+          if (usersResult.success && usersResult.users && usersResult.users.length > 0) {
+            members = usersResult.users.map(user => ({
+              title: user.Name || user.Pseudo || "Membre",
+              body: `<img src="${user.Img || 'https://picsum.photos/seed/user' + user.ID + '/60/60'}" style="width:60px;height:60px;border-radius:50%;margin-right:12px;vertical-align:middle;">`,
+              author: user.Pseudo || ""
+            }));
+          }
+        } catch (e) {
+          // fallback : pas de membres
+        }
+      }
+
+      // Affiche la liste des membres façon "ActivitiesList"
+      document.getElementById("members-list").innerHTML = ""; // vide avant d'ajouter
+      document.getElementById("members-list").append(
+        creator.superScrollableList({
+          items: members,
+          width: "100%",
+          height: "500px",
+          renderItem: (member, idx) =>
+            `<div class="scrollable-row" style="display:flex;align-items:center;gap:18px;padding:18px 24px;font-size:1.1em;">
+              ${member.body}
+              <div>
+                <strong>${member.title}</strong><br>
+                <span style="font-size:0.95em;color:#8a8a8a;">${member.author}</span>
+              </div>
+            </div>`
+        })
+      );
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchAndRenderTeam);
+  </script>
+</body>
+</html>

@@ -77,8 +77,30 @@
             defaultType: 'type2', // Show the URL input first by default
             switchButtonText: "Or %typeLabel%" // Custom text for the switch button (uses other type's label)
           },
+          { // --- Switchable Image Input (URL or File) ---
+            type: 'switchable',
+            label: 'background image',         // Translated label for the group
+            name: 'image',      // Base name for the group (used for IDs)
+
+            type1: { // Configuration for the URL input option
+              type: 'url',
+              label: 'URL',        // Translated label specific to this mode
+              name: 'backg_imageLink',       // Name the backend expects for URL
+              placeholder: 'https://example.com/image.png',
+              required: true                 // Image is required if URL mode is active (set false if optional)
+            },
+            type2: { // Configuration for the File input option
+              type: 'file',
+              label: 'Upload',    // Translated label specific to this mode
+              name: 'backg_image',      // Name the backend expects for File
+              required: true                 // Image is required if File mode is active (set false if optional)
+            },
+            defaultType: 'type2', // Show the URL input first by default
+            switchButtonText: "Or %typeLabel%" // Custom text for the switch button (uses other type's label)
+          },
           { type: 'textarea', label: 'Description', name: 'description', required: true }, // Assuming description is required
-          { type: 'number', label: 'language_id', name: 'language_id', required: true }, // Assuming language_id is required
+          { type: 'text', label: 'language', name: 'language_name', required: true }, // Assuming language_id is required
+          { type: 'text', label: 'location', name: 'position_name', required: false }, // Assuming language_id is required
           { type: 'date', label: 'Birth date', name: 'age', required: true },
           { type: 'checkbox', label: "I accept the ", name: 'agreement', value: 'accepted', required: true, labelLink: '/terms-and-conditions', text : "terms and conditions" } // Example link
         ],
@@ -106,7 +128,27 @@
         initializeSwitchableInputs();
 
       });
-      
+
+      async function fetchFilterOptions(filterType, id,name,placeholder) {
+          const response = await fetch(`https://api.lunarcovenant.com/api/filter/${id}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ "filterType": filterType })
+          });
+          const data = await response.json();
+          if (!data.elements || !Array.isArray(data.elements)) return [[], []];
+
+          const names = ["--Clear--"];
+          names.push(...data.elements.map(e => e.Name));
+          const ids = data.elements.map(e => e.ID);
+          console.log(names, ids);
+          var out = creator.CreateFilterTextbox(names,placeholder,name);
+          console.log(out);
+          document.getElementById(name).replaceWith(...out.children);
+          return [names, ids];
+        }   
+        fetchFilterOptions('LanguageFilter',1,"language_name","Position");
+        fetchFilterOptions('PositionFilter',1,"position_name","Language");
     </script>
 
   </div>
