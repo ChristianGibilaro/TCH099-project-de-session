@@ -6,6 +6,7 @@
     android:padding="16dp">
 
     <!-- Header Section -->
+
     <LinearLayout
         android:id="@+id/headerSection"
         android:layout_width="match_parent"
