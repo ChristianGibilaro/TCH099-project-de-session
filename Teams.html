@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Liste des équipes</title>
+  <link rel="icon" href="ressources/Final/Main/logo.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="Scripts/animationScript.js" defer></script>
+  <script src="Scripts/ElementCreator.js"></script>
+  <script src="Scripts/globalVars.js"></script>
+  <script src="Scripts/mainScript.js"></script>
+
+  <link rel="stylesheet" href="Styles/normalize.css">
+  <link rel="stylesheet" href="Styles/Demonstrateur.css">
+</head>
+
+<body>
+  <header onclick="toggleMenu()">
+    <script>
+      var creator = new ElementCreator(document.title);
+      document.write(creator.PrefabMenu);
+    </script>
+  </header>
+  <div id="dimmer" onclick="toggleMenu()"></div>
+
+  <div id="contenu" style="height: 100%;">
+    <div id="head">
+      <script>
+        document.write(creator.CreateHero("ressources/Final/Main/moonDarkSign.png", "ressources/Commun/logo_example.png"));
+      </script>
+      <div style="text-align:center;font-size:1.5em;margin:24px 0 12px 0;color:var(--accent2);">
+        Liste des équipes
+      </div>
+    </div>
+    <div id="teams-list" style="max-width:900px;margin:0 auto;"></div>
+  </div>
+
+  <script>
+    async function fetchTeams() {
+      const response = await fetch("http://localhost:9999/api/team/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const result = await response.json();
+      let teams = Array.isArray(result.data) ? result.data : [];
+
+      // Trie les équipes par ID décroissant
+      teams = teams.sort((a, b) => (b.ID || 0) - (a.ID || 0));
+
+      // Pour chaque équipe, va chercher le Title de l'activité associée
+      await Promise.all(teams.map(async (team) => {
+        if (team.ActivityID) {
+          try {
+            const actRes = await fetch(`http://localhost:9999/api/activity/id/${team.ActivityID}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" }
+            });
+            const actData = await actRes.json();
+            team.ActivityTitle = actData.data?.title || "";
+          } catch (e) {
+            team.ActivityTitle = "";
+          }
+        } else {
+          team.ActivityTitle = "";
+        }
+      }));
+
+      const teamList = creator.superScrollableList({
+        mode: "post",
+        items: teams,
+        width: "100%",
+        height: "100%",
+        renderItem: (team, idx) => {
+          const teamId = team.ID || team.Id || team.id || "";
+          const teamName = team.Name || "Équipe";
+          const activityTitle = team.ActivityTitle || "";
+          return `
+            <div class="activity-card"
+                 style="background:var(--bg-dark2);border-radius:14px;box-shadow:var(--shadow);margin-bottom:20px;overflow:hidden;cursor:pointer;transition:box-shadow 0.15s;"
+                 onclick="window.location.href='TeamsInfo.html?title=${encodeURIComponent(teamName)}'">
+              <div style="display:flex;align-items:center;gap:18px;padding:18px 24px;">
+                <div style="flex:0 0 60px;font-size:1.3em;color:var(--accent2);font-weight:bold;">
+                  #${teamId}
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:1.2em;font-weight:bold;color:var(--accent2);">${teamName}</div>
+                  <div style="font-size:1em;color:#bfc9d1;margin-top:4px;">${team.Description || ""}</div>
+                  <div style="font-size:0.95em;color:#8a8a8a;margin-top:10px;text-align:right;">
+                    ${activityTitle ? "Jeu : <b>" + activityTitle + "</b>" : ""}
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      });
+
+      const target = document.getElementById("teams-list");
+      target.innerHTML = "";
+      target.append(teamList);
+    }
+
+    document.addEventListener("DOMContentLoaded", fetchTeams);
+  </script>
+</body>
+</html>
