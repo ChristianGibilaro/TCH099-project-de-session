@@ -1063,26 +1063,24 @@ class ActivityController
             }
 
             // Combine all parameters needed for the main query
-            // Start with filter params (e.g., :query if it exists) - $params already holds this
             $queryParams = $params; // $params contains {:query => value} if needed
-
-            // Add limit and offset to the parameters array, binding as integers
             $queryParams[':limit'] = $limit;
             $queryParams[':offset'] = $offset;
 
-            // Bind parameters explicitly for type safety (especially LIMIT/OFFSET)
-            // This part remains unchanged and works with the named parameters in $queryParams
-            foreach ($queryParams as $key => &$val) {
+            // Bind parameters using bindValue for safety
+            foreach ($queryParams as $key => $val) { // Use $val directly, no reference needed
                  if ($key === ':limit' || $key === ':offset') {
-                     $stmt->bindParam($key, $val, PDO::PARAM_INT);
+                     // Bind limit/offset as integers
+                     $stmt->bindValue($key, $val, PDO::PARAM_INT);
                  } else {
-                     $stmt->bindParam($key, $val); // Bind :query if present
+                     // Bind other parameters (like :query) as strings (default)
+                     $stmt->bindValue($key, $val); // Use bindValue here too
                  }
             }
-            unset($val); // Unset reference
+            // No need to unset $val reference as it wasn't used
 
-            // Execute the main search statement
-            $stmt->execute(); // This execute uses the bound parameters (:query, :limit, :offset)
+            // Execute the main search statement using the bound values
+            $stmt->execute();
             $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Prepend base URL to image paths if they are relative paths and exist
