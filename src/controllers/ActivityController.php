@@ -1032,6 +1032,13 @@ class ActivityController
 
             // --- Execute Count Query ---
             $stmtTotal = $pdo->prepare($sqlTotal);
+
+            // --- DEBUGGING START ---
+            echo "--- DEBUG COUNT QUERY ---<br>";
+            echo "SQL Total: " . htmlspecialchars($sqlTotal) . "<br>";
+            echo "Params for Total: <pre>" . htmlspecialchars(print_r($params, true)) . "</pre><br>";
+            // --- DEBUGGING END ---
+
             // Execute count query with only the filter params (not limit/offset)
             $stmtTotal->execute($params); // Pass filter params directly (e.g., :query if present)
             $totalRecords = $stmtTotal->fetchColumn();
@@ -1045,15 +1052,25 @@ class ActivityController
             $queryParams = $params;
 
             // Add limit and offset to the parameters array
-            // PDO requires integer values for LIMIT/OFFSET, ensure they are integers
-            // Use named placeholders matching the SQL query
             $queryParams[':limit'] = (int)$limit;
             $queryParams[':offset'] = (int)$offset;
 
+            // --- DEBUGGING START ---
+            echo "--- DEBUG SEARCH QUERY ---<br>";
+            echo "SQL Search: " . htmlspecialchars($sql) . "<br>";
+            echo "Params for Search: <pre>" . htmlspecialchars(print_r($queryParams, true)) . "</pre><br>";
+            // --- DEBUGGING END ---
+
             // Execute the statement with the combined parameter array
-            // This array should contain keys for :query (if used), :limit, and :offset
             $stmt->execute($queryParams);
             $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // --- Mark output as sent (since we are debugging) ---
+            self::$outputSent = true;
+            // --- End Mark output ---
+
+            // Remove or comment out the die() below after checking the output
+            // die("Debugging output finished."); // Temporarily stop execution after dumping
 
             foreach ($activities as &$activity) { // Corrected loop syntax
                 // Assuming Main_Img and Logo_Img are in the result set
