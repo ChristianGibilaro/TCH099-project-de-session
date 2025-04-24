@@ -1000,80 +1000,89 @@ class ActivityController
             $offset = ($page - 1) * $limit;
 
             // --- Build Query ---
-            $params = [];
-            $joins = []; // Keep joins array in case future filters need it
+            $params = []; // Parameters for the main query (named)
+            $countParams = []; // Parameters for the count query (positional)
+            $joins = [];
             $whereClauses = [];
 
             // Define fields to select for Activity
-            // Pass the array or '*' directly to buildSelectClause
             $activitySelectClause = self::buildSelectClause($activityFields, 'a');
 
             // Base query
             $sqlBase = "FROM Activity a";
 
             // Query term filter (searching Title and Description)
+            $sqlWhere = ''; // Initialize where clause string
             if (!empty($queryTerm)) {
-                // Add OR condition for searching in multiple fields
+                // Use named placeholders for the main query's WHERE clause
                 $whereClauses[] = "(a.Title LIKE :query OR a.Description LIKE :query)";
                 $params[':query'] = '%' . $queryTerm . '%';
+
+                // Use positional placeholders for the count query's WHERE clause
+                $sqlWhere = " WHERE (a.Title LIKE ? OR a.Description LIKE ?)";
+                $countParams = ['%' . $queryTerm . '%', '%' . $queryTerm . '%']; // Add value twice for the two '?'
+            } else {
+                 // If no query term, whereClauses and countParams remain empty, sqlWhere remains empty string
             }
 
+
             // --- Construct Final SQL ---
-            $sqlSelect = "SELECT DISTINCT {$activitySelectClause} "; // Use DISTINCT if joins are ever added back
-            $sqlCount = "SELECT COUNT(DISTINCT a.ID) "; // Count distinct activities
+            $sqlSelect = "SELECT DISTINCT {$activitySelectClause} ";
+            $sqlCount = "SELECT COUNT(DISTINCT a.ID) ";
 
             $sqlJoins = !empty($joins) ? ' ' . implode(' ', $joins) : '';
-            $sqlWhere = !empty($whereClauses) ? ' WHERE ' . implode(' AND ', $whereClauses) : ''; // Use AND if other filters are added
-            $sqlOrder = " ORDER BY a.ID DESC"; // Example ordering
+            // Use $whereClauses for the main query's WHERE condition
+            $sqlWhereMain = !empty($whereClauses) ? ' WHERE ' . implode(' AND ', $whereClauses) : '';
+            $sqlOrder = " ORDER BY a.ID DESC";
             $sqlLimit = " LIMIT :limit OFFSET :offset";
 
-            $sql = $sqlSelect . $sqlBase . $sqlJoins . $sqlWhere . $sqlOrder . $sqlLimit;
-            $sqlTotal = $sqlCount . $sqlBase . $sqlJoins . $sqlWhere;
+            // Main query uses named placeholders in WHERE
+            $sql = $sqlSelect . $sqlBase . $sqlJoins . $sqlWhereMain . $sqlOrder . $sqlLimit;
+            // Count query uses positional placeholders in WHERE (constructed in $sqlWhere)
+            $sqlTotal = $sqlCount . $sqlBase . $sqlJoins . $sqlWhere; // Use the $sqlWhere built with '?'
 
             // --- Execute Count Query ---
             $stmtTotal = $pdo->prepare($sqlTotal);
             if ($stmtTotal === false) {
                 $errorInfo = $pdo->errorInfo();
-                throw new Exception("PDO prepare() failed for count query. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
+                // Add SQL to the exception message for easier debugging if prepare fails
+                throw new Exception("PDO prepare() failed for count query. SQL: {$sqlTotal}. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
             }
 
-            // Execute count query - Explicitly handle empty params case
-            if (empty($params)) {
-                $stmtTotal->execute(); // Execute without arguments if $params is empty
-            } else {
-                $stmtTotal->execute($params); // Execute with the parameters array otherwise
-            }
+            // Execute count query using the positional parameters array ($countParams)
+            $stmtTotal->execute($countParams); // Pass the array with positional values
 
             $totalRecords = $stmtTotal->fetchColumn();
-            $totalPages = ceil($totalRecords / $limit);
 
             // --- Execute Search Query ---
-            $stmt = $pdo->prepare($sql);
+            $stmt = $pdo->prepare($sql); // Prepare the main query (uses named :query if present)
              if ($stmt === false) {
                 $errorInfo = $pdo->errorInfo();
-                throw new Exception("PDO prepare() failed for search query. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
+                 // Add SQL to the exception message
+                throw new Exception("PDO prepare() failed for search query. SQL: {$sql}. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
             }
 
             // Combine all parameters needed for the main query
-            // Start with filter params (e.g., :query if it exists)
-            $queryParams = $params;
+            // Start with filter params (e.g., :query if it exists) - $params already holds this
+            $queryParams = $params; // $params contains {:query => value} if needed
 
             // Add limit and offset to the parameters array, binding as integers
             $queryParams[':limit'] = $limit;
             $queryParams[':offset'] = $offset;
 
             // Bind parameters explicitly for type safety (especially LIMIT/OFFSET)
+            // This part remains unchanged and works with the named parameters in $queryParams
             foreach ($queryParams as $key => &$val) {
                  if ($key === ':limit' || $key === ':offset') {
                      $stmt->bindParam($key, $val, PDO::PARAM_INT);
                  } else {
-                     $stmt->bindParam($key, $val); // Default is PDO::PARAM_STR
+                     $stmt->bindParam($key, $val); // Bind :query if present
                  }
             }
             unset($val); // Unset reference
 
-            // Execute the statement
-            $stmt->execute();
+            // Execute the main search statement
+            $stmt->execute(); // This execute uses the bound parameters (:query, :limit, :offset)
             $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Prepend base URL to image paths if they are relative paths and exist
@@ -1089,6 +1098,7 @@ class ActivityController
             unset($activity); // Break the reference after the loop
 
             // --- Assemble Result ---
+            $totalPages = ceil($totalRecords / $limit);
             $response = [
                 'success' => true,
                 'data' => $activities,
@@ -1120,21 +1130,23 @@ class ActivityController
             // Add specific details for HY093 error
             if ($e->getCode() === 'HY093') {
                 // Check which statement failed based on line number (approximate)
-                if ($e->getLine() >= 1038 && $e->getLine() <= 1046) { // Around $stmtTotal->execute()
-                    $errorDetails['context'] = 'Executing count query ($stmtTotal)';
+                // Adjust line numbers if the code structure changed significantly
+                if ($e->getLine() >= 1045 && $e->getLine() <= 1055) { // Approximate line for $stmtTotal->execute($countParams)
+                    $errorDetails['context'] = 'Executing count query ($stmtTotal with positional params)';
                     $errorDetails['sql_executed'] = $sqlTotal ?? 'SQL not available';
-                    $errorDetails['params_provided'] = $params ?? 'Params not available';
-                } elseif ($e->getLine() >= 1067 && $e->getLine() <= 1075) { // Around $stmt->execute()
-                    $errorDetails['context'] = 'Executing search query ($stmt)';
+                    // Report the positional params array used
+                    $errorDetails['params_provided'] = $countParams ?? 'Params not available';
+                } elseif ($e->getLine() >= 1076 && $e->getLine() <= 1086) { // Approximate line for $stmt->execute()
+                    $errorDetails['context'] = 'Executing search query ($stmt with named params)';
                     $errorDetails['sql_executed'] = $sql ?? 'SQL not available';
+                    // Report the named params array used for the main query
                     $errorDetails['params_provided'] = $queryParams ?? 'Params not available';
                 } else {
-                    $errorDetails['context'] = 'Unknown execution context';
-                    // Try to provide both if context is unclear
+                    // ... existing fallback context ...
                     $errorDetails['sql_total'] = $sqlTotal ?? 'SQL Total not available';
-                    $errorDetails['params_total'] = $params ?? 'Params Total not available';
+                    $errorDetails['params_total'] = $countParams ?? 'Params Total not available'; // Use countParams here
                     $errorDetails['sql_search'] = $sql ?? 'SQL Search not available';
-                    $errorDetails['params_search'] = $queryParams ?? 'Params Search not available';
+                    $errorDetails['params_search'] = $queryParams ?? 'Params Search not available'; // Use queryParams here
                 }
             }
 
