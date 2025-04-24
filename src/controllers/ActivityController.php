@@ -984,11 +984,11 @@ class ActivityController
             // Extract search query term
             $queryTerm = $inputBody['query'] ?? null;
 
-            // Extract field selection (expecting an array directly)
+            // Extract field selection (expecting an array directly or '*')
             $activityFields = $inputBody['fields'] ?? '*';
+            // Validate that fields is an array or '*'
             if (!is_array($activityFields) && $activityFields !== '*') {
-                 // If 'fields' is provided but not an array or '*', treat as invalid/default to '*'
-                 $activityFields = '*';
+                 throw new Exception("Le paramètre 'fields' doit être un tableau de noms de champs ou '*'.", 400);
             }
 
             // Extract pagination from the 'pagination' object
@@ -1005,7 +1005,7 @@ class ActivityController
             $whereClauses = [];
 
             // Define fields to select for Activity
-            // Pass the array directly to buildSelectClause
+            // Pass the array or '*' directly to buildSelectClause
             $activitySelectClause = self::buildSelectClause($activityFields, 'a');
 
             // Base query
@@ -1032,20 +1032,10 @@ class ActivityController
 
             // --- Execute Count Query ---
             $stmtTotal = $pdo->prepare($sqlTotal);
-
-            // --- ADDED CHECK ---
             if ($stmtTotal === false) {
                 $errorInfo = $pdo->errorInfo();
                 throw new Exception("PDO prepare() failed for count query. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
             }
-            // --- END ADDED CHECK ---
-
-            // --- DEBUGGING START ---
-            echo "--- DEBUG COUNT QUERY ---<br>";
-            echo "SQL Total: " . htmlspecialchars($sqlTotal) . "<br>";
-            echo "Params for Total: <pre>" . htmlspecialchars(print_r($params, true)) . "</pre><br>";
-            // --- DEBUGGING END ---
-
             // Execute count query with only the filter params (not limit/offset)
             $stmtTotal->execute($params); // Pass filter params directly (e.g., :query if present)
             $totalRecords = $stmtTotal->fetchColumn();
@@ -1053,39 +1043,41 @@ class ActivityController
 
             // --- Execute Search Query ---
             $stmt = $pdo->prepare($sql);
+             if ($stmt === false) {
+                $errorInfo = $pdo->errorInfo();
+                throw new Exception("PDO prepare() failed for search query. SQLSTATE[{$errorInfo[0]}]: {$errorInfo[2]}");
+            }
 
             // Combine all parameters needed for the main query
             // Start with filter params (e.g., :query if it exists)
             $queryParams = $params;
 
-            // Add limit and offset to the parameters array
-            $queryParams[':limit'] = (int)$limit;
-            $queryParams[':offset'] = (int)$offset;
+            // Add limit and offset to the parameters array, binding as integers
+            $queryParams[':limit'] = $limit;
+            $queryParams[':offset'] = $offset;
 
-            // --- DEBUGGING START ---
-            echo "--- DEBUG SEARCH QUERY ---<br>";
-            echo "SQL Search: " . htmlspecialchars($sql) . "<br>";
-            echo "Params for Search: <pre>" . htmlspecialchars(print_r($queryParams, true)) . "</pre><br>";
-            // --- DEBUGGING END ---
+            // Bind parameters explicitly for type safety (especially LIMIT/OFFSET)
+            foreach ($queryParams as $key => &$val) {
+                 if ($key === ':limit' || $key === ':offset') {
+                     $stmt->bindParam($key, $val, PDO::PARAM_INT);
+                 } else {
+                     $stmt->bindParam($key, $val); // Default is PDO::PARAM_STR
+                 }
+            }
+            unset($val); // Unset reference
 
-            // Execute the statement with the combined parameter array
-            $stmt->execute($queryParams);
+            // Execute the statement
+            $stmt->execute();
             $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // --- Mark output as sent (since we are debugging) ---
-            self::$outputSent = true;
-            // --- End Mark output ---
-
-            // Remove or comment out the die() below after checking the output
-            // die("Debugging output finished."); // Temporarily stop execution after dumping
-
-            foreach ($activities as &$activity) { // Corrected loop syntax
-                // Assuming Main_Img and Logo_Img are in the result set
-                if (isset($activity['Main_Img']) && !empty($activity['Main_Img']) && !filter_var($activity['Main_Img'], FILTER_VALIDATE_URL)) { // Check if the key exists, not empty, and not already a URL
-                    $activity['Main_Img'] = "http://localhost:9999/" . $activity['Main_Img'];
+            // Prepend base URL to image paths if they are relative paths and exist
+            $baseUrl = "http://localhost:9999/"; // Consider making this configurable
+            foreach ($activities as &$activity) {
+                if (isset($activity['Main_Img']) && !empty($activity['Main_Img']) && !filter_var($activity['Main_Img'], FILTER_VALIDATE_URL)) {
+                    $activity['Main_Img'] = $baseUrl . ltrim($activity['Main_Img'], '/');
                 }
-                if (isset($activity['Logo_Img']) && !empty($activity['Logo_Img']) && !filter_var($activity['Logo_Img'], FILTER_VALIDATE_URL)) { // Check if the key exists, not empty, and not already a URL
-                    $activity['Logo_Img'] = "http://localhost:9999/" . $activity['Logo_Img'];
+                if (isset($activity['Logo_Img']) && !empty($activity['Logo_Img']) && !filter_var($activity['Logo_Img'], FILTER_VALIDATE_URL)) {
+                    $activity['Logo_Img'] = $baseUrl . ltrim($activity['Logo_Img'], '/');
                 }
             }
             unset($activity); // Break the reference after the loop
@@ -1111,7 +1103,14 @@ class ActivityController
             $response = [
                 'success' => false,
                 'message' => 'Erreur Base de Données: ' . ($e->errorInfo[2] ?? $e->getMessage()),
-                'error_details' => [ /* ... details ... */ ] // Add details like in getActivite
+                'error_details' => [ // Added details
+                    'type' => 'PDOException',
+                    'code' => $e->getCode(),
+                    'sqlstate' => $e->errorInfo[0] ?? null,
+                    'driver_code' => $e->errorInfo[1] ?? null,
+                    'file' => basename($e->getFile()),
+                    'line' => $e->getLine()
+                ]
             ];
         } catch (Exception $e) {
             // Handle other Exceptions
@@ -1120,7 +1119,12 @@ class ActivityController
             $response = [
                 'success' => false,
                 'message' => 'Erreur Serveur: ' . $e->getMessage(),
-                'error_details' => [ /* ... details ... */ ] // Add details like in getActivite
+                'error_details' => [ // Added details
+                    'type' => get_class($e),
+                    'code' => $e->getCode(),
+                    'file' => basename($e->getFile()),
+                    'line' => $e->getLine()
+                ]
             ];
         }
 
@@ -1131,8 +1135,12 @@ class ActivityController
              if ($jsonOutput === false) {
                   http_response_code(500);
                   $jsonError = json_last_error_msg();
+                  // Ensure content type is set even for JSON encoding errors
+                  header('Content-Type: application/json; charset=utf-8');
                   echo '{"success":false,"message":"Server error: Failed to encode JSON response.","json_error_details":"' . addslashes($jsonError) . '"}';
              } else {
+                  // Ensure content type is set before output
+                  header('Content-Type: application/json; charset=utf-8');
                   echo $jsonOutput;
              }
              self::$outputSent = true;
