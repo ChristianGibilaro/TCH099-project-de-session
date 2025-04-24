@@ -300,9 +300,10 @@ get('/api/inconnu/${userID}', function($userID){
     ChatController::getMessageSelonChatID($chatID);
  });
  
- get('/api/singleChatOnly/${chatID}', function($chatID){
-    ChatController::getChatOnly($chatID);
- });
+ get('/api/singleMessageSelonChatIDOnly/{chatID}', function($chatID) {
+    ChatController::getMessageSelonChatID($chatID);
+});
+
 
  get('/api/singleChateSelonMessageIDOnly/${msgID}', function($msgID){
     ChatController::getChatSelonMessageID($msgID);
@@ -312,9 +313,10 @@ get('/api/inconnu/${userID}', function($userID){
     ChatController::creerChat();
  });
 
- post('/api/envoyerMessage', function(){
-    ChatController::createMessage();
- });
+ post('/api/envoyerMessage', function() {
+    ChatController::envoyerMessage();
+});
+
  // Liste des chats d’un utilisateur (avec nom et image du créateur)
 post('/api/user/chats', function() {
     ChatController::getChatsForUser();

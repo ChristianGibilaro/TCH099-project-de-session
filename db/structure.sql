@@ -382,12 +382,11 @@ CREATE TABLE `ChatCreator` (
   `UserID` INT(32) NOT NULL,
   `TeamID` INT(64),
   `ChatID` INT(32) NOT NULL,
+  `isCreator` TINYINT(1) NOT NULL DEFAULT 0,
   FOREIGN KEY (`UserID`) REFERENCES `User` (`ID`),
   FOREIGN KEY (`TeamID`) REFERENCES `Team` (`ID`),
   FOREIGN KEY (`ChatID`) REFERENCES `Chat` (`ID`)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4 
-  COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `Message` (
   `ID` INT(64) UNIQUE NOT NULL AUTO_INCREMENT,
